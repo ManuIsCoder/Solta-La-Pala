@@ -116,3 +116,14 @@ InitTestScene*.unity*
 *~
 .Trash-*
 .nfs*
+
+# Nested Unity demo
+NpcDetectionDemo/[Ll]ibrary/
+NpcDetectionDemo/[Tt]emp/
+NpcDetectionDemo/[Oo]bj/
+NpcDetectionDemo/[Bb]uild/
+NpcDetectionDemo/[Bb]uilds/
+NpcDetectionDemo/[Ll]ogs/
+NpcDetectionDemo/[Uu]ser[Ss]ettings/
+NpcDetectionDemo/[Mm]emoryCaptures/
+NpcDetectionDemo/[Rr]ecordings/
