@@ -1,11 +1,9 @@
 using System.Collections;
 using UnityEngine;
 
-// Logica de patrulla y deteccion basada en Guard.cs (HenrySpartGlobal/Unity_Stealth_Game)
+// Patrulla y deteccion basada en Guard.cs (HenrySpartGlobal/Unity_Stealth_Game)
 public class Npc : MonoBehaviour
 {
-    public static event System.Action OnNpcDetectoJugador;
-
     public string nombre;
     public int reputacionDelJugador;
     public CampoDeVision vision = new CampoDeVision();
@@ -26,25 +24,10 @@ public class Npc : MonoBehaviour
 
     void Start()
     {
-        CharacterController cc = GetComponent<CharacterController>();
-        if (cc != null)
-            cc.enabled = false;
+        jugador = GameObject.FindGameObjectWithTag("Player").transform;
 
-        GameObject jugadorGo = GameObject.FindGameObjectWithTag("Player");
-        if (jugadorGo != null)
-            jugador = jugadorGo.transform;
-
-        if (luzCono != null)
-        {
-            vision.angulo = luzCono.spotAngle;
-            colorLuzOriginal = luzCono.color;
-        }
-
-        if (rutaPatrulla == null || rutaPatrulla.childCount < 2)
-        {
-            Debug.LogError("Npc: rutaPatrulla necesita al menos 2 puntos.");
-            return;
-        }
+        vision.angulo = luzCono.spotAngle;
+        colorLuzOriginal = luzCono.color;
 
         Vector3[] puntos = new Vector3[rutaPatrulla.childCount];
         for (int i = 0; i < puntos.Length; i++)
@@ -57,9 +40,6 @@ public class Npc : MonoBehaviour
 
     void Update()
     {
-        if (jugador == null)
-            return;
-
         EstaViendoJugador = Detectar();
         Reaccionar(EstaViendoJugador);
     }
@@ -77,15 +57,7 @@ public class Npc : MonoBehaviour
             temporizadorVision -= Time.deltaTime;
 
         temporizadorVision = Mathf.Clamp(temporizadorVision, 0f, tiempoParaDetectar);
-
-        if (luzCono != null)
-            luzCono.color = Color.Lerp(colorLuzOriginal, Color.red, temporizadorVision / tiempoParaDetectar);
-
-        if (temporizadorVision >= tiempoParaDetectar)
-        {
-            if (OnNpcDetectoJugador != null)
-                OnNpcDetectoJugador();
-        }
+        luzCono.color = Color.Lerp(colorLuzOriginal, Color.red, temporizadorVision / tiempoParaDetectar);
     }
 
     IEnumerator SeguirRuta(Vector3[] puntos)
@@ -99,6 +71,8 @@ public class Npc : MonoBehaviour
         while (true)
         {
             transform.position = Vector3.MoveTowards(transform.position, destino, velocidad * Time.deltaTime);
+
+            // Llego al punto de la ruta → espero, giro y voy al siguiente
             if (Vector3.Distance(transform.position, destino) < 0.05f)
             {
                 transform.position = destino;
@@ -126,22 +100,18 @@ public class Npc : MonoBehaviour
 
     void OnDrawGizmos()
     {
-        if (rutaPatrulla != null && rutaPatrulla.childCount > 0)
-        {
-            Vector3 inicio = rutaPatrulla.GetChild(0).position;
-            Vector3 anterior = inicio;
+        if (rutaPatrulla == null)
+            return;
 
-            foreach (Transform punto in rutaPatrulla)
-            {
-                Gizmos.DrawSphere(punto.position, 0.3f);
-                Gizmos.DrawLine(anterior, punto.position);
-                anterior = punto.position;
-            }
-            Gizmos.DrawLine(anterior, inicio);
+        Vector3 anterior = rutaPatrulla.GetChild(0).position;
+        foreach (Transform punto in rutaPatrulla)
+        {
+            Gizmos.DrawSphere(punto.position, 0.3f);
+            Gizmos.DrawLine(anterior, punto.position);
+            anterior = punto.position;
         }
 
         Gizmos.color = Color.red;
-        float radio = vision != null ? vision.radio : 12f;
-        Gizmos.DrawRay(transform.position, transform.forward * radio);
+        Gizmos.DrawRay(transform.position, transform.forward * vision.radio);
     }
 }
