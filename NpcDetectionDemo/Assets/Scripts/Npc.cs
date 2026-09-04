@@ -40,18 +40,9 @@ public class Npc : MonoBehaviour
 
     void Update()
     {
-        EstaViendoJugador = Detectar();
-        Reaccionar(EstaViendoJugador);
-    }
+        EstaViendoJugador = vision.PuedeVer(transform, jugador);
 
-    public bool Detectar()
-    {
-        return vision.PuedeVer(transform, jugador);
-    }
-
-    public void Reaccionar(bool visto)
-    {
-        if (visto)
+        if (EstaViendoJugador)
             temporizadorVision += Time.deltaTime;
         else
             temporizadorVision -= Time.deltaTime;
