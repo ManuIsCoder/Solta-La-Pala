@@ -10,9 +10,6 @@ public class CampoDeVision
     // Misma logica que Guard.CanSeePlayer (Unity_Stealth_Game)
     public bool PuedeVer(Transform origen, Transform objetivo)
     {
-        if (objetivo == null)
-            return false;
-
         if (Vector3.Distance(origen.position, objetivo.position) < radio)
         {
             Vector3 direccion = (objetivo.position - origen.position).normalized;

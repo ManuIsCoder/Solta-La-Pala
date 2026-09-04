@@ -11,13 +11,11 @@ public class Npc : MonoBehaviour
     public float velocidad = 5f;
     public float tiempoEspera = 0.3f;
     public float velocidadGiro = 90f;
-    public float tiempoParaDetectar = 0.5f;
 
     public Light luzCono;
     public Transform rutaPatrulla;
 
     Transform jugador;
-    float temporizadorVision;
     Color colorLuzOriginal;
 
     public bool EstaViendoJugador { get; private set; }
@@ -43,12 +41,9 @@ public class Npc : MonoBehaviour
         EstaViendoJugador = vision.PuedeVer(transform, jugador);
 
         if (EstaViendoJugador)
-            temporizadorVision += Time.deltaTime;
+            luzCono.color = Color.red;
         else
-            temporizadorVision -= Time.deltaTime;
-
-        temporizadorVision = Mathf.Clamp(temporizadorVision, 0f, tiempoParaDetectar);
-        luzCono.color = Color.Lerp(colorLuzOriginal, Color.red, temporizadorVision / tiempoParaDetectar);
+            luzCono.color = colorLuzOriginal;
     }
 
     IEnumerator SeguirRuta(Vector3[] puntos)

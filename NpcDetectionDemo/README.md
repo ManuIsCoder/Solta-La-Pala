@@ -1,6 +1,5 @@
-﻿# NpcDetectionDemo
+# stealth-npc-detection
 
-Demo Unity: NPC + CampoDeVision (deteccion y patrulla).
+Proyecto Unity: `NpcDetectionDemo`.
 
-Scripts: Npc.cs, CampoDeVision.cs, Zona.cs.
-Abrir Assets/demo.unity en Unity Hub.
+Scripts: `Npc.cs`, `CampoDeVision.cs` (basado en Guard.cs de Unity_Stealth_Game).
