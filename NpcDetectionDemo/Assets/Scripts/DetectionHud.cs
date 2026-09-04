@@ -4,18 +4,18 @@ public class DetectionHud : MonoBehaviour
 {
     void OnGUI()
     {
-        Guard[] guards = FindObjectsByType<Guard>(FindObjectsSortMode.None);
-        bool seen = false;
-        for (int i = 0; i < guards.Length; i++)
+        Npc[] npcs = FindObjectsByType<Npc>(FindObjectsSortMode.None);
+        bool visto = false;
+        for (int i = 0; i < npcs.Length; i++)
         {
-            if (guards[i].IsSeeingPlayer)
+            if (npcs[i].EstaViendoJugador)
             {
-                seen = true;
+                visto = true;
                 break;
             }
         }
 
-        GUI.color = seen ? Color.red : Color.white;
-        GUI.Label(new Rect(20f, 20f, 300f, 40f), seen ? "DETECTADO" : "Oculto");
+        GUI.color = visto ? Color.red : Color.white;
+        GUI.Label(new Rect(20f, 20f, 300f, 40f), visto ? "DETECTADO" : "Oculto");
     }
 }

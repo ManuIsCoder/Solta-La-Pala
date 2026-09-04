@@ -1,13 +1,16 @@
-// HenrySpartGlobal/Unity_Stealth_Game — Stealth_Game/Assets/Scripts/Guard.cs
+// HenrySpartGlobal/Unity_Stealth_Game — Guard.CanSeePlayer
+// En la demo: CampoDeVision.PuedeVer
 
-bool CanSeePlayer(){
-    if (Vector3.Distance(transform.position, player.position) < viewDistance) {
-        Vector3 dirToPlayer = (player.position - transform.position).normalized;
-        float angleBetweenGuardAndPlayer = Vector3.Angle(transform.forward, dirToPlayer);
-        if (angleBetweenGuardAndPlayer < viewAngle / 2f) {
-            if (!Physics.Linecast(transform.position, player.position, viewMask)) {
+bool PuedeVer(Transform origen, Transform objetivo)
+{
+    if (Vector3.Distance(origen.position, objetivo.position) < radio)
+    {
+        Vector3 direccion = (objetivo.position - origen.position).normalized;
+        float anguloEntre = Vector3.Angle(origen.forward, direccion);
+        if (anguloEntre < angulo / 2f)
+        {
+            if (!Physics.Linecast(origen.position, objetivo.position, mascaraObstaculos))
                 return true;
-            }
         }
     }
     return false;
