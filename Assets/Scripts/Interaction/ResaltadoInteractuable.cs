@@ -2,31 +2,53 @@ using UnityEngine;
 
 namespace SoltaLaPala.Interaction
 {
-    // Pinta un borde blanco en el contorno del objeto cuando el jugador lo esta mirando.
-    // Se hace duplicando el material con un shader de outline (o activando su keyword).
+    // Pinta un contorno o resaltado blanco cuando el jugador lo esta mirando.
     public class ResaltadoInteractuable : MonoBehaviour
     {
         [Header("Borde")]
         public Color colorBorde = Color.white;
-        public float grosorBorde = 2f;
+        public float intensidad = 1.2f;
         [Tooltip("Si se deja vacio se cogen todos los Renderer hijos al arrancar.")]
         public Renderer[] renderers;
 
-        private bool resaltado;
+        private MaterialPropertyBlock propBlock;
+        private static readonly int EmissionColorProp = Shader.PropertyToID("_EmissionColor");
+        private static readonly int BaseColorProp = Shader.PropertyToID("_BaseColor");
 
-        // Recoge los renderers y prepara los materiales de outline (instanciandolos para no tocar el asset).
         private void Awake()
         {
+            if (renderers == null || renderers.Length == 0)
+            {
+                renderers = GetComponentsInChildren<Renderer>();
+            }
+            propBlock = new MaterialPropertyBlock();
         }
 
-        // Enciende o apaga el borde blanco.
+        // Enciende o apaga el borde blanco / resaltado.
         public void Resaltar(bool activo)
         {
-        }
+            if (renderers == null) return;
 
-        // Aplica color y grosor del borde a los materiales de outline.
-        private void AplicarAjustesBorde()
-        {
+            foreach (var rend in renderers)
+            {
+                if (rend == null) continue;
+
+                rend.GetPropertyBlock(propBlock);
+                if (activo)
+                {
+                    propBlock.SetColor(EmissionColorProp, colorBorde * intensidad);
+                    // Habilitar keyword de emisión en URP para que brille
+                    foreach (var mat in rend.materials)
+                    {
+                        mat.EnableKeyword("_EMISSION");
+                    }
+                }
+                else
+                {
+                    propBlock.SetColor(EmissionColorProp, Color.black);
+                }
+                rend.SetPropertyBlock(propBlock);
+            }
         }
     }
 }

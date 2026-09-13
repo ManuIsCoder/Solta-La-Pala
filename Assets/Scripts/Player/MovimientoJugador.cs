@@ -28,8 +28,6 @@ namespace SoltaLaPala.Player
         // Cachea el CharacterController y busca la camara si no fue asignada en el inspector.
         private void Awake()
         {
-            // GetComponent es caro para llamarlo cada frame, por eso se guarda una sola vez.
-            // El [RequireComponent] de arriba garantiza que existe.
             controlador = GetComponent<CharacterController>();
 
             if (camaraJugador == null)
@@ -52,20 +50,32 @@ namespace SoltaLaPala.Player
                 ? Vector2.zero
                 : new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
 
+            // Zona muerta para evitar que ruido o descalibracion hagan temblar / oscilar al jugador
+            if (input.sqrMagnitude < 0.05f)
+            {
+                input = Vector2.zero;
+            }
+
             Vector3 direccion = ObtenerDireccionRelativaCamara(input);
 
-            if (direccion != Vector3.zero)
+            // Solo girar si realmente hay intencion de moverse
+            if (input != Vector2.zero && direccion.sqrMagnitude > 0.01f)
             {
                 GirarHacia(direccion);
+            }
+            else
+            {
+                // Resetear la velocidad residual de giro para que no oscile en el lugar
+                velocidadGiro = 0f;
             }
 
             float velocidad = Input.GetKey(KeyCode.LeftShift) ? velocidadCorrer : velocidadCaminar;
 
             AplicarGravedad();
 
-            // Un unico Move() con horizontal + vertical: llamarlo dos veces por frame
-            // da colisiones raras en rampas y bordes.
-            Vector3 desplazamiento = direccion * velocidad + velocidadVertical;
+            // Si no hay input horizontal, el desplazamiento horizontal es exactamente 0
+            Vector3 desplazamientoHorizontal = (input != Vector2.zero) ? direccion * velocidad : Vector3.zero;
+            Vector3 desplazamiento = desplazamientoHorizontal + velocidadVertical;
             controlador.Move(desplazamiento * Time.deltaTime);
         }
 
@@ -74,12 +84,12 @@ namespace SoltaLaPala.Player
         // Asi el PJ se mueve siempre relativo a hacia donde estas mirando.
         private Vector3 ObtenerDireccionRelativaCamara(Vector2 input)
         {
-            // Normalizar el input evita que moverse en diagonal (W+D) sea mas rapido
-            // que moverse recto, porque el vector (1,1) mide 1.41 y no 1.
             if (input.sqrMagnitude > 1f)
             {
                 input.Normalize();
             }
+
+            if (camaraJugador == null) return Vector3.zero;
 
             return camaraJugador.ObtenerAdelante() * input.y + camaraJugador.ObtenerDerecha() * input.x;
         }
@@ -90,8 +100,6 @@ namespace SoltaLaPala.Player
         {
             if (controlador.isGrounded && velocidadVertical.y < 0f)
             {
-                // Un valor pequeño en vez de 0 para que el CharacterController siga
-                // detectando el suelo; con 0 exacto isGrounded parpadea.
                 velocidadVertical.y = -2f;
             }
             else
@@ -103,12 +111,8 @@ namespace SoltaLaPala.Player
         // Rota suavemente al jugador para que mire hacia la direccion en la que se mueve.
         private void GirarHacia(Vector3 direccion)
         {
-            // Atan2 da el angulo en el plano horizontal. Se usa (x, z) y no (z, x) porque
-            // en Unity el eje Z es el "adelante" y los grados se miden desde ahi.
             float anguloObjetivo = Mathf.Atan2(direccion.x, direccion.z) * Mathf.Rad2Deg;
 
-            // SmoothDampAngle en vez de SmoothDamp: sabe que 350 y 10 grados estan a 20 de
-            // distancia y no a 340, asi el PJ no da la vuelta larga al cruzar el cero.
             float anguloSuavizado = Mathf.SmoothDampAngle(
                 transform.eulerAngles.y, anguloObjetivo, ref velocidadGiro, suavizadoRotacion);
 
@@ -120,6 +124,7 @@ namespace SoltaLaPala.Player
         public void BloquearMovimiento(bool bloqueado)
         {
             movimientoBloqueado = bloqueado;
+            velocidadGiro = 0f;
         }
     }
 }

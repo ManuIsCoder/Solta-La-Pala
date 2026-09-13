@@ -11,38 +11,49 @@ namespace SoltaLaPala.Dialogue
     {
         [Header("Identidad")]
         [Tooltip("Nombre que sale en el cuadro de dialogo.")]
-        public string nombre;
+        public string nombre = "Compañero";
         [Tooltip("Nombre de la carpeta del NPC dentro de Resources/Nivel/Dialogos/.")]
-        public string id;
+        public string id = "Compañero";
 
         [Header("Estado")]
         [Tooltip("Tipo de dialogo con el que arranca el NPC en esta escena.")]
-        public TipoDialogo tipoActual = TipoDialogo.Charla;
+        public TipoDialogo tipoActual = TipoDialogo.Mision;
 
         public Transform Transform => transform;
 
         // Devuelve "[E] Hablar con {nombre}".
         public string ObtenerTextoInteraccion()
         {
-            return string.Empty;
+            return $"[E] Hablar con {nombre}";
         }
 
         // Se puede hablar si el NPC tiene alguna linea cargada y no hay otro dialogo activo.
         public bool PuedeInteractuar()
         {
-            return false;
+            if (GestorDialogos.Instancia != null && GestorDialogos.Instancia.DialogoActivo)
+                return false;
+
+            return CargadorDialogos.TieneDialogo(id, tipoActual) || CargadorDialogos.TieneDialogo(id, TipoDialogo.Perpetuo);
         }
 
         // Arranca la conversacion pidiendole al GestorDialogos que muestre
         // el dialogo del tipo actual.
         public void Interactuar(GameObject quienInteractua)
         {
+            if (GestorDialogos.Instancia != null)
+            {
+                GestorDialogos.Instancia.EmpezarDialogo(this, tipoActual);
+            }
         }
 
         // Fuerza el dialogo de tipo Detectado (lo llama el sistema de vision del NPC).
         // No cambia el tipo actual: al acabar se vuelve al que estaba.
         public void DispararDetectado()
         {
+            if (GestorDialogos.Instancia != null && !GestorDialogos.Instancia.DialogoActivo)
+            {
+                GestorDialogos.Instancia.EmpezarDialogo(this, TipoDialogo.Detectado);
+            }
         }
 
         // Lo llama el GestorDialogos cuando termina una conversacion.
@@ -53,12 +64,32 @@ namespace SoltaLaPala.Dialogue
         // - Detectado -> no cambia nada
         public void AlTerminarDialogo(TipoDialogo tipoTerminado)
         {
+            tipoActual = ObtenerSiguienteTipo(tipoTerminado);
         }
 
         // Calcula a que tipo de dialogo hay que pasar despues del que acaba de terminar.
         private TipoDialogo ObtenerSiguienteTipo(TipoDialogo tipoTerminado)
         {
-            return TipoDialogo.Perpetuo;
+            switch (tipoTerminado)
+            {
+                case TipoDialogo.Mision:
+                    if (CargadorDialogos.TieneDialogo(id, TipoDialogo.Charla))
+                        return TipoDialogo.Charla;
+                    return TipoDialogo.Perpetuo;
+
+                case TipoDialogo.Charla:
+                    return TipoDialogo.Perpetuo;
+
+                case TipoDialogo.Perpetuo:
+                    return TipoDialogo.Perpetuo;
+
+                case TipoDialogo.Detectado:
+                    // Detectado no avanza la historia ni el tipo
+                    return tipoActual;
+
+                default:
+                    return TipoDialogo.Perpetuo;
+            }
         }
     }
 }
