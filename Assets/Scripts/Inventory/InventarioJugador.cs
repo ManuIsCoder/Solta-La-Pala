@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using UnityEngine;
 
 namespace SoltaLaPala.Inventory
@@ -8,28 +8,28 @@ namespace SoltaLaPala.Inventory
     // Siempre hay un slot seleccionado, pero ese slot puede estar vacio:
     // al usar o soltar un item el slot se queda vacio y el PJ queda con las manos vacias.
     // Solo cuando los 3 slots estan llenos es imposible tener las manos vacias.
-    public class PlayerInventory : MonoBehaviour
+    public class InventarioJugador : MonoBehaviour
     {
-        public const int SlotCount = 3;
+        public const int CantidadSlots = 3;
 
         [Header("Mano")]
         [Tooltip("Punto delante del jugador donde flota el item sujeto (luego sera el hueso de la mano).")]
-        public Transform handAnchor;
+        public Transform anclaMano;
 
-        private readonly ItemData[] slots = new ItemData[SlotCount];
-        private int selectedIndex = 0;
-        private GameObject heldInstance;
+        private readonly DatosItem[] slots = new DatosItem[CantidadSlots];
+        private int slotSeleccionado = 0;
+        private GameObject instanciaEnMano;
 
         // Se dispara cuando cambia el contenido de un slot. Parametro: indice del slot.
-        public event Action<int> OnSlotChanged;
+        public event Action<int> AlCambiarSlot;
 
         // Se dispara cuando cambia el slot seleccionado. Parametro: nuevo indice.
-        public event Action<int> OnSelectionChanged;
+        public event Action<int> AlCambiarSeleccion;
 
-        public int SelectedIndex => selectedIndex;
+        public int SlotSeleccionado => slotSeleccionado;
 
         // Item del slot seleccionado, o null si ese slot esta vacio (manos vacias).
-        public ItemData SelectedItem => slots[selectedIndex];
+        public DatosItem ItemSeleccionado => slots[slotSeleccionado];
 
         // Lee las teclas 1/2/3 y cambia el slot seleccionado.
         private void Update()
@@ -39,47 +39,47 @@ namespace SoltaLaPala.Inventory
         // Mete el item en el slot seleccionado si esta libre; si no, en el primer slot vacio.
         // Devuelve false si los 3 slots estan ocupados.
         // Si acaba en el slot seleccionado, el item pasa directamente a la mano.
-        public bool TryAddItem(ItemData item)
+        public bool IntentarAgregarItem(DatosItem item)
         {
             return false;
         }
 
         // Vacia el slot y devuelve el item que habia (para soltarlo, usarlo o darselo a un NPC).
         // La seleccion no se mueve: si era el slot seleccionado, el PJ queda con las manos vacias.
-        public ItemData RemoveItem(int slotIndex)
+        public DatosItem QuitarItem(int indiceSlot)
         {
             return null;
         }
 
         // Selecciona el slot indicado y actualiza lo que hay en la mano.
         // Ignora indices fuera de rango.
-        public void SelectSlot(int slotIndex)
+        public void SeleccionarSlot(int indiceSlot)
         {
         }
 
         // Devuelve el item de un slot, o null si esta vacio.
-        public ItemData GetItem(int slotIndex)
+        public DatosItem ObtenerItem(int indiceSlot)
         {
             return null;
         }
 
         // True si los 3 slots estan ocupados (no se puede recoger nada mas).
-        public bool IsFull()
+        public bool EstaLleno()
         {
             return false;
         }
 
         // Devuelve el primer indice de slot vacio, o -1 si no hay ninguno.
-        private int GetFirstEmptySlot()
+        private int ObtenerPrimerSlotVacio()
         {
             return -1;
         }
 
         // Sincroniza la mano con el slot seleccionado: destruye la instancia anterior y,
-        // si el slot tiene item, instancia su prefab en el handAnchor
+        // si el slot tiene item, instancia su prefab en la anclaMano
         // (de momento flotando delante del PJ; mas adelante disparara la animacion de sujetar).
         // Si el slot esta vacio simplemente deja las manos vacias.
-        private void RefreshHeldItem()
+        private void ActualizarItemEnMano()
         {
         }
     }

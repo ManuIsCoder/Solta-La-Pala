@@ -1,16 +1,16 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace SoltaLaPala.Inventory
 {
     // Dibuja los 3 slots del inventario como cuadrados abajo a la derecha de la pantalla
     // y resalta el que esta seleccionado.
-    public class InventoryUI : MonoBehaviour
+    public class InterfazInventario : MonoBehaviour
     {
         [Header("Referencias")]
-        public PlayerInventory inventory;
+        public InventarioJugador inventario;
         [Tooltip("Los 3 cuadrados del inventario, en orden 1-2-3.")]
-        public InventorySlotUI[] slotWidgets = new InventorySlotUI[PlayerInventory.SlotCount];
+        public SlotInterfaz[] slots = new SlotInterfaz[InventarioJugador.CantidadSlots];
 
         // Se suscribe a los eventos del inventario para refrescar la UI solo cuando algo cambia.
         private void OnEnable()
@@ -23,28 +23,22 @@ namespace SoltaLaPala.Inventory
         }
 
         // Redibuja un slot concreto: pone el icono del item o, si esta vacio, esconde el icono.
-        private void RefreshSlot(int slotIndex)
+        private void RefrescarSlot(int indiceSlot)
         {
         }
 
         // Marca visualmente que slot esta seleccionado y apaga el resto.
         // El slot seleccionado se resalta aunque este vacio.
-        private void RefreshSelection(int selectedIndex)
-        {
-        }
-
-        // Redibuja los 3 slots y la seleccion de golpe (al arrancar la escena).
-        private void RefreshAll()
+        private void RefrescarSeleccion(int indiceSeleccionado)
         {
         }
     }
 
-    // Un cuadrado individual del inventario: fondo, icono del item y marco de seleccion.
+    // Un cuadrado individual del inventario: el icono del item y el marco de seleccion.
     [System.Serializable]
-    public class InventorySlotUI
+    public class SlotInterfaz
     {
-        public Image background;
-        public Image iconImage;
-        public GameObject selectionFrame;
+        public Image icono;
+        public GameObject marcoSeleccion;
     }
 }

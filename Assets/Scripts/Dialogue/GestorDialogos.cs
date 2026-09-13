@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using SoltaLaPala.Interaction;
 using SoltaLaPala.Player;
 using UnityEngine;
@@ -8,26 +8,26 @@ namespace SoltaLaPala.Dialogue
     // Controla la conversacion activa: carga las lineas, las va pasando
     // y bloquea al jugador mientras dura el dialogo.
     // Con ESPACIO se completa la linea que se esta escribiendo o se pasa a la siguiente.
-    public class DialogueManager : MonoBehaviour
+    public class GestorDialogos : MonoBehaviour
     {
-        public static DialogueManager Instance { get; private set; }
+        public static GestorDialogos Instancia { get; private set; }
 
         [Header("Referencias")]
-        public DialogueUI dialogueUI;
-        public PlayerMovement playerMovement;
-        public ThirdPersonCamera playerCamera;
-        public PlayerInteractor playerInteractor;
+        public InterfazDialogo interfaz;
+        public MovimientoJugador movimientoJugador;
+        public CamaraTerceraPersona camaraJugador;
+        public InteractorJugador interactorJugador;
 
         [Header("Ajustes")]
-        public KeyCode advanceKey = KeyCode.Space;
+        public KeyCode teclaAvanzar = KeyCode.Space;
 
-        private NPCDialogue currentNpc;
-        private DialogueType currentType;
-        private List<string> currentLines;
-        private int currentLineIndex;
+        private DialogoNPC npcActual;
+        private TipoDialogo tipoActual;
+        private List<string> lineasActuales;
+        private int indiceLinea;
 
         // True mientras hay una conversacion en marcha.
-        public bool IsDialogueActive { get; private set; }
+        public bool DialogoActivo { get; private set; }
 
         // Registra el singleton.
         private void Awake()
@@ -41,30 +41,30 @@ namespace SoltaLaPala.Dialogue
 
         // Empieza una conversacion: carga las lineas del NPC para ese tipo,
         // bloquea movimiento e interaccion, abre el cuadro y muestra la primera linea.
-        public void StartDialogue(NPCDialogue npc, DialogueType type)
+        public void EmpezarDialogo(DialogoNPC npc, TipoDialogo tipo)
         {
         }
 
         // Avanza a la siguiente linea. Si la linea actual todavia se esta escribiendo,
         // la completa de golpe en vez de pasar. Si no quedan lineas, termina la conversacion.
-        private void AdvanceDialogue()
+        private void AvanzarDialogo()
         {
         }
 
-        // Manda la linea indicada a la UI para que la escriba.
-        private void ShowLine(int lineIndex)
+        // Manda la linea indicada a la interfaz para que la escriba.
+        private void MostrarLinea(int indice)
         {
         }
 
         // Cierra el cuadro, devuelve el control al jugador y avisa al NPC
         // para que aplique la transicion de tipo de dialogo.
-        private void EndDialogue()
+        private void TerminarDialogo()
         {
         }
 
         // Bloquea o desbloquea movimiento, camara e interaccion del jugador,
         // y libera el cursor del raton mientras dura el dialogo.
-        private void SetPlayerLocked(bool locked)
+        private void BloquearJugador(bool bloqueado)
         {
         }
     }
