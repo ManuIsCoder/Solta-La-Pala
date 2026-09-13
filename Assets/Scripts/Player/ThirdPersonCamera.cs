@@ -39,41 +39,116 @@ namespace SoltaLaPala.Player
         // Angulo vertical acumulado (arriba/abajo).
         private float pitch;
         private bool cameraLocked;
+        // Velocidad que va acumulando SmoothDamp al seguir al jugador.
+        private Vector3 followVelocity;
 
         // Inicializa yaw/pitch con la rotacion actual y esconde/bloquea el cursor.
         private void Start()
         {
+            // Si no se asigno objetivo en el inspector, buscar al jugador por tag.
+            if (target == null)
+            {
+                GameObject player = GameObject.FindGameObjectWithTag("Player");
+                if (player != null)
+                {
+                    target = player.transform;
+                }
+                else
+                {
+                    Debug.LogError("ThirdPersonCamera: no hay objetivo asignado y no se encontro ningun objeto con tag 'Player'.", this);
+                    enabled = false;
+                    return;
+                }
+            }
+
+            // Arrancar desde la rotacion que tenga la camara en la escena, para no dar un tiron
+            // en el primer frame. Los angulos de eulerAngles vienen en rango 0..360, asi que
+            // el pitch hay que pasarlo a -180..180 antes de recortarlo.
+            Vector3 startRotation = transform.eulerAngles;
+            yaw = startRotation.y;
+            pitch = Mathf.Clamp(NormalizeAngle(startRotation.x), minPitch, maxPitch);
+
+            SetCursorLocked(true);
+        }
+
+        // Pasa un angulo de 0..360 a -180..180, que es el rango con el que trabaja el clamp del pitch.
+        private static float NormalizeAngle(float angle)
+        {
+            angle %= 360f;
+            return angle > 180f ? angle - 360f : angle;
         }
 
         // Lee el raton cada frame y acumula yaw/pitch.
         // No hace nada si la camara esta bloqueada (ej: durante un dialogo).
         private void Update()
         {
+            if (cameraLocked)
+            {
+                return;
+            }
+
+            ApplyRotationInput(ReadMouseDelta());
         }
 
         // Coloca la camara despues de que el jugador se haya movido.
         // Va en LateUpdate para que no tiemble la imagen.
         private void LateUpdate()
         {
+            if (target == null)
+            {
+                return;
+            }
+
+            Vector3 desiredPosition = ResolveCollision(CalculateDesiredPosition());
+
+            // La posicion se suaviza para que la camara no de tirones al moverse el jugador,
+            // pero la rotacion se aplica de golpe: suavizarla haria que la camara vaya
+            // por detras del raton y se siente pastoso.
+            transform.position = followSmoothTime > 0f
+                ? Vector3.SmoothDamp(transform.position, desiredPosition, ref followVelocity, followSmoothTime)
+                : desiredPosition;
+
+            transform.rotation = Quaternion.Euler(pitch, yaw, 0f);
         }
 
         // Devuelve el movimiento del raton de este frame, ya escalado por sensibilidad.
+        // Ojo: los ejes "Mouse X"/"Mouse Y" ya vienen escalados por el tiempo de frame,
+        // por eso NO se multiplican por Time.deltaTime (haria la camara lenta y pastosa).
         private Vector2 ReadMouseDelta()
         {
-            return Vector2.zero;
+            float deltaX = Input.GetAxis("Mouse X") * mouseSensitivityX * 0.01f;
+            float deltaY = Input.GetAxis("Mouse Y") * mouseSensitivityY * 0.01f;
+            return new Vector2(deltaX, deltaY);
         }
 
         // Suma el delta del raton a yaw/pitch y recorta el pitch entre minPitch y maxPitch
         // para que no se pueda dar la vuelta completa en vertical.
         private void ApplyRotationInput(Vector2 mouseDelta)
         {
+            yaw += mouseDelta.x;
+
+            // En pantalla, mover el raton hacia arriba (delta positivo) tiene que bajar el pitch,
+            // porque un pitch positivo en Unity mira hacia abajo. De ahi el signo invertido.
+            pitch += invertY ? mouseDelta.y : -mouseDelta.y;
+            pitch = Mathf.Clamp(pitch, minPitch, maxPitch);
+
+            // El yaw no se recorta (giro libre de 360), pero se mantiene en rango
+            // para que no crezca sin limite en partidas largas.
+            yaw = Mathf.Repeat(yaw, 360f);
         }
 
         // Calcula donde deberia estar la camara: parte del jugador + offset,
         // y retrocede 'distance' en la direccion contraria a la que mira.
         private Vector3 CalculateDesiredPosition()
         {
-            return Vector3.zero;
+            return GetPivotPosition() - Quaternion.Euler(pitch, yaw, 0f) * Vector3.forward * distance;
+        }
+
+        // Punto alrededor del cual orbita la camara: el jugador desplazado por targetOffset
+        // (a la altura de la cabeza, no de los pies).
+        private Vector3 GetPivotPosition()
+        {
+            return target.position + targetOffset;
         }
 
         // Lanza un rayo del jugador a la posicion deseada y, si choca con algo,
