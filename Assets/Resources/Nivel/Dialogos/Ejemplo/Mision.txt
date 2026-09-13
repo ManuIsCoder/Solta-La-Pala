@@ -1,0 +1,3 @@
+# Dialogo de mision. Al acabar pasa a Charla si existe, si no a Perpetuo.
+Necesito que me traigas la pala del cobertizo.
+Y no tardes, que se hace de noche.

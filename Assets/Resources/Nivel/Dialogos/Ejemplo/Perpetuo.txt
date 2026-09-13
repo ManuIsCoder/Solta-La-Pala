@@ -1,0 +1,3 @@
+# Cada linea no vacia es una frase. Las lineas que empiezan por # son comentarios.
+Ya te lo he contado todo, majo.
+Anda, ve a hacer algo util.
