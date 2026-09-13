@@ -12,7 +12,7 @@ namespace SoltaLaPala.Dialogue
         public const string CarpetaRaiz = "Nivel/Dialogos";
 
         // Construye la ruta de Resources para un NPC y un tipo de dialogo.
-        // Ojo: sin extension, porque Resources.Load no la lleva.
+        // Ojo: sin extension, porque Resources.Load no la lleva
         public static string ConstruirRuta(string idNpc, TipoDialogo tipo)
         {
             return $"{CarpetaRaiz}/{idNpc}/{tipo}";
