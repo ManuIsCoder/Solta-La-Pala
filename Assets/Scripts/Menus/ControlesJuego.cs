@@ -29,6 +29,7 @@ namespace SoltaLaPala.Menus
                 { AccionJuego.Slot1, KeyCode.Alpha1 },
                 { AccionJuego.Slot2, KeyCode.Alpha2 },
                 { AccionJuego.Slot3, KeyCode.Alpha3 },
+                { AccionJuego.CambiarVista, KeyCode.V },
                 { AccionJuego.Pausa, KeyCode.Escape }
             };
 
@@ -46,6 +47,7 @@ namespace SoltaLaPala.Menus
                 { AccionJuego.Slot1, "Objeto 1" },
                 { AccionJuego.Slot2, "Objeto 2" },
                 { AccionJuego.Slot3, "Objeto 3" },
+                { AccionJuego.CambiarVista, "Cambiar vista" },
                 { AccionJuego.Pausa, "Pausa" }
             };
 

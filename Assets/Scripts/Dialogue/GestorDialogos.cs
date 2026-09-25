@@ -32,6 +32,10 @@ namespace SoltaLaPala.Dialogue
         // True mientras hay una conversacion en marcha.
         public bool DialogoActivo { get; private set; }
 
+        // NPC con el que se esta hablando, o null si no hay dialogo. Lo consultan
+        // los NPC para saber si la conversacion es suya: los demas siguen a lo suyo.
+        public DialogoNPC NpcActual => npcActual;
+
         // Registra el singleton y busca referencias si no fueron asignadas.
         private void Awake()
         {
@@ -177,6 +181,11 @@ namespace SoltaLaPala.Dialogue
             {
                 camaraJugador.BloquearCamara(bloqueado);
             }
+
+            // Ademas del bloqueo directo se avisa por el contador estatico, que es
+            // lo que consulta la camara aunque este dialogo no tenga referencia a
+            // ella (o aparezca una camara nueva a mitad de conversacion).
+            CamaraTerceraPersona.RegistrarUiAbierta(bloqueado);
         }
 
         // Guarda el tipo de dialogo en el que quedo cada NPC, como "id:tipo".

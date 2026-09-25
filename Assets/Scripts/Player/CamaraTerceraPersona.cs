@@ -30,6 +30,14 @@ namespace SoltaLaPala.Player
         [Tooltip("Suavizado del seguimiento de la camara al moverse el jugador.")]
         public float suavizadoSeguimiento = 0.05f;
 
+        [Header("Primera persona")]
+        [Tooltip("Altura de los ojos del PJ, para la vista en primera persona.")]
+        public Vector3 offsetPrimeraPersona = new Vector3(0f, 1.65f, 0f);
+        [Tooltip("Cuanto puede mirar hacia arriba en primera persona. Mas libre " +
+                 "que en tercera, donde la camara chocaria con el suelo.")]
+        public float pitchMinimoPrimeraPersona = -75f;
+        public float pitchMaximoPrimeraPersona = 75f;
+
         [Header("Colision")]
         [Tooltip("Capas contra las que la camara se acerca para no atravesar paredes.")]
         public LayerMask capasColision;
@@ -43,6 +51,9 @@ namespace SoltaLaPala.Player
         private bool camaraBloqueada;
         // Velocidad que va acumulando SmoothDamp al seguir al jugador.
         private Vector3 velocidadSeguimiento;
+
+        // True mientras se mira por los ojos del PJ en vez de por detras.
+        public bool EnPrimeraPersona { get; private set; }
 
         // Inicializa yaw/pitch con la rotacion actual y esconde/bloquea el cursor.
         private void Start()
@@ -105,13 +116,75 @@ namespace SoltaLaPala.Player
         // No hace nada si la camara esta bloqueada (ej: durante un dialogo).
         private void Update()
         {
-            if (camaraBloqueada)
+            if (camaraBloqueada || HayUiQueCapturaElRaton())
             {
                 return;
             }
 
+            if (ControlesJuego.Pulsada(AccionJuego.CambiarVista))
+            {
+                CambiarVista();
+            }
+
             AplicarRotacion(LeerRaton());
         }
+
+        // True si hay algo en pantalla que se maneja con el raton.
+        //
+        // Se comprueba ademas de camaraBloqueada porque no todo el que abre UI se
+        // acuerda de bloquear la camara, y girar la vista mientras eliges una
+        // opcion con el raton es desorientante.
+        //
+        // Los menus se consultan directamente; el resto de pantallas (dialogos,
+        // panel de sabotaje) se apuntan con RegistrarUiAbierta. Preguntar por ellas
+        // desde aqui obligaria a Player a conocer a todo el que dibuje UI, y
+        // Dialogue y Sabotaje ya dependen de Player.
+        private static bool HayUiQueCapturaElRaton()
+        {
+            if (uiExternasAbiertas > 0)
+            {
+                return true;
+            }
+
+            return GestorMenus.Instancia != null && GestorMenus.Instancia.HayMenuAbierto;
+        }
+
+        // Cuantas pantallas externas hay abiertas ahora mismo. Es un contador y no
+        // un bool para que dos paneles solapados no se pisen al cerrarse.
+        private static int uiExternasAbiertas;
+
+        // Lo llama cualquier pantalla que capture el raton al abrirse y cerrarse.
+        public static void RegistrarUiAbierta(bool abierta)
+        {
+            uiExternasAbiertas = Mathf.Max(0, uiExternasAbiertas + (abierta ? 1 : -1));
+        }
+
+        // Las estaticas sobreviven a salir y volver a entrar en Play dentro del
+        // editor: sin esto, un panel que quedo abierto al parar el juego dejaria
+        // la camara bloqueada en la siguiente sesion.
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ReiniciarEstadoEstatico()
+        {
+            uiExternasAbiertas = 0;
+        }
+
+        // Alterna entre tercera y primera persona.
+        public void CambiarVista()
+        {
+            EnPrimeraPersona = !EnPrimeraPersona;
+
+            // Los limites de pitch cambian entre modos: al pasar a tercera desde
+            // una vista muy alta o muy baja hay que recortar el angulo, o la
+            // camara se quedaria fuera de su rango hasta que muevas el raton.
+            pitch = Mathf.Clamp(pitch, PitchMinimoActual, PitchMaximoActual);
+
+            // Sin esto la camara viaja suavemente desde detras del PJ hasta su
+            // cabeza, atravesandolo por dentro durante el trayecto.
+            velocidadSeguimiento = Vector3.zero;
+        }
+
+        private float PitchMinimoActual => EnPrimeraPersona ? pitchMinimoPrimeraPersona : pitchMinimo;
+        private float PitchMaximoActual => EnPrimeraPersona ? pitchMaximoPrimeraPersona : pitchMaximo;
 
         // Coloca la camara despues de que el jugador se haya movido.
         // Va en LateUpdate para que no tiemble la imagen.
@@ -122,7 +195,19 @@ namespace SoltaLaPala.Player
                 return;
             }
 
-            Vector3 posicionDeseada = ResolverColision(CalcularPosicionDeseada());
+            Vector3 posicionDeseada = CalcularPosicionDeseada();
+
+            // En primera persona la camara va pegada a los ojos: ni colision (esta
+            // dentro del PJ, chocaria con el) ni suavizado (retrasar la cabeza
+            // respecto al cuerpo marea).
+            if (EnPrimeraPersona)
+            {
+                transform.position = posicionDeseada;
+                transform.rotation = Quaternion.Euler(pitch, yaw, 0f);
+                return;
+            }
+
+            posicionDeseada = ResolverColision(posicionDeseada);
 
             // La posicion se suaviza para que la camara no de tirones al moverse el jugador,
             // pero la rotacion se aplica de golpe: suavizarla haria que la camara vaya
@@ -153,7 +238,7 @@ namespace SoltaLaPala.Player
             // En pantalla, mover el raton hacia arriba (delta positivo) tiene que bajar el pitch,
             // porque un pitch positivo en Unity mira hacia abajo. De ahi el signo invertido.
             pitch += invertirY ? deltaRaton.y : -deltaRaton.y;
-            pitch = Mathf.Clamp(pitch, pitchMinimo, pitchMaximo);
+            pitch = Mathf.Clamp(pitch, PitchMinimoActual, PitchMaximoActual);
 
             // El yaw no se recorta (giro libre de 360), pero se mantiene en rango
             // para que no crezca sin limite en partidas largas.
@@ -164,14 +249,21 @@ namespace SoltaLaPala.Player
         // y retrocede 'distancia' en la direccion contraria a la que mira.
         private Vector3 CalcularPosicionDeseada()
         {
+            // En primera persona la camara esta en el pivote mismo: no retrocede.
+            if (EnPrimeraPersona)
+            {
+                return ObtenerPivote();
+            }
+
             return ObtenerPivote() - Quaternion.Euler(pitch, yaw, 0f) * Vector3.forward * distancia;
         }
 
         // Punto alrededor del cual orbita la camara: el jugador desplazado por offsetObjetivo
         // (a la altura de la cabeza, no de los pies).
+        // En primera persona el pivote son los ojos, y la camara se queda ahi.
         private Vector3 ObtenerPivote()
         {
-            return objetivo.position + offsetObjetivo;
+            return objetivo.position + (EnPrimeraPersona ? offsetPrimeraPersona : offsetObjetivo);
         }
 
         // Lanza un rayo del jugador a la posicion deseada y, si choca con algo,
@@ -239,7 +331,7 @@ namespace SoltaLaPala.Player
         public void Restaurar(DatosPartidaGuardada datos)
         {
             yaw = Mathf.Repeat(datos.rotacionCamaraY, 360f);
-            pitch = Mathf.Clamp(NormalizarAngulo(datos.rotacionCamaraX), pitchMinimo, pitchMaximo);
+            pitch = Mathf.Clamp(NormalizarAngulo(datos.rotacionCamaraX), PitchMinimoActual, PitchMaximoActual);
 
             ColocarSinSuavizado();
         }
@@ -256,7 +348,9 @@ namespace SoltaLaPala.Player
                 return;
             }
 
-            transform.position = ResolverColision(CalcularPosicionDeseada());
+            Vector3 destino = CalcularPosicionDeseada();
+
+            transform.position = EnPrimeraPersona ? destino : ResolverColision(destino);
             transform.rotation = Quaternion.Euler(pitch, yaw, 0f);
 
             // La velocidad acumulada del suavizado es de la posicion vieja y arrastraria

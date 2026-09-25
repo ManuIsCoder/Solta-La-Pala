@@ -14,6 +14,7 @@ namespace SoltaLaPala.Menus
         Slot1,
         Slot2,
         Slot3,
+        CambiarVista,
         Pausa
     }
 }

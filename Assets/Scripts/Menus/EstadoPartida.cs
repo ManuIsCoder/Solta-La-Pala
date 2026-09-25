@@ -1,5 +1,7 @@
 using System;
+using SoltaLaPala.Dialogue;
 using SoltaLaPala.Guardado;
+using SoltaLaPala.NPC;
 using UnityEngine;
 
 namespace SoltaLaPala.Menus
@@ -133,12 +135,59 @@ namespace SoltaLaPala.Menus
         {
             if (sospecha >= sospechaMaxima)
             {
+                // El NPC que te esta viendo dice lo suyo antes de la pantalla de
+                // derrota: te pillo el, no una barra que llego al final.
+                DispararDialogoDeCaptura();
+
                 TerminarPartida(false, "Te pillaron con las manos en la masa.");
             }
             else if (impacto >= impactoObjetivo)
             {
                 TerminarPartida(true, "Saliste de la oficina sin levantar sospechas.");
             }
+        }
+
+        // Hace hablar al NPC que te pillo, si tiene dialogo de Detectado.
+        //
+        // Se elige el que te este viendo ahora mismo; si ninguno te ve (la sospecha
+        // pudo llegar al tope por un sabotaje a solas) se usa el mas cercano, que
+        // es el que el jugador va a asumir que lo descubrio.
+        private void DispararDialogoDeCaptura()
+        {
+            DetectorVisionNPC[] detectores =
+                FindObjectsByType<DetectorVisionNPC>(FindObjectsSortMode.None);
+
+            if (detectores.Length == 0)
+            {
+                return;
+            }
+
+            GameObject jugador = GameObject.FindGameObjectWithTag("Player");
+            Vector3 posicionJugador = jugador != null ? jugador.transform.position : transform.position;
+
+            DetectorVisionNPC elegido = null;
+            float mejorDistancia = float.MaxValue;
+            bool elegidoTeVe = false;
+
+            foreach (DetectorVisionNPC detector in detectores)
+            {
+                bool teVe = detector.Estado != DetectorVisionNPC.EstadoVision.SinVer;
+                float distancia = Vector3.Distance(detector.transform.position, posicionJugador);
+
+                // Uno que te ve gana siempre a uno que no, aunque este mas lejos.
+                bool mejor = elegido == null
+                    || (teVe && !elegidoTeVe)
+                    || (teVe == elegidoTeVe && distancia < mejorDistancia);
+
+                if (mejor)
+                {
+                    elegido = detector;
+                    mejorDistancia = distancia;
+                    elegidoTeVe = teVe;
+                }
+            }
+
+            elegido?.GetComponent<DialogoNPC>()?.DispararDetectado();
         }
 
         // Cierra la partida, guarda el resultado y abre la pantalla de final.

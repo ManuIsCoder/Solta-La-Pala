@@ -1,4 +1,5 @@
 using SoltaLaPala.Guardado;
+using SoltaLaPala.Inventory;
 using UnityEngine;
 
 namespace SoltaLaPala.Menus
@@ -46,6 +47,41 @@ namespace SoltaLaPala.Menus
             {
                 GameObject objeto = new GameObject("HudTiempo");
                 objeto.AddComponent<HudTiempo>();
+            }
+
+            if (Object.FindAnyObjectByType<BarraSospecha>() == null)
+            {
+                GameObject objeto = new GameObject("BarraSospecha");
+                objeto.AddComponent<BarraSospecha>();
+            }
+
+            AsegurarInventario();
+        }
+
+        // El inventario vive en el jugador, no en un objeto suelto: necesita su
+        // transform para colgar el ancla de la mano.
+        private static void AsegurarInventario()
+        {
+            if (Object.FindAnyObjectByType<InventarioJugador>() == null)
+            {
+                GameObject jugador = GameObject.FindGameObjectWithTag("Player");
+
+                if (jugador == null)
+                {
+                    Debug.LogWarning("[Menus] No hay ningun objeto con tag 'Player': " +
+                                     "el inventario no se puede crear.");
+                }
+                else
+                {
+                    jugador.AddComponent<InventarioJugador>();
+                }
+            }
+
+            // La UI si es independiente: se busca sola el inventario de la escena.
+            if (Object.FindAnyObjectByType<InterfazInventario>() == null)
+            {
+                GameObject objeto = new GameObject("InterfazInventario");
+                objeto.AddComponent<InterfazInventario>();
             }
         }
     }
