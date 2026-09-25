@@ -1,3 +1,4 @@
+using SoltaLaPala.Dialogue;
 using SoltaLaPala.Guardado;
 using SoltaLaPala.Inventory;
 using UnityEngine;
@@ -53,6 +54,12 @@ namespace SoltaLaPala.Menus
             {
                 GameObject objeto = new GameObject("BarraSospecha");
                 objeto.AddComponent<BarraSospecha>();
+            }
+
+            if (Object.FindAnyObjectByType<MenuEntrega>() == null)
+            {
+                GameObject objeto = new GameObject("MenuEntrega");
+                objeto.AddComponent<MenuEntrega>();
             }
 
             AsegurarInventario();

@@ -10,6 +10,10 @@ namespace SoltaLaPala.Interaction
         [Header("Deteccion")]
         public float alcance = 7f;
         public float radio = 0.6f;
+        [Tooltip("Altura desde la que sale el rayo, sobre el origen del jugador. " +
+                 "A la altura del pecho: desde los pies no llegaria a lo que hay " +
+                 "encima de una mesa.")]
+        public float alturaOrigen = 1.2f;
         public LayerMask capasInteractuables = ~0;
 
         [Header("Referencias")]
@@ -66,14 +70,24 @@ namespace SoltaLaPala.Interaction
             }
         }
 
-        // Lanza un SphereCast desde la camara y devuelve el IInteractuable valido mas cercano,
-        // o null si no hay ninguno en rango.
+        // Busca el IInteractuable valido mas cercano delante del jugador, o null
+        // si no hay ninguno en rango.
+        //
+        // El rayo apunta hacia donde mira la camara, pero sale del jugador y no de
+        // la camara: en tercera persona la camara esta metros por detras, y medir
+        // desde ahi gastaba el alcance en el hueco entre camara y PJ. Por eso solo
+        // se podia interactuar en primera persona.
         private IInteractuable BuscarMejorObjetivo()
         {
-            Transform origen = transformCamara != null ? transformCamara : transform;
-            Ray ray = new Ray(origen.position, origen.forward);
+            Vector3 origen = transform.position + Vector3.up * alturaOrigen;
 
-            RaycastHit[] hits = Physics.SphereCastAll(ray, radio, alcance, capasInteractuables);
+            Vector3 direccion = transformCamara != null
+                ? transformCamara.forward
+                : transform.forward;
+
+            RaycastHit[] hits = Physics.SphereCastAll(
+                new Ray(origen, direccion), radio, alcance, capasInteractuables);
+
             IInteractuable mejor = null;
             float menorDistancia = float.MaxValue;
 
@@ -84,7 +98,10 @@ namespace SoltaLaPala.Interaction
                 IInteractuable interactuable = hit.collider.GetComponentInParent<IInteractuable>();
                 if (interactuable != null && interactuable.PuedeInteractuar())
                 {
-                    float dist = hit.distance;
+                    // Distancia real al jugador: hit.distance mide desde el origen
+                    // del rayo, y un objeto pegado al PJ pero a un lado podria dar
+                    // una distancia enganosa.
+                    float dist = Vector3.Distance(origen, hit.point);
                     if (dist < menorDistancia)
                     {
                         menorDistancia = dist;

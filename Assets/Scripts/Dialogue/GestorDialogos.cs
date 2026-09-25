@@ -26,6 +26,10 @@ namespace SoltaLaPala.Dialogue
 
         private DialogoNPC npcActual;
         private TipoDialogo tipoActual;
+
+        // True si lo que se esta mostrando es una frase suelta y no un dialogo
+        // de archivo: al cerrarse no avisa al NPC ni avanza su estado.
+        private bool fraseSuelta;
         private List<string> lineasActuales = new List<string>();
         private int indiceLinea;
 
@@ -79,6 +83,7 @@ namespace SoltaLaPala.Dialogue
 
             npcActual = npc;
             tipoActual = tipo;
+            fraseSuelta = false;
 
             lineasActuales = CargadorDialogos.CargarLineas(npc.id, tipo);
             if (lineasActuales == null || lineasActuales.Count == 0)
@@ -99,6 +104,43 @@ namespace SoltaLaPala.Dialogue
 
             DialogoActivo = true;
             indiceLinea = 0;
+
+            BloquearJugador(true);
+
+            if (interfaz != null)
+            {
+                interfaz.Abrir(npc.nombre);
+            }
+
+            MostrarLinea(indiceLinea);
+        }
+
+        // Suelta una frase concreta, sin leerla de un .txt.
+        //
+        // Lo usan las respuestas puntuales que dependen de lo que acaba de pasar
+        // (que le entregaste, por ejemplo) y que por eso no pueden vivir en un
+        // archivo de dialogo fijo.
+        //
+        // No toca el tipoActual del NPC: es un comentario, no un paso de la
+        // conversacion.
+        public void MostrarFraseSuelta(DialogoNPC npc, string frase)
+        {
+            if (DialogoActivo || npc == null || string.IsNullOrWhiteSpace(frase))
+            {
+                return;
+            }
+
+            npcActual = npc;
+            tipoActual = TipoDialogo.Perpetuo;
+
+            // Al cerrarse no se avisa al NPC: una frase suelta no debe mover su
+            // estado. Sin esto, el Perpetuo de arriba pisaria el tipo al que el
+            // NPC acaba de pasar (Charla, tras completar el encargo).
+            fraseSuelta = true;
+
+            lineasActuales = new List<string> { frase };
+            indiceLinea = 0;
+            DialogoActivo = true;
 
             BloquearJugador(true);
 
@@ -155,9 +197,15 @@ namespace SoltaLaPala.Dialogue
 
             if (npcActual != null)
             {
-                npcActual.AlTerminarDialogo(tipoActual);
+                if (!fraseSuelta)
+                {
+                    npcActual.AlTerminarDialogo(tipoActual);
+                }
+
                 npcActual = null;
             }
+
+            fraseSuelta = false;
         }
 
         // Bloquea o desbloquea movimiento, camara e interaccion del jugador,
@@ -243,9 +291,18 @@ namespace SoltaLaPala.Dialogue
 
             foreach (DialogoNPC npc in BuscarNPCs())
             {
-                if (npc.id != null && porId.TryGetValue(npc.id, out TipoDialogo tipo))
+                if (npc.id == null || !porId.TryGetValue(npc.id, out TipoDialogo tipo))
                 {
-                    npc.tipoActual = tipo;
+                    continue;
+                }
+
+                npc.tipoActual = tipo;
+
+                // Un NPC con encargo que ya no esta en Mision es uno al que ya le
+                // entregaste: sin esto podrias volver a cobrar la recompensa.
+                if (tipo != TipoDialogo.Mision)
+                {
+                    npc.GetComponent<MisionEntrega>()?.MarcarComoCompletada();
                 }
             }
         }

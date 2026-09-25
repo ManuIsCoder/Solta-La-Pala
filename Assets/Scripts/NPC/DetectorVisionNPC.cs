@@ -1,4 +1,5 @@
 using SoltaLaPala.Dialogue;
+using SoltaLaPala.Menus;
 using UnityEngine;
 
 namespace SoltaLaPala.NPC
@@ -23,6 +24,12 @@ namespace SoltaLaPala.NPC
                  "que el jugador esta 'muy cerca'. 0.4 = el 40% mas cercano del cono.")]
         [Range(0.05f, 1f)]
         public float fraccionDistanciaCercana = 0.4f;
+
+        [Tooltip("Sospecha que suma cada vez que te pilla de lejos. 0 lo desactiva.")]
+        public int sospechaAlVerteLejos = 3;
+
+        [Tooltip("Sospecha que suma cada vez que te pilla de cerca.")]
+        public int sospechaAlVerteCerca = 8;
 
         // En que situacion esta el jugador respecto a este NPC. Lo lee el ojo
         // que flota sobre su cabeza.
@@ -81,11 +88,34 @@ namespace SoltaLaPala.NPC
             if (Estado != EstadoVision.SinVer)
             {
                 ultimoTiempoDeteccion = Time.time;
+
+                // La sospecha se suma antes del dialogo: si con esta deteccion se
+                // llega al tope, EstadoPartida dispara el dialogo de captura y la
+                // pantalla de derrota, y ese dialogo manda sobre este.
+                SumarSospechaPorDeteccion();
+
                 if (dialogoNPC != null)
                 {
                     dialogoNPC.DispararDetectado();
                 }
             }
+        }
+
+        // Te pilla mirando donde no debes: sube la sospecha segun lo cerca que
+        // estes. El cooldown de tiempoEntreDetecciones evita que suba cada frame.
+        private void SumarSospechaPorDeteccion()
+        {
+            int cantidad = Estado == EstadoVision.VeCerca
+                ? sospechaAlVerteCerca
+                : sospechaAlVerteLejos;
+
+            if (cantidad <= 0 || EstadoPartida.Instancia == null)
+            {
+                return;
+            }
+
+            // Impacto 0: que te vean no sabotea nada, solo levanta sospechas.
+            EstadoPartida.Instancia.RegistrarSabotaje(0, cantidad);
         }
 
         // Decide si ve al jugador y, si lo ve, si lo tiene cerca o lejos.

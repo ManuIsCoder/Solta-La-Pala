@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 51c54598b14011241bd1cac36228a298, type: 3}
+  m_Name: Pala
+  m_EditorClassIdentifier: Assembly-CSharp::SoltaLaPala.Inventory.DatosItem
+  id: Pala
+  nombre: Pala
+  icono: {fileID: 21300000, guid: 5da661f8a2c6db74bb591efa9adf20f2, type: 3}
+  prefabEnMano: {fileID: 851046582847283006, guid: e9ca06b15d77db44ea4374079c7b7e53, type: 3}
+  descripcion: Una pala de obra, pesada y seria.

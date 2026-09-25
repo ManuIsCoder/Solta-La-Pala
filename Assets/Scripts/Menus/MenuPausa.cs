@@ -1,3 +1,4 @@
+using SoltaLaPala.Guardado;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -32,8 +33,8 @@ namespace SoltaLaPala.Menus
                 new Vector2(0f, y), tamanoBoton, Guardar);
             y -= salto;
 
-            ConstructorUI.CrearBoton("BotonTutorial", padre, "Tutorial",
-                new Vector2(0f, y), tamanoBoton, () => Gestor?.Abrir(PantallaMenu.Tutorial));
+            ConstructorUI.CrearBoton("BotonReiniciar", padre, "Reiniciar nivel",
+                new Vector2(0f, y), tamanoBoton, ReiniciarNivel);
             y -= salto;
 
             ConstructorUI.CrearBoton("BotonConfiguracion", padre, "Configuracion",
@@ -69,6 +70,13 @@ namespace SoltaLaPala.Menus
         {
             Gestor?.GuardarPartida();
             Gestor?.CerrarTodo();
+        }
+
+        // Empieza el nivel de cero: contadores, reloj, objetos, misiones,
+        // inventario y posicion del jugador.
+        private void ReiniciarNivel()
+        {
+            Gestor?.ReiniciarYJugar();
         }
 
         // Guardado manual, para quien prefiere no confiar en el automatico.

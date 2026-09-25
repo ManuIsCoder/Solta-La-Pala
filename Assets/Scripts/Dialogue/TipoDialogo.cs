@@ -15,6 +15,10 @@ namespace SoltaLaPala.Dialogue
         Charla,
 
         // Salta cuando el NPC descubre al jugador.
-        Detectado
+        Detectado,
+
+        // Te recuerda el encargo pendiente cuando vuelves con las manos vacias.
+        // Si el NPC no tiene este archivo, se cae al de Mision.
+        Apurate
     }
 }

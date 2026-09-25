@@ -27,10 +27,18 @@ namespace SoltaLaPala.Player
         // Velocidad angular que va acumulando SmoothDampAngle al girar el PJ.
         private float velocidadGiro;
 
+        // Donde estaba el jugador al cargar la escena, para poder devolverlo ahi
+        // al reiniciar el nivel.
+        private Vector3 posicionInicial;
+        private float rotacionInicialY;
+
         // Cachea el CharacterController y busca la camara si no fue asignada en el inspector.
         private void Awake()
         {
             controlador = GetComponent<CharacterController>();
+
+            posicionInicial = transform.position;
+            rotacionInicialY = transform.eulerAngles.y;
 
             if (camaraJugador == null)
             {
@@ -144,6 +152,12 @@ namespace SoltaLaPala.Player
         public void Restaurar(DatosPartidaGuardada datos)
         {
             TeletransportarA(datos.posicionJugador, datos.rotacionJugadorY);
+        }
+
+        // Devuelve al jugador a donde empezo la escena. Lo usa el reinicio de nivel.
+        public void VolverAlInicio()
+        {
+            TeletransportarA(posicionInicial, rotacionInicialY);
         }
 
         // Mueve al jugador de golpe a una posicion.

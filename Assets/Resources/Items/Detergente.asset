@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 51c54598b14011241bd1cac36228a298, type: 3}
+  m_Name: Detergente
+  m_EditorClassIdentifier: Assembly-CSharp::SoltaLaPala.Inventory.DatosItem
+  id: Detergente
+  nombre: Detergente
+  icono: {fileID: 21300000, guid: 18dcf4a6ffb33ff4382e3ab3b1b60deb, type: 3}
+  prefabEnMano: {fileID: 8438032923488272665, guid: 3913c198ec1facd4b9afd0eb155f2d93, type: 3}
+  descripcion: Lavavajillas concentrado. Sabe fatal y se nota.

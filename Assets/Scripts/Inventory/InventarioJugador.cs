@@ -184,6 +184,58 @@ namespace SoltaLaPala.Inventory
             AlCambiarSeleccion?.Invoke(slotSeleccionado);
         }
 
+        // Deja los tres slots vacios y las manos libres. Lo usa el reinicio de nivel.
+        public void Vaciar()
+        {
+            for (int i = 0; i < CantidadSlots; i++)
+            {
+                slots[i] = null;
+                AlCambiarSlot?.Invoke(i);
+            }
+
+            slotSeleccionado = 0;
+            ActualizarItemEnMano();
+            AlCambiarSeleccion?.Invoke(slotSeleccionado);
+        }
+
+        // Inventario del jugador de la escena, o null si todavia no existe.
+        //
+        // Se busca cada vez en vez de cachearlo: los componentes que lo consultan
+        // (requisitos, misiones) pueden arrancar antes que el jugador.
+        public static InventarioJugador DelJugador()
+        {
+            GameObject jugador = GameObject.FindGameObjectWithTag("Player");
+
+            return jugador != null ? jugador.GetComponent<InventarioJugador>() : null;
+        }
+
+        // Indice del slot donde esta ese item, o -1 si no lo lleva.
+        //
+        // Con soloEnLaMano solo cuenta el slot seleccionado; si no, busca en los
+        // tres.
+        public int BuscarSlotCon(DatosItem item, bool soloEnLaMano)
+        {
+            if (item == null)
+            {
+                return -1;
+            }
+
+            if (soloEnLaMano)
+            {
+                return ItemSeleccionado == item ? slotSeleccionado : -1;
+            }
+
+            for (int i = 0; i < CantidadSlots; i++)
+            {
+                if (slots[i] == item)
+                {
+                    return i;
+                }
+            }
+
+            return -1;
+        }
+
         // Devuelve el item de un slot, o null si esta vacio o el indice no es valido.
         public DatosItem ObtenerItem(int indiceSlot)
         {

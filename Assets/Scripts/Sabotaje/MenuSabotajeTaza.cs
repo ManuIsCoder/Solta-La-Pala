@@ -28,9 +28,9 @@ namespace SoltaLaPala.Sabotaje
         [Tooltip("Tecla que cierra el menu sin sabotear.")]
         public KeyCode teclaSalir = KeyCode.X;
 
-        private MovimientoJugador movimientoJugador;
-        private CamaraTerceraPersona camaraJugador;
-        private InteractorJugador interactorJugador;
+        // Congela al jugador mientras el panel esta abierto.
+        private readonly ControlJugador controlJugador = new ControlJugador();
+
         private GameObject objetoTazaMundo;
 
         // Requisito del interactuable que abrio el menu, para gastarle el item
@@ -63,40 +63,16 @@ namespace SoltaLaPala.Sabotaje
             objetoTazaMundo = tazaEnMundo;
             requisitoActual = requisito;
 
-            BuscarReferenciasJugador();
-
-            if (movimientoJugador != null)
-            {
-                movimientoJugador.BloquearMovimiento(true);
-            }
-
-            // La camara tiene que congelarse ademas del movimiento: si no, el raton
-            // con el que eliges opcion sigue girando la vista. BloquearCamara ya
-            // libera el cursor, asi que no hace falta tocarlo aqui.
-            if (camaraJugador != null)
-            {
-                camaraJugador.BloquearCamara(true);
-            }
-            else
-            {
-                Cursor.lockState = CursorLockMode.None;
-                Cursor.visible = true;
-            }
-
-            // Sin esto se puede disparar otra interaccion con el panel abierto.
-            if (interactorJugador != null)
-            {
-                interactorJugador.BloquearInteraccion(true);
-            }
+            // Congela al jugador y libera el cursor: sin esto el raton con el que
+            // eliges opcion seguiria girando la camara, y se podria disparar otra
+            // interaccion con el panel abierto.
+            controlJugador.Bloquear(true);
 
             if (textoResultado != null) textoResultado.text = "";
 
-            if (panel != null && !panel.activeSelf)
+            if (panel != null)
             {
                 panel.SetActive(true);
-
-                // Avisa a la camara de que hay UI de raton en pantalla.
-                CamaraTerceraPersona.RegistrarUiAbierta(true);
             }
         }
 
@@ -122,52 +98,27 @@ namespace SoltaLaPala.Sabotaje
 
         public void Cerrar()
         {
-            if (panel != null && panel.activeSelf)
+            // El guard evita desbloquear dos veces si Cerrar se llama repetido: el
+            // contador de UI de la camara se descuadraria y la vista se quedaria
+            // sin poder girar.
+            if (!Abierto)
             {
-                panel.SetActive(false);
-                CamaraTerceraPersona.RegistrarUiAbierta(false);
+                return;
             }
 
+            panel.SetActive(false);
             requisitoActual = null;
 
-            if (movimientoJugador != null)
-            {
-                movimientoJugador.BloquearMovimiento(false);
-            }
+            controlJugador.Bloquear(false);
 
-            if (interactorJugador != null)
-            {
-                interactorJugador.BloquearInteraccion(false);
-            }
-
-            // Si el sabotaje disparo el final de la partida, el GestorMenus acaba de
-            // abrir la pantalla de victoria/derrota: recapturar el cursor aqui dejaria
-            // esa pantalla sin raton. En ese caso manda el gestor.
+            // Si el sabotaje termino la partida, el GestorMenus acaba de abrir la
+            // pantalla de victoria/derrota: esa necesita el cursor libre, y el
+            // desbloqueo de arriba acaba de capturarlo. Se le devuelve.
             if (GestorMenus.Instancia != null && GestorMenus.Instancia.HayMenuAbierto)
             {
-                return;
+                Cursor.lockState = CursorLockMode.None;
+                Cursor.visible = true;
             }
-
-            if (camaraJugador != null)
-            {
-                camaraJugador.BloquearCamara(false);
-                return;
-            }
-
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
-        }
-
-        // El jugador puede no existir cuando este menu arranca, asi que las
-        // referencias se buscan al abrir y no en Awake.
-        private void BuscarReferenciasJugador()
-        {
-            if (movimientoJugador == null)
-                movimientoJugador = FindFirstObjectByType<MovimientoJugador>();
-            if (camaraJugador == null)
-                camaraJugador = FindFirstObjectByType<CamaraTerceraPersona>();
-            if (interactorJugador == null)
-                interactorJugador = FindFirstObjectByType<InteractorJugador>();
         }
 
         private void ElegirOpcion(string nombreCafe, int impacto, int sospecha)

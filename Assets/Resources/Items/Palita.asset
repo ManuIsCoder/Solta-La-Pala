@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 51c54598b14011241bd1cac36228a298, type: 3}
+  m_Name: Palita
+  m_EditorClassIdentifier: Assembly-CSharp::SoltaLaPala.Inventory.DatosItem
+  id: Palita
+  nombre: Palita
+  icono: {fileID: 21300000, guid: 98799011ec88d2740991619da18b4319, type: 3}
+  prefabEnMano: {fileID: 1009039907746672283, guid: a2428baae932c3442b38b466662a3597, type: 3}
+  descripcion: Una palita de playa, de plastico. No es lo que nadie pidio.

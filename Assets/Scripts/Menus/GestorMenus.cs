@@ -31,10 +31,8 @@ namespace SoltaLaPala.Menus
         public MenuResultados menuResultados;
         public MenuVictoriaDerrota menuVictoriaDerrota;
 
-        // Referencias al jugador, para bloquearlo mientras hay un menu abierto.
-        private MovimientoJugador movimientoJugador;
-        private CamaraTerceraPersona camaraJugador;
-        private InteractorJugador interactorJugador;
+        // Congela al jugador mientras hay un menu abierto.
+        private readonly ControlJugador controlJugador = new ControlJugador();
 
         // Pila de pantallas por las que se paso, para que "Volver" sepa a donde ir.
         private readonly Stack<PantallaMenu> historial = new Stack<PantallaMenu>();
@@ -60,7 +58,6 @@ namespace SoltaLaPala.Menus
             AjustesJuego.AplicarTodo();
 
             ConstructorUI.AsegurarEventSystem();
-            BuscarReferenciasJugador();
             AsegurarPantallas();
         }
 
@@ -144,6 +141,20 @@ namespace SoltaLaPala.Menus
             // Arranca el reloj del nivel. Va despues de CerrarTodo para que el
             // tiempo no empiece a correr con un menu todavia en pantalla.
             EstadoPartida.Instancia?.EmpezarNivel();
+        }
+
+        // Empieza el nivel actual desde cero y devuelve el control al juego.
+        //
+        // Lo usan el selector de niveles, la pausa y las dos opciones de la
+        // pantalla de final. Antes cada uno encadenaba estos tres pasos por su
+        // cuenta y alguno se dejaba el borrado del guardado, que dejaba
+        // "Continuar" apuntando a una partida ya descartada.
+        public void ReiniciarYJugar()
+        {
+            EstadoPartida.Instancia?.ReiniciarNivel();
+            GuardadoPartida.Borrar();
+
+            EmpezarJuego();
         }
 
         // Retoma la partida guardada. Devuelve false si no habia nada que cargar,
@@ -239,39 +250,10 @@ namespace SoltaLaPala.Menus
             Cursor.lockState = menuAbierto ? CursorLockMode.None : CursorLockMode.Locked;
             Cursor.visible = menuAbierto;
 
-            // Puede pasar que el jugador todavia no exista (menu principal al arrancar),
-            // asi que se reintenta la busqueda cada vez.
-            if (movimientoJugador == null || camaraJugador == null || interactorJugador == null)
-            {
-                BuscarReferenciasJugador();
-            }
-
-            if (movimientoJugador != null)
-            {
-                movimientoJugador.BloquearMovimiento(menuAbierto);
-            }
-
-            if (interactorJugador != null)
-            {
-                interactorJugador.BloquearInteraccion(menuAbierto);
-            }
-
-            // La camara va la ultima: BloquearCamara tambien toca el cursor,
-            // asi el estado final del cursor es el que ella deja.
-            if (camaraJugador != null)
-            {
-                camaraJugador.BloquearCamara(menuAbierto);
-            }
-        }
-
-        private void BuscarReferenciasJugador()
-        {
-            if (movimientoJugador == null)
-                movimientoJugador = FindFirstObjectByType<MovimientoJugador>();
-            if (camaraJugador == null)
-                camaraJugador = FindFirstObjectByType<CamaraTerceraPersona>();
-            if (interactorJugador == null)
-                interactorJugador = FindFirstObjectByType<InteractorJugador>();
+            // avisarUi en false: la camara ya consulta a este gestor directamente
+            // para saber si hay menu abierto, y contarlo tambien en su contador
+            // dejaria la vista trabada al cerrar.
+            controlJugador.Bloquear(menuAbierto, avisarUi: false);
         }
 
         // Escape cierra los menus de navegacion, pero no las pantallas de final
