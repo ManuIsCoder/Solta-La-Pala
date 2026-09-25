@@ -56,10 +56,16 @@ namespace SoltaLaPala.Interaction
                 return;
             }
 
-            InventarioJugador inventario = BuscarInventario();
-            int slot = BuscarSlot();
+            InventarioJugador inventario = InventarioJugador.DelJugador();
 
-            if (inventario != null && slot != -1)
+            if (inventario == null)
+            {
+                return;
+            }
+
+            int slot = inventario.BuscarSlotCon(itemRequerido, debeEstarEnLaMano);
+
+            if (slot != -1)
             {
                 inventario.QuitarItem(slot);
             }
@@ -68,38 +74,11 @@ namespace SoltaLaPala.Interaction
         // Indice del slot donde esta el item requerido, o -1 si no lo lleva.
         private int BuscarSlot()
         {
-            InventarioJugador inventario = BuscarInventario();
+            InventarioJugador inventario = InventarioJugador.DelJugador();
 
-            if (inventario == null)
-            {
-                return -1;
-            }
-
-            if (debeEstarEnLaMano)
-            {
-                return inventario.ItemSeleccionado == itemRequerido
-                    ? inventario.SlotSeleccionado
-                    : -1;
-            }
-
-            for (int i = 0; i < InventarioJugador.CantidadSlots; i++)
-            {
-                if (inventario.ObtenerItem(i) == itemRequerido)
-                {
-                    return i;
-                }
-            }
-
-            return -1;
-        }
-
-        // El inventario se busca cada vez en vez de cachearlo: el jugador puede
-        // no existir todavia cuando este componente arranca.
-        private static InventarioJugador BuscarInventario()
-        {
-            GameObject jugador = GameObject.FindGameObjectWithTag("Player");
-
-            return jugador != null ? jugador.GetComponent<InventarioJugador>() : null;
+            return inventario != null
+                ? inventario.BuscarSlotCon(itemRequerido, debeEstarEnLaMano)
+                : -1;
         }
     }
 }

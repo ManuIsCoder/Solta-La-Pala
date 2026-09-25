@@ -128,23 +128,15 @@ namespace SoltaLaPala.Menus
             int siguiente = Mathf.Min(ProgresoNiveles.NivelActual + 1, ProgresoNiveles.CantidadNiveles);
             ProgresoNiveles.NivelActual = siguiente;
 
-            EstadoPartida.Instancia?.Reiniciar();
-            RegistroObjetosConsumidos.Instancia?.Limpiar();
-
             Debug.Log($"[Menus] Empezando nivel {siguiente}.");
-
-            // EmpezarJuego y no CerrarTodo: es el que arranca el reloj del nivel.
-            Gestor?.EmpezarJuego();
+            Gestor?.ReiniciarYJugar();
         }
 
         // Vuelve a empezar el mismo nivel con los contadores a cero.
         private void ReintentarNivel()
         {
-            EstadoPartida.Instancia?.Reiniciar();
-            RegistroObjetosConsumidos.Instancia?.Limpiar();
-
             Debug.Log($"[Menus] Reintentando nivel {ProgresoNiveles.NivelActual}.");
-            Gestor?.EmpezarJuego();
+            Gestor?.ReiniciarYJugar();
         }
 
         // Desde el final de partida se limpia el historial: no tiene sentido
@@ -156,8 +148,7 @@ namespace SoltaLaPala.Menus
                 return;
             }
 
-            EstadoPartida.Instancia?.Reiniciar();
-            RegistroObjetosConsumidos.Instancia?.Limpiar();
+            EstadoPartida.Instancia?.ReiniciarNivel();
 
             Gestor.CerrarTodo();
             Gestor.Abrir(pantalla);

@@ -130,17 +130,9 @@ namespace SoltaLaPala.Menus
             ProgresoNiveles.NivelActual = nivel;
             Debug.Log($"[Menus] Empezando nivel {nivel}.");
 
-            // Elegir un nivel a mano es la unica forma de descartar la partida
-            // guardada: se avisa en RefrescarAviso antes de llegar aqui.
-            GuardadoPartida.Borrar();
-
-            // Los contadores y los objetos gastados son de la partida anterior.
-            // Sin esto el nivel "nuevo" arrancaria con el impacto de la otra y con
-            // las tazas ya saboteadas escondidas.
-            EstadoPartida.Instancia?.Reiniciar();
-            RegistroObjetosConsumidos.Instancia?.Limpiar();
-
-            Gestor?.EmpezarJuego();
+            // Descarta la partida guardada y limpia todo lo de la anterior. Se
+            // avisa en RefrescarAviso antes de llegar aqui.
+            Gestor?.ReiniciarYJugar();
         }
     }
 }

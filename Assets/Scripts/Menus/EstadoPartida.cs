@@ -1,7 +1,9 @@
 using System;
 using SoltaLaPala.Dialogue;
 using SoltaLaPala.Guardado;
+using SoltaLaPala.Inventory;
 using SoltaLaPala.NPC;
+using SoltaLaPala.Player;
 using UnityEngine;
 
 namespace SoltaLaPala.Menus
@@ -68,6 +70,56 @@ namespace SoltaLaPala.Menus
             PartidaEnCurso = true;
         }
 
+        // Deja el nivel como recien empezado: contadores, reloj, objetos gastados,
+        // misiones, inventario y posicion del jugador.
+        //
+        // Vive aqui y no repartido por los menus porque antes cada sitio que
+        // "reiniciaba" limpiaba solo una parte, y al volver a jugar te encontrabas
+        // las misiones ya hechas o al PJ donde lo habias dejado.
+        public void ReiniciarNivel()
+        {
+            Reiniciar();
+
+            RegistroObjetosConsumidos.Instancia?.Limpiar();
+
+            ReiniciarMisiones();
+            ReiniciarDialogos();
+            ReiniciarJugador();
+        }
+
+        // Las misiones vuelven a estar pendientes y los NPC a su dialogo inicial.
+        private static void ReiniciarMisiones()
+        {
+            foreach (MisionEntrega mision in
+                     FindObjectsByType<MisionEntrega>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+            {
+                mision.ReiniciarEncargo();
+            }
+        }
+
+        private static void ReiniciarDialogos()
+        {
+            foreach (DialogoNPC npc in
+                     FindObjectsByType<DialogoNPC>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+            {
+                npc.ReiniciarConversacion();
+            }
+        }
+
+        // Vacia el inventario y devuelve al jugador a donde arranco la escena.
+        private static void ReiniciarJugador()
+        {
+            GameObject jugador = GameObject.FindGameObjectWithTag("Player");
+
+            if (jugador == null)
+            {
+                return;
+            }
+
+            jugador.GetComponent<InventarioJugador>()?.Vaciar();
+            jugador.GetComponent<MovimientoJugador>()?.VolverAlInicio();
+        }
+
         // Corre el reloj del nivel y pierde la partida al llegar a 0.
         //
         // Usa Time.deltaTime y no unscaledDeltaTime a proposito: GestorMenus pone
@@ -86,7 +138,10 @@ namespace SoltaLaPala.Menus
             {
                 tiempoRestante = 0f;
                 AlCambiarTiempo?.Invoke(tiempoRestante);
-                TerminarPartida(false, "Se acabo el tiempo.");
+
+                // El reloj a 0 no es derrota automatica: es el momento en que se
+                // mira si llegaste al impacto objetivo.
+                ResolverFinalPorTiempo();
                 return;
             }
 
@@ -141,10 +196,25 @@ namespace SoltaLaPala.Menus
 
                 TerminarPartida(false, "Te pillaron con las manos en la masa.");
             }
-            else if (impacto >= impactoObjetivo)
+
+            // Llegar al impacto objetivo NO termina el nivel: el nivel dura lo que
+            // dura el reloj, y asi se puede seguir sumando por encima del minimo.
+            // La victoria se resuelve en ResolverFinalPorTiempo.
+        }
+
+        // Cierra el nivel cuando se acaba el reloj: se gana si se alcanzo el
+        // impacto objetivo, se pierde si no.
+        private void ResolverFinalPorTiempo()
+        {
+            if (impacto >= impactoObjetivo)
             {
-                TerminarPartida(true, "Saliste de la oficina sin levantar sospechas.");
+                TerminarPartida(true,
+                    $"Se acabo la jornada. Impacto {impacto}/{impactoObjetivo}: saliste sin levantar sospechas.");
+                return;
             }
+
+            TerminarPartida(false,
+                $"Se acabo el tiempo con {impacto}/{impactoObjetivo} de impacto. No hiciste suficiente.");
         }
 
         // Hace hablar al NPC que te pillo, si tiene dialogo de Detectado.
