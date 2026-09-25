@@ -1,3 +1,5 @@
+using SoltaLaPala.Guardado;
+using SoltaLaPala.Menus;
 using SoltaLaPala.Player;
 using UnityEngine;
 using UnityEngine.UI;
@@ -67,6 +69,14 @@ namespace SoltaLaPala.Sabotaje
                 movimientoJugador.BloquearMovimiento(false);
             }
 
+            // Si el sabotaje disparo el final de la partida, el GestorMenus acaba de
+            // abrir la pantalla de victoria/derrota: recapturar el cursor aqui dejaria
+            // esa pantalla sin raton. En ese caso manda el gestor.
+            if (GestorMenus.Instancia != null && GestorMenus.Instancia.HayMenuAbierto)
+            {
+                return;
+            }
+
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
         }
@@ -84,9 +94,31 @@ namespace SoltaLaPala.Sabotaje
             if (objetoTazaMundo != null)
             {
                 objetoTazaMundo.SetActive(false);
+
+                if (RegistroObjetosConsumidos.Instancia != null)
+                {
+                    RegistroObjetosConsumidos.Instancia.Marcar(objetoTazaMundo);
+                }
             }
 
             Cerrar();
+
+            // Se suma despues de Cerrar(): si este sabotaje termina la partida,
+            // EstadoPartida abre la pantalla de victoria/derrota y esa tiene que
+            // quedar encima, no cerrarse al vuelo.
+            if (EstadoPartida.Instancia != null)
+            {
+                EstadoPartida.Instancia.RegistrarSabotaje(impacto, sospecha);
+            }
+
+            // Autoguardado al final del todo: un sabotaje es progreso que duele
+            // repetir. Va despues de RegistrarSabotaje para que el guardado incluya
+            // los contadores nuevos, y GuardarAhora ya se abstiene si el sabotaje
+            // acabo de terminar la partida.
+            if (GestorGuardado.Instancia != null)
+            {
+                GestorGuardado.Instancia.GuardarAhora();
+            }
         }
     }
 }

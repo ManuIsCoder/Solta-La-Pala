@@ -1,4 +1,6 @@
 using System;
+using SoltaLaPala.Guardado;
+using SoltaLaPala.Menus;
 using UnityEngine;
 
 namespace SoltaLaPala.Inventory
@@ -8,7 +10,7 @@ namespace SoltaLaPala.Inventory
     // Siempre hay un slot seleccionado, pero ese slot puede estar vacio:
     // al usar o soltar un item el slot se queda vacio y el PJ queda con las manos vacias.
     // Solo cuando los 3 slots estan llenos es imposible tener las manos vacias.
-    public class InventarioJugador : MonoBehaviour
+    public class InventarioJugador : MonoBehaviour, IGuardable
     {
         public const int CantidadSlots = 3;
 
@@ -31,14 +33,21 @@ namespace SoltaLaPala.Inventory
         // Item del slot seleccionado, o null si ese slot esta vacio (manos vacias).
         public DatosItem ItemSeleccionado => slots[slotSeleccionado];
 
-        // Lee las teclas 1/2/3 y cambia el slot seleccionado.
+        // Lee las teclas de slot y cambia el slot seleccionado.
         private void Update()
         {
-            // Alpha1, Alpha2 y Alpha3 son valores consecutivos del enum, asi que
+            // Con un menu abierto el juego esta pausado y el jugador esta navegando
+            // la UI: no debe cambiar de item sin querer.
+            if (GestorMenus.Instancia != null && GestorMenus.Instancia.HayMenuAbierto)
+            {
+                return;
+            }
+
+            // Slot1, Slot2 y Slot3 son valores consecutivos del enum, asi que
             // se generan sumando el indice en vez de escribir un if por tecla.
             for (int i = 0; i < CantidadSlots; i++)
             {
-                if (Input.GetKeyDown(KeyCode.Alpha1 + i))
+                if (ControlesJuego.Pulsada(AccionJuego.Slot1 + i))
                 {
                     SeleccionarSlot(i);
                     Debug.Log($"Slot seleccionado: {i}");
@@ -171,6 +180,47 @@ namespace SoltaLaPala.Inventory
             instanciaEnMano = Instantiate(item.prefabEnMano, anclaMano);
             instanciaEnMano.transform.localPosition = Vector3.zero;
             instanciaEnMano.transform.localRotation = Quaternion.identity;
+        }
+
+        // Guarda un id por slot. Los slots vacios van como cadena vacia, para que
+        // el array conserve las posiciones: importa en que slot estaba cada item.
+        public void Capturar(DatosPartidaGuardada datos)
+        {
+            string[] ids = new string[CantidadSlots];
+
+            for (int i = 0; i < CantidadSlots; i++)
+            {
+                ids[i] = slots[i] != null ? slots[i].Id : string.Empty;
+            }
+
+            datos.slotsInventario = ids;
+            datos.slotSeleccionado = slotSeleccionado;
+        }
+
+        public void Restaurar(DatosPartidaGuardada datos)
+        {
+            ItemsRegistrados registro = ItemsRegistrados.Instancia;
+            string[] ids = datos.slotsInventario;
+
+            for (int i = 0; i < CantidadSlots; i++)
+            {
+                // Un guardado de una version con mas o menos slots no debe salirse
+                // del array, y sin registro no hay forma de resolver ningun id.
+                string id = (ids != null && i < ids.Length) ? ids[i] : string.Empty;
+                slots[i] = registro != null ? registro.Resolver(id) : null;
+
+                // La UI de slots se pinta desde este evento, asi que hay que
+                // avisar de todos, tambien de los que quedaron vacios.
+                AlCambiarSlot?.Invoke(i);
+            }
+
+            // Se asigna directo en vez de por SeleccionarSlot: ese metodo ignora
+            // el indice si coincide con el actual, y entonces la mano se quedaria
+            // mostrando el item de antes de cargar.
+            slotSeleccionado = EsIndiceValido(datos.slotSeleccionado) ? datos.slotSeleccionado : 0;
+
+            ActualizarItemEnMano();
+            AlCambiarSeleccion?.Invoke(slotSeleccionado);
         }
     }
 }

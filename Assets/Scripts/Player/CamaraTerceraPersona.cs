@@ -1,10 +1,12 @@
+using SoltaLaPala.Guardado;
+using SoltaLaPala.Menus;
 using UnityEngine;
 
 namespace SoltaLaPala.Player
 {
     // Camara orbital de tercera persona: gira alrededor del jugador con el raton.
     // La direccion en la que mira esta camara es la que MovimientoJugador usa como "adelante" (W).
-    public class CamaraTerceraPersona : MonoBehaviour
+    public class CamaraTerceraPersona : MonoBehaviour, IGuardable
     {
         [Header("Objetivo")]
         [Tooltip("El jugador al que sigue la camara.")]
@@ -68,7 +70,28 @@ namespace SoltaLaPala.Player
             yaw = rotacionInicial.y;
             pitch = Mathf.Clamp(NormalizarAngulo(rotacionInicial.x), pitchMinimo, pitchMaximo);
 
+            AplicarAjustes();
+
             BloquearCursor(true);
+        }
+
+        // La sensibilidad y el invertir-Y los manda el menu de configuracion, asi que
+        // se copian al arrancar y cada vez que el jugador los cambia.
+        private void OnEnable()
+        {
+            AjustesJuego.AlCambiarAjustes += AplicarAjustes;
+        }
+
+        private void OnDisable()
+        {
+            AjustesJuego.AlCambiarAjustes -= AplicarAjustes;
+        }
+
+        private void AplicarAjustes()
+        {
+            sensibilidadX = AjustesJuego.SensibilidadX;
+            sensibilidadY = AjustesJuego.SensibilidadY;
+            invertirY = AjustesJuego.InvertirY;
         }
 
         // Pasa un angulo de 0..360 a -180..180, que es el rango con el que trabaja el clamp del pitch.
@@ -205,6 +228,40 @@ namespace SoltaLaPala.Player
         public Vector3 ObtenerDerecha()
         {
             return Quaternion.Euler(0f, yaw, 0f) * Vector3.right;
+        }
+
+        public void Capturar(DatosPartidaGuardada datos)
+        {
+            datos.rotacionCamaraX = pitch;
+            datos.rotacionCamaraY = yaw;
+        }
+
+        public void Restaurar(DatosPartidaGuardada datos)
+        {
+            yaw = Mathf.Repeat(datos.rotacionCamaraY, 360f);
+            pitch = Mathf.Clamp(NormalizarAngulo(datos.rotacionCamaraX), pitchMinimo, pitchMaximo);
+
+            ColocarSinSuavizado();
+        }
+
+        // Pone la camara en su sitio de un golpe, saltando el SmoothDamp.
+        //
+        // Hace falta al cargar partida: el jugador acaba de teletransportarse y el
+        // suavizado haria que la camara viaje volando desde donde estaba, atravesando
+        // el escenario durante medio segundo.
+        private void ColocarSinSuavizado()
+        {
+            if (objetivo == null)
+            {
+                return;
+            }
+
+            transform.position = ResolverColision(CalcularPosicionDeseada());
+            transform.rotation = Quaternion.Euler(pitch, yaw, 0f);
+
+            // La velocidad acumulada del suavizado es de la posicion vieja y arrastraria
+            // la camara mas alla del objetivo en los frames siguientes.
+            velocidadSeguimiento = Vector3.zero;
         }
     }
 }
