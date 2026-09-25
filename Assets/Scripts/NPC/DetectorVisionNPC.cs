@@ -18,9 +18,31 @@ namespace SoltaLaPala.NPC
         public Transform ojos;
         public float tiempoEntreDetecciones = 5f;
 
+        [Header("Alerta")]
+        [Tooltip("Fraccion de distanciaVision por debajo de la cual se considera " +
+                 "que el jugador esta 'muy cerca'. 0.4 = el 40% mas cercano del cono.")]
+        [Range(0.05f, 1f)]
+        public float fraccionDistanciaCercana = 0.4f;
+
+        // En que situacion esta el jugador respecto a este NPC. Lo lee el ojo
+        // que flota sobre su cabeza.
+        public enum EstadoVision
+        {
+            // No lo ve: fuera del cono, tapado por un muro o demasiado lejos.
+            SinVer,
+            // Lo ve, pero a distancia.
+            VeLejos,
+            // Lo ve y lo tiene encima.
+            VeCerca
+        }
+
         private DialogoNPC dialogoNPC;
         private Transform transformJugador;
         private float ultimoTiempoDeteccion = -10f;
+
+        // Se recalcula una vez por frame en Update y lo consultan los indicadores,
+        // para no repetir el raycast por cada uno que pregunte.
+        public EstadoVision Estado { get; private set; } = EstadoVision.SinVer;
 
         private void Awake()
         {
@@ -43,13 +65,20 @@ namespace SoltaLaPala.NPC
             {
                 GameObject jugador = GameObject.FindGameObjectWithTag("Player");
                 if (jugador != null) transformJugador = jugador.transform;
+
+                Estado = EstadoVision.SinVer;
                 return;
             }
+
+            // El estado se calcula siempre, antes de los cortes de abajo: el ojo
+            // tiene que seguir reaccionando aunque el NPC este en cooldown o
+            // hablando, o se quedaria congelado en la ultima cara que puso.
+            Estado = CalcularEstado();
 
             if (Time.time < ultimoTiempoDeteccion + tiempoEntreDetecciones) return;
             if (GestorDialogos.Instancia != null && GestorDialogos.Instancia.DialogoActivo) return;
 
-            if (PuedeVerJugador())
+            if (Estado != EstadoVision.SinVer)
             {
                 ultimoTiempoDeteccion = Time.time;
                 if (dialogoNPC != null)
@@ -57,6 +86,24 @@ namespace SoltaLaPala.NPC
                     dialogoNPC.DispararDetectado();
                 }
             }
+        }
+
+        // Decide si ve al jugador y, si lo ve, si lo tiene cerca o lejos.
+        private EstadoVision CalcularEstado()
+        {
+            if (!PuedeVerJugador())
+            {
+                return EstadoVision.SinVer;
+            }
+
+            Vector3 origen = ojos.position + Vector3.up * 0.5f;
+            Vector3 destino = transformJugador.position + Vector3.up * 0.5f;
+
+            float distancia = Vector3.Distance(origen, destino);
+
+            return distancia <= distanciaVision * fraccionDistanciaCercana
+                ? EstadoVision.VeCerca
+                : EstadoVision.VeLejos;
         }
 
         public bool PuedeVerJugador()

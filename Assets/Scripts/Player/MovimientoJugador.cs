@@ -1,3 +1,5 @@
+using SoltaLaPala.Guardado;
+using SoltaLaPala.Menus;
 using UnityEngine;
 
 namespace SoltaLaPala.Player
@@ -6,7 +8,7 @@ namespace SoltaLaPala.Player
     // El movimiento es relativo a la camara: W va siempre hacia donde mira la camara,
     // que a su vez gira con el raton (ver CamaraTerceraPersona).
     [RequireComponent(typeof(CharacterController))]
-    public class MovimientoJugador : MonoBehaviour
+    public class MovimientoJugador : MonoBehaviour, IGuardable
     {
         [Header("Movimiento")]
         public float velocidadCaminar = 4f;
@@ -46,9 +48,13 @@ namespace SoltaLaPala.Player
         {
             // Mientras hablas con un NPC no se lee input, pero la gravedad se sigue
             // aplicando para que el PJ no quede flotando si estaba en el aire.
+            // El input se lee desde ControlesJuego y no desde los ejes fijos del proyecto
+            // para que las teclas se puedan reasignar desde el menu de configuracion.
             Vector2 input = movimientoBloqueado
                 ? Vector2.zero
-                : new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
+                : new Vector2(
+                    ControlesJuego.Eje(AccionJuego.Izquierda, AccionJuego.Derecha),
+                    ControlesJuego.Eje(AccionJuego.Atras, AccionJuego.Adelante));
 
             // Zona muerta para evitar que ruido o descalibracion hagan temblar / oscilar al jugador
             if (input.sqrMagnitude < 0.05f)
@@ -69,7 +75,9 @@ namespace SoltaLaPala.Player
                 velocidadGiro = 0f;
             }
 
-            float velocidad = Input.GetKey(KeyCode.LeftShift) ? velocidadCorrer : velocidadCaminar;
+            float velocidad = ControlesJuego.Mantenida(AccionJuego.Correr)
+                ? velocidadCorrer
+                : velocidadCaminar;
 
             AplicarGravedad();
 
@@ -124,6 +132,38 @@ namespace SoltaLaPala.Player
         public void BloquearMovimiento(bool bloqueado)
         {
             movimientoBloqueado = bloqueado;
+            velocidadGiro = 0f;
+        }
+
+        public void Capturar(DatosPartidaGuardada datos)
+        {
+            datos.posicionJugador = transform.position;
+            datos.rotacionJugadorY = transform.eulerAngles.y;
+        }
+
+        public void Restaurar(DatosPartidaGuardada datos)
+        {
+            TeletransportarA(datos.posicionJugador, datos.rotacionJugadorY);
+        }
+
+        // Mueve al jugador de golpe a una posicion.
+        //
+        // El CharacterController mantiene su propia idea de donde esta y pisa las
+        // asignaciones directas a transform.position, asi que hay que apagarlo
+        // mientras se hace el cambio para que lea la posicion nueva al encenderse.
+        private void TeletransportarA(Vector3 posicion, float rotacionY)
+        {
+            bool estabaActivo = controlador.enabled;
+            controlador.enabled = false;
+
+            transform.position = posicion;
+            transform.rotation = Quaternion.Euler(0f, rotacionY, 0f);
+
+            controlador.enabled = estabaActivo;
+
+            // La velocidad acumulada es de la posicion vieja: si el jugador venia
+            // cayendo, arrastrarla aqui lo hunde en el suelo al aparecer.
+            velocidadVertical = Vector3.zero;
             velocidadGiro = 0f;
         }
     }

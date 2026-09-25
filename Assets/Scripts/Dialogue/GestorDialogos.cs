@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using SoltaLaPala.Guardado;
 using SoltaLaPala.Interaction;
+using SoltaLaPala.Menus;
 using SoltaLaPala.Player;
 using UnityEngine;
 
@@ -8,7 +10,11 @@ namespace SoltaLaPala.Dialogue
     // Controla la conversacion activa: carga las lineas, las va pasando
     // y bloquea al jugador mientras dura el dialogo.
     // Con ESPACIO se completa la linea que se esta escribiendo o se pasa a la siguiente.
-    public class GestorDialogos : MonoBehaviour
+    //
+    // Es tambien el que guarda el progreso de dialogo de todos los NPC: el estado
+    // vive repartido en cada DialogoNPC, pero si cada uno escribiera en el DTO por
+    // su cuenta se pisarian el mismo array.
+    public class GestorDialogos : MonoBehaviour, IGuardable
     {
         public static GestorDialogos Instancia { get; private set; }
 
@@ -18,9 +24,6 @@ namespace SoltaLaPala.Dialogue
         public CamaraTerceraPersona camaraJugador;
         public InteractorJugador interactorJugador;
 
-        [Header("Ajustes")]
-        public KeyCode teclaAvanzar = KeyCode.Space;
-
         private DialogoNPC npcActual;
         private TipoDialogo tipoActual;
         private List<string> lineasActuales = new List<string>();
@@ -28,6 +31,10 @@ namespace SoltaLaPala.Dialogue
 
         // True mientras hay una conversacion en marcha.
         public bool DialogoActivo { get; private set; }
+
+        // NPC con el que se esta hablando, o null si no hay dialogo. Lo consultan
+        // los NPC para saber si la conversacion es suya: los demas siguen a lo suyo.
+        public DialogoNPC NpcActual => npcActual;
 
         // Registra el singleton y busca referencias si no fueron asignadas.
         private void Awake()
@@ -49,12 +56,16 @@ namespace SoltaLaPala.Dialogue
                 interactorJugador = FindFirstObjectByType<InteractorJugador>();
         }
 
-        // Si hay dialogo activo, lee la tecla de avance (espacio) para saltar/avanzar.
+        // Si hay dialogo activo, lee la tecla de avance para saltar/avanzar.
         private void Update()
         {
             if (!DialogoActivo) return;
 
-            if (Input.GetKeyDown(teclaAvanzar))
+            // Con un menu abierto (pausa, configuracion) no se avanza el dialogo:
+            // la misma tecla podria estar usandose para navegar la UI.
+            if (GestorMenus.Instancia != null && GestorMenus.Instancia.HayMenuAbierto) return;
+
+            if (ControlesJuego.Pulsada(AccionJuego.AvanzarDialogo))
             {
                 AvanzarDialogo();
             }
@@ -163,8 +174,87 @@ namespace SoltaLaPala.Dialogue
                 interactorJugador.BloquearInteraccion(bloqueado);
             }
 
-            Cursor.lockState = bloqueado ? CursorLockMode.None : CursorLockMode.Locked;
-            Cursor.visible = bloqueado;
+            // La camara tiene que congelarse ademas del movimiento: si no, el raton
+            // que usas para elegir opciones del dialogo sigue girando la camara.
+            // BloquearCamara ya se encarga de liberar y recapturar el cursor.
+            if (camaraJugador != null)
+            {
+                camaraJugador.BloquearCamara(bloqueado);
+            }
+
+            // Ademas del bloqueo directo se avisa por el contador estatico, que es
+            // lo que consulta la camara aunque este dialogo no tenga referencia a
+            // ella (o aparezca una camara nueva a mitad de conversacion).
+            CamaraTerceraPersona.RegistrarUiAbierta(bloqueado);
+        }
+
+        // Guarda el tipo de dialogo en el que quedo cada NPC, como "id:tipo".
+        public void Capturar(DatosPartidaGuardada datos)
+        {
+            List<string> progreso = new List<string>();
+
+            foreach (DialogoNPC npc in BuscarNPCs())
+            {
+                if (!string.IsNullOrEmpty(npc.id))
+                {
+                    progreso.Add($"{npc.id}:{npc.tipoActual}");
+                }
+            }
+
+            datos.progresoDialogos = progreso.ToArray();
+        }
+
+        public void Restaurar(DatosPartidaGuardada datos)
+        {
+            // Si habia un dialogo abierto al guardar, cargar no debe dejar al
+            // jugador bloqueado hablando con nadie.
+            if (DialogoActivo)
+            {
+                TerminarDialogo();
+            }
+
+            if (datos.progresoDialogos == null)
+            {
+                return;
+            }
+
+            // Se indexa el guardado y no los NPC: hay pocos de cada, pero asi un
+            // id que ya no exista en la escena simplemente se ignora.
+            Dictionary<string, TipoDialogo> porId = new Dictionary<string, TipoDialogo>();
+
+            foreach (string entrada in datos.progresoDialogos)
+            {
+                int separador = entrada.LastIndexOf(':');
+                if (separador <= 0)
+                {
+                    continue;
+                }
+
+                string id = entrada.Substring(0, separador);
+                string tipoTexto = entrada.Substring(separador + 1);
+
+                // Un tipo que ya no existe en el enum no tumba la carga: ese NPC
+                // se queda con el que tenga puesto en la escena.
+                if (System.Enum.TryParse(tipoTexto, out TipoDialogo tipo))
+                {
+                    porId[id] = tipo;
+                }
+            }
+
+            foreach (DialogoNPC npc in BuscarNPCs())
+            {
+                if (npc.id != null && porId.TryGetValue(npc.id, out TipoDialogo tipo))
+                {
+                    npc.tipoActual = tipo;
+                }
+            }
+        }
+
+        // Incluye los inactivos: un NPC puede estar desactivado al guardar y su
+        // progreso sigue importando.
+        private static DialogoNPC[] BuscarNPCs()
+        {
+            return FindObjectsByType<DialogoNPC>(FindObjectsInactive.Include, FindObjectsSortMode.None);
         }
     }
 }

@@ -1,10 +1,13 @@
+using SoltaLaPala.Guardado;
 using SoltaLaPala.Inventory;
 using UnityEngine;
 
 namespace SoltaLaPala.Interaction
 {
     // Objeto del mundo que se puede recoger y guardar en el inventario.
+    // Necesita un IdentificadorObjeto para que el guardado recuerde que ya se recogio.
     [RequireComponent(typeof(ResaltadoInteractuable))]
+    [RequireComponent(typeof(IdentificadorObjeto))]
     public class ObjetoRecogible : MonoBehaviour, IInteractuable
     {
         public DatosItem item;
@@ -41,6 +44,13 @@ namespace SoltaLaPala.Interaction
                 }
             }
             gameObject.SetActive(false);
+
+            // Se anota antes de que el jugador pueda guardar, para que al cargar
+            // el objeto no reaparezca en el suelo.
+            if (RegistroObjetosConsumidos.Instancia != null)
+            {
+                RegistroObjetosConsumidos.Instancia.Marcar(gameObject);
+            }
         }
     }
 }
