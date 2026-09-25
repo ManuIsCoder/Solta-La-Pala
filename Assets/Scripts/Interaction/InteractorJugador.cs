@@ -1,3 +1,4 @@
+using SoltaLaPala.Menus;
 using UnityEngine;
 
 namespace SoltaLaPala.Interaction
@@ -10,7 +11,6 @@ namespace SoltaLaPala.Interaction
         public float alcance = 7f;
         public float radio = 0.6f;
         public LayerMask capasInteractuables = ~0;
-        public KeyCode teclaInteraccion = KeyCode.E;
 
         [Header("Referencias")]
         public Transform transformCamara;
@@ -58,7 +58,9 @@ namespace SoltaLaPala.Interaction
                 EstablecerObjetivoActual(mejor);
             }
 
-            if (objetivoActual != null && Input.GetKeyDown(teclaInteraccion))
+            // La tecla se lee desde ControlesJuego para que se pueda reasignar
+            // desde el menu de configuracion.
+            if (objetivoActual != null && ControlesJuego.Pulsada(AccionJuego.Interactuar))
             {
                 IntentarInteractuar();
             }
