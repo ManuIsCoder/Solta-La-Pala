@@ -25,9 +25,26 @@ namespace SoltaLaPala.Guardado
         // escena en tiempo de ejecucion no pasa por OnValidate y se queda sin id.
         public bool TieneId => !string.IsNullOrEmpty(id);
 
+        // Asigna un id especifico en tiempo de ejecucion.
+        public void AsignarId(string nuevoId)
+        {
+            id = nuevoId;
+        }
+
+        // Fuerza un id nuevo. Lo usa OnValidate y esta disponible para runtime y editor.
+        public void AsignarIdNuevo()
+        {
+            id = $"{gameObject.name}_{System.Guid.NewGuid().ToString("N").Substring(0, 8)}";
+
 #if UNITY_EDITOR
-        // Corre al añadir el componente, al duplicar el objeto y al tocar el
-        // inspector. Solo asigna si esta vacio, para no romper guardados existentes.
+            if (!Application.isPlaying)
+            {
+                UnityEditor.EditorUtility.SetDirty(this);
+            }
+#endif
+        }
+
+#if UNITY_EDITOR
         private void OnValidate()
         {
             if (!string.IsNullOrEmpty(id))
@@ -36,18 +53,6 @@ namespace SoltaLaPala.Guardado
             }
 
             AsignarIdNuevo();
-        }
-
-        // Fuerza un id nuevo. Lo usa OnValidate y esta disponible para el editor
-        // por si hay que arreglar un duplicado a mano.
-        public void AsignarIdNuevo()
-        {
-            // El nombre delante hace los ids legibles al mirar el JSON o la escena;
-            // el GUID corto garantiza que dos objetos con el mismo nombre no choquen.
-            id = $"{gameObject.name}_{System.Guid.NewGuid().ToString("N").Substring(0, 8)}";
-
-            // Sin esto Unity no marca la escena como sucia y el id no se guarda.
-            UnityEditor.EditorUtility.SetDirty(this);
         }
 #endif
 

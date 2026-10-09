@@ -1,5 +1,6 @@
 using System;
 using SoltaLaPala.Guardado;
+using SoltaLaPala.Interaction;
 using SoltaLaPala.Menus;
 using UnityEngine;
 
@@ -95,6 +96,12 @@ namespace SoltaLaPala.Inventory
                     break;
                 }
             }
+
+            // Tecla Q (SoltarObjeto) para soltar el item seleccionado al suelo
+            if (ControlesJuego.Pulsada(AccionJuego.SoltarObjeto))
+            {
+                SoltarItemSeleccionado();
+            }
         }
 
         // Mueve el ancla arriba y abajo para que el item se vea flotando en vez de
@@ -168,6 +175,84 @@ namespace SoltaLaPala.Inventory
             }
 
             return item;
+        }
+
+        // Tira al suelo el item que se tiene en la mano actualmente.
+        public void SoltarItemSeleccionado()
+        {
+            if (ItemSeleccionado == null)
+            {
+                return;
+            }
+
+            DatosItem itemASoltar = QuitarItem(slotSeleccionado);
+            if (itemASoltar == null)
+            {
+                return;
+            }
+
+            Transform camara = Camera.main != null ? Camera.main.transform : transform;
+            Vector3 direccionLanzamiento = camara.forward;
+            Vector3 posicionAparicion = transform.position + Vector3.up * 1.0f + direccionLanzamiento * 0.8f;
+
+            GameObject objetoSuelo;
+            if (itemASoltar.prefabEnMano != null)
+            {
+                objetoSuelo = Instantiate(itemASoltar.prefabEnMano, posicionAparicion, Quaternion.identity);
+            }
+            else
+            {
+                objetoSuelo = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                objetoSuelo.name = itemASoltar.nombre;
+                objetoSuelo.transform.position = posicionAparicion;
+                objetoSuelo.transform.localScale = new Vector3(0.25f, 0.25f, 0.25f);
+
+                Shader shader = Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard");
+                if (shader != null)
+                {
+                    objetoSuelo.GetComponent<Renderer>().material = new Material(shader) { color = Color.white };
+                }
+            }
+
+            objetoSuelo.name = itemASoltar.nombre;
+
+            // Asegurar que tenga collider y este activo
+            Collider col = objetoSuelo.GetComponent<Collider>();
+            if (col == null)
+            {
+                col = objetoSuelo.AddComponent<BoxCollider>();
+            }
+            col.enabled = true;
+
+            // Fisica para que caiga al suelo con un impulso hacia adelante
+            Rigidbody rb = objetoSuelo.GetComponent<Rigidbody>();
+            if (rb == null)
+            {
+                rb = objetoSuelo.AddComponent<Rigidbody>();
+            }
+            rb.isKinematic = false;
+            rb.detectCollisions = true;
+            rb.AddForce(direccionLanzamiento * 2.5f + Vector3.up * 1.2f, ForceMode.VelocityChange);
+
+            // Componentes necesarios para volver a recogerlo y que tenga silueta blanca
+            ObjetoRecogible recogible = objetoSuelo.GetComponent<ObjetoRecogible>();
+            if (recogible == null)
+            {
+                recogible = objetoSuelo.AddComponent<ObjetoRecogible>();
+            }
+            recogible.item = itemASoltar;
+
+            IdentificadorObjeto ident = objetoSuelo.GetComponent<IdentificadorObjeto>();
+            if (ident == null)
+            {
+                ident = objetoSuelo.AddComponent<IdentificadorObjeto>();
+            }
+            ident.AsignarIdNuevo();
+
+            if (objetoSuelo.GetComponent<ResaltadoInteractuable>() == null)
+            {
+                objetoSuelo.AddComponent<ResaltadoInteractuable>();
+            }
         }
 
         // Selecciona el slot indicado y actualiza lo que hay en la mano.

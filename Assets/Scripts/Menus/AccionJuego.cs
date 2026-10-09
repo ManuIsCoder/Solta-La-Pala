@@ -10,6 +10,7 @@ namespace SoltaLaPala.Menus
         Derecha,
         Correr,
         Interactuar,
+        SoltarObjeto,
         AvanzarDialogo,
         Slot1,
         Slot2,
