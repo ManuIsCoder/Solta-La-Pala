@@ -16,6 +16,11 @@ namespace SoltaLaPala.Inventory
         public GameObject prefabEnMano;
         [TextArea] public string descripcion;
 
+        [Tooltip("Si es true, llevar este item en la mano levantará sospechas si un NPC te ve.")]
+        public bool esSospechoso = false;
+
+  
+
         // El guardado solo escribe este id, nunca una referencia al asset.
         public string Id => id;
 

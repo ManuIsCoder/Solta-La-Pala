@@ -4,6 +4,7 @@ using SoltaLaPala.Guardado;
 using SoltaLaPala.Inventory;
 using SoltaLaPala.NPC;
 using SoltaLaPala.Player;
+using SoltaLaPala.Sabotaje;
 using UnityEngine;
 
 namespace SoltaLaPala.Menus
@@ -24,6 +25,15 @@ namespace SoltaLaPala.Menus
         public int sospechaMaxima = 100;
         [Tooltip("Segundos que dura el nivel. Si llega a 0 se pierde.")]
         public float duracionNivel = 300f;
+
+        [Header("Ajustes de Percepción")]
+        [Tooltip("Velocidad de subida de sospecha por segundo cuando te ven de lejos.")]
+        public float velocidadSospechaLejos = 10f;
+        [Tooltip("Velocidad de subida de sospecha por segundo cuando te ven de cerca (ojo rojo).")]
+        public float velocidadSospechaCerca = 25f;
+        // Permite marcar acciones sospechosas desde otros scripts
+        public static bool AccionSospechosaEnCurso { get; set; }
+        private float sospechaAcumulada;
 
         [Header("Estado actual")]
         [SerializeField] private int impacto;
@@ -146,7 +156,54 @@ namespace SoltaLaPala.Menus
             }
 
             AlCambiarTiempo?.Invoke(tiempoRestante);
+
+            ActualizarSospechaContinua();
         }
+
+        // Sube la sospecha de forma lineal/continua si te ven y estás haciendo algo sospechoso
+        private void ActualizarSospechaContinua()
+        {
+            var visionHud = IndicadorVisionHUD.Instancia;
+            if (visionHud == null || visionHud.EstadoActual == DetectorVisionNPC.EstadoVision.SinVer)
+            {
+                return;
+            }
+            // Solo sube si estás haciendo algo malo o llevas objeto prohibido
+            if (!EsJugadorSospechoso())
+            {
+                return;
+            }
+            // Ojo rojo sube más rápido que ojo normal
+            float velocidad = (visionHud.EstadoActual == DetectorVisionNPC.EstadoVision.VeCerca)
+                ? velocidadSospechaCerca
+                : velocidadSospechaLejos;
+            sospechaAcumulada += velocidad * Time.deltaTime;
+            int nuevaSospecha = Mathf.Min(sospechaMaxima, Mathf.FloorToInt(sospechaAcumulada));
+            if (nuevaSospecha != sospecha)
+            {
+                sospecha = nuevaSospecha;
+                AlCambiarContadores?.Invoke(impacto, sospecha);
+                ComprobarFinal();
+            }
+        }
+        // True si estás en menú de sabotaje, con flag sospechoso o con un item prohibido en la mano
+        public bool EsJugadorSospechoso()
+        {
+            if (AccionSospechosaEnCurso)
+            {
+                return true;
+            }
+            if (MenuSabotajeTaza.Instancia != null && MenuSabotajeTaza.Instancia.Abierto)
+            {
+                return true;
+            }
+            var inv = InventarioJugador.DelJugador();
+            if (inv != null && inv.ItemSeleccionado != null && inv.ItemSeleccionado.esSospechoso)
+            {
+                return true;
+            }
+            return false;
+        }        
 
         private void OnDestroy()
         {
@@ -166,6 +223,7 @@ namespace SoltaLaPala.Menus
 
             impacto += impactoGanado;
             sospecha = Mathf.Max(0, sospecha + sospechaGanada);
+            sospechaAcumulada = sospecha;
 
             AlCambiarContadores?.Invoke(impacto, sospecha);
 
@@ -304,6 +362,7 @@ namespace SoltaLaPala.Menus
         {
             impacto = 0;
             sospecha = 0;
+            sospechaAcumulada = sospecha;
             tiempoRestante = duracionNivel;
             PartidaTerminada = false;
 
@@ -325,6 +384,7 @@ namespace SoltaLaPala.Menus
         {
             impacto = datos.impacto;
             sospecha = datos.sospecha;
+            sospechaAcumulada = sospecha;
 
             // Un guardado viejo (sin tiempo escrito) traeria 0 y mataria la partida
             // en el primer frame. Si no hay tiempo valido, se arranca con el completo.

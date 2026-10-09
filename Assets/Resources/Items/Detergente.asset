@@ -17,3 +17,4 @@ MonoBehaviour:
   icono: {fileID: 21300000, guid: 18dcf4a6ffb33ff4382e3ab3b1b60deb, type: 3}
   prefabEnMano: {fileID: 8438032923488272665, guid: 3913c198ec1facd4b9afd0eb155f2d93, type: 3}
   descripcion: Lavavajillas concentrado. Sabe fatal y se nota.
+  esSospechoso: 1

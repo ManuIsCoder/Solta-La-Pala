@@ -10,6 +10,7 @@ namespace SoltaLaPala.Menus{
     {
 
         public static IndicadorVisionHUD Instancia { get; private set; }
+        public DetectorVisionNPC.EstadoVision EstadoActual { get; private set; } = DetectorVisionNPC.EstadoVision.SinVer;
         [Header("Sprites")]
         [Tooltip("Ojo cerrado: ningún NPC te ve.")]
         public Sprite spriteSinVer;
@@ -70,8 +71,8 @@ namespace SoltaLaPala.Menus{
             {
                 return;
             }
-            DetectorVisionNPC.EstadoVision estadoMaximo = ObtenerEstadoMaximo();
-            Pintar(estadoMaximo);
+            EstadoActual = ObtenerEstadoMaximo();
+            Pintar(EstadoActual);
         }
 
         private DetectorVisionNPC.EstadoVision ObtenerEstadoMaximo()

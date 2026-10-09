@@ -68,37 +68,14 @@ namespace SoltaLaPala.NPC
 
         private void Update()
         {
-            if (transformJugador == null)
+                       if (transformJugador == null)
             {
                 GameObject jugador = GameObject.FindGameObjectWithTag("Player");
                 if (jugador != null) transformJugador = jugador.transform;
-
                 Estado = EstadoVision.SinVer;
                 return;
             }
-
-            // El estado se calcula siempre, antes de los cortes de abajo: el ojo
-            // tiene que seguir reaccionando aunque el NPC este en cooldown o
-            // hablando, o se quedaria congelado en la ultima cara que puso.
             Estado = CalcularEstado();
-
-            if (Time.time < ultimoTiempoDeteccion + tiempoEntreDetecciones) return;
-            if (GestorDialogos.Instancia != null && GestorDialogos.Instancia.DialogoActivo) return;
-
-            if (Estado != EstadoVision.SinVer)
-            {
-                ultimoTiempoDeteccion = Time.time;
-
-                // La sospecha se suma antes del dialogo: si con esta deteccion se
-                // llega al tope, EstadoPartida dispara el dialogo de captura y la
-                // pantalla de derrota, y ese dialogo manda sobre este.
-                SumarSospechaPorDeteccion();
-
-                if (dialogoNPC != null)
-                {
-                    dialogoNPC.DispararDetectado();
-                }
-            }
         }
 
         // Te pilla mirando donde no debes: sube la sospecha segun lo cerca que
