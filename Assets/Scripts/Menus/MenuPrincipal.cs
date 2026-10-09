@@ -11,6 +11,9 @@ namespace SoltaLaPala.Menus
 
         // El primer boton es "Jugar" o "Continuar" segun haya partida guardada.
         // Se guardan las referencias para poder reetiquetarlo en AlMostrar.
+        [Header("Arte")]
+        public Sprite spriteTitulo;
+
         private Button botonPrincipal;
         private Text etiquetaPrincipal;
 
@@ -19,11 +22,34 @@ namespace SoltaLaPala.Menus
             GameObject panelFondo = CrearFondoYPanel(raiz, new Vector2(560f, 620f));
             Transform padre = panelFondo.transform;
 
-            Text titulo = CrearTitulo(padre, "SOLTA LA PALA", 560f);
-            titulo.fontSize = 52;
+            if (spriteTitulo == null)
+            {
+                spriteTitulo = Resources.Load<Sprite>("Sprites/UI/TituloJuego");
+            }
+
+            if (spriteTitulo != null)
+            {
+                GameObject objTitulo = new GameObject("LogoTitulo");
+                objTitulo.transform.SetParent(padre, false);
+                RectTransform rectTitulo = objTitulo.AddComponent<RectTransform>();
+                rectTitulo.anchorMin = new Vector2(0.5f, 1f);
+                rectTitulo.anchorMax = new Vector2(0.5f, 1f);
+                rectTitulo.pivot = new Vector2(0.5f, 1f);
+                rectTitulo.anchoredPosition = new Vector2(0f, -24f);
+                rectTitulo.sizeDelta = new Vector2(480f, 94f);
+
+                Image imgTitulo = objTitulo.AddComponent<Image>();
+                imgTitulo.sprite = spriteTitulo;
+                imgTitulo.preserveAspect = true;
+            }
+            else
+            {
+                Text titulo = CrearTitulo(padre, "SOLTA LA PALA", 560f);
+                titulo.fontSize = 52;
+            }
 
             ConstructorUI.CrearTexto("Subtitulo", padre, "Sabotea sin que te pillen",
-                20, TextAnchor.MiddleCenter, new Vector2(0f, -100f), new Vector2(480f, 30f))
+                20, TextAnchor.MiddleCenter, new Vector2(0f, -125f), new Vector2(480f, 30f))
                 .color = ConstructorUI.ColorTextoApagado;
 
             Vector2 tamanoBoton = new Vector2(400f, 62f);

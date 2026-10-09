@@ -10,10 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 51c54598b14011241bd1cac36228a298, type: 3}
-  m_Name: Pala
+  m_Name: Salero
   m_EditorClassIdentifier: Assembly-CSharp::SoltaLaPala.Inventory.DatosItem
-  id: Pala
-  nombre: Pala
-  icono: {fileID: 21300000, guid: c628516806184b25a153cfac0562b73d, type: 3}
-  prefabEnMano: {fileID: 851046582847283006, guid: e9ca06b15d77db44ea4374079c7b7e53, type: 3}
-  descripcion: Una pala de obra, pesada y seria.
+  id: Salero
+  nombre: Salero
+  icono: {fileID: 21300000, guid: 541515a7a630471a848dc38659151fc8, type: 3}
+  prefabEnMano: {fileID: 0}
+  descripcion: Salero de mesa. Para arruinarle el cafe a tus companeros.
+  esSospechoso: 1

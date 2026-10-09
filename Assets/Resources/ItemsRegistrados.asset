@@ -13,6 +13,13 @@ MonoBehaviour:
   m_Name: ItemsRegistrados
   m_EditorClassIdentifier: Assembly-CSharp::SoltaLaPala.Guardado.ItemsRegistrados
   items:
-  - {fileID: 11400000, guid: 207d5309ac5ed5c46985b25afbdb21a9, type: 2}
   - {fileID: 11400000, guid: 691dccd8f43009b4fb6aa73373dda41f, type: 2}
   - {fileID: 11400000, guid: e0bed133ea0f3c24c88e1d065aacc1c5, type: 2}
+  - {fileID: 11400000, guid: 207d5309ac5ed5c46985b25afbdb21a9, type: 2}
+  - {fileID: 11400000, guid: f2532bd024f84499ba4c9b9402ab3e20, type: 2}
+  - {fileID: 11400000, guid: 9eccda83eb9e41f2862412f8172e5271, type: 2}
+  - {fileID: 11400000, guid: dc876f8f950d48a1bf8f7212771e1c86, type: 2}
+  - {fileID: 11400000, guid: 8a2925b057c24207bfc9af4a45372386, type: 2}
+  - {fileID: 11400000, guid: 797a4192dfd84bb098957503add81040, type: 2}
+  - {fileID: 11400000, guid: b17c97711ac74ae99d90d2676026a0c5, type: 2}
+  - {fileID: 11400000, guid: 690c07cc4a764480b0382b75589fcaa1, type: 2}

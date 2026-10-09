@@ -17,15 +17,28 @@ namespace SoltaLaPala.Inventory
         [Tooltip("Los 3 cuadrados del inventario, en orden 1-2-3. Si estan vacios se generan solos.")]
         public SlotInterfaz[] slots = new SlotInterfaz[InventarioJugador.CantidadSlots];
 
-        [Header("Generacion automatica (prototipo)")]
+        [Header("Arte")]
+        [Tooltip("Sprite de la barra/marco del inventario. Si esta vacio se carga de Resources.")]
+        public Sprite spriteFondoInventario;
+
+        [Header("Ajustes de Barra y Escala")]
+        [Tooltip("Escala de la barra. Subila para hacerla mas grande (ej. 1.2, 1.5, 2.0).")]
+        [Range(0.5f, 3f)]
+        public float escalaBarra = 1.35f;
+        [Tooltip("Tamano nativo en pixeles de la imagen del inventario.")]
+        public Vector2 tamanoBase = new Vector2(293f, 89f);
+        [Tooltip("Margen desde la esquina inferior derecha de la pantalla (aumentar X lo mueve a la izquierda).")]
+        public Vector2 margen = new Vector2(70f, 30f);
+
+        [Header("Generacion automatica (prototipo sin sprite)")]
         [Tooltip("Lado del cuadrado de cada slot, en pixeles.")]
         public float tamanoSlot = 80f;
         [Tooltip("Separacion entre cuadrados, en pixeles.")]
         public float separacion = 10f;
-        [Tooltip("Margen desde la esquina inferior derecha de la pantalla.")]
-        public Vector2 margen = new Vector2(20f, 20f);
         public Color colorFondo = new Color(0f, 0f, 0f, 0.5f);
         public Color colorSeleccion = new Color(1f, 1f, 1f, 0.9f);
+
+        private RectTransform rectBarra;
 
         // Construye la UI si hace falta y engancha el inventario.
         private void Awake()
@@ -132,16 +145,94 @@ namespace SoltaLaPala.Inventory
             return true;
         }
 
-        // Crea por codigo el Canvas y los 3 cuadrados anclados abajo a la derecha.
-        // Solo para prototipar: cuando haya arte se arma a mano en la escena.
+        // Crea por codigo el Canvas y los 3 slots anclados abajo a la derecha.
         private void GenerarInterfaz()
         {
+            if (spriteFondoInventario == null)
+            {
+                spriteFondoInventario = Resources.Load<Sprite>("Sprites/UI/Inventario");
+            }
+
             Canvas canvas = CrearCanvas();
             slots = new SlotInterfaz[InventarioJugador.CantidadSlots];
 
+            if (spriteFondoInventario != null)
+            {
+                GenerarInterfazConSprite(canvas.transform);
+            }
+            else
+            {
+                for (int i = 0; i < InventarioJugador.CantidadSlots; i++)
+                {
+                    slots[i] = CrearSlot(canvas.transform, i);
+                }
+            }
+        }
+
+        private void Update()
+        {
+            if (rectBarra != null)
+            {
+                Vector2 tamanoDeseado = tamanoBase * escalaBarra;
+                Vector2 posicionDeseada = new Vector2(-margen.x, margen.y);
+
+                if (rectBarra.sizeDelta != tamanoDeseado)
+                {
+                    rectBarra.sizeDelta = tamanoDeseado;
+                }
+
+                if (rectBarra.anchoredPosition != posicionDeseada)
+                {
+                    rectBarra.anchoredPosition = posicionDeseada;
+                }
+            }
+        }
+
+        // Crea la barra de 3 slots estilizada con el sprite oficial
+        private void GenerarInterfazConSprite(Transform padre)
+        {
+            Vector2 tamanoBarra = tamanoBase * escalaBarra;
+
+            GameObject barra = new GameObject("BarraInventario");
+            barra.transform.SetParent(padre, false);
+
+            rectBarra = barra.AddComponent<RectTransform>();
+            rectBarra.anchorMin = new Vector2(1f, 0f);
+            rectBarra.anchorMax = new Vector2(1f, 0f);
+            rectBarra.pivot = new Vector2(1f, 0f);
+            rectBarra.anchoredPosition = new Vector2(-margen.x, margen.y);
+            rectBarra.sizeDelta = tamanoBarra;
+
+            Image imgFondo = barra.AddComponent<Image>();
+            imgFondo.sprite = spriteFondoInventario;
+            imgFondo.preserveAspect = true;
+
             for (int i = 0; i < InventarioJugador.CantidadSlots; i++)
             {
-                slots[i] = CrearSlot(canvas.transform, i);
+                GameObject slotObj = new GameObject($"Slot{i + 1}");
+                slotObj.transform.SetParent(barra.transform, false);
+
+                RectTransform rectSlot = slotObj.AddComponent<RectTransform>();
+                rectSlot.anchorMin = new Vector2((float)i / InventarioJugador.CantidadSlots, 0f);
+                rectSlot.anchorMax = new Vector2((float)(i + 1) / InventarioJugador.CantidadSlots, 1f);
+                rectSlot.offsetMin = new Vector2(6f, 6f);
+                rectSlot.offsetMax = new Vector2(-6f, -6f);
+
+                // Marco de seleccion
+                GameObject marco = CrearImagen("Marco", slotObj.transform, new Color(1f, 1f, 1f, 0.45f));
+                EstirarSobrePadre(marco.GetComponent<RectTransform>(), 0f);
+                marco.transform.SetAsFirstSibling();
+                marco.SetActive(false);
+
+                // Icono
+                GameObject icono = CrearImagen("Icono", slotObj.transform, Color.white);
+                EstirarSobrePadre(icono.GetComponent<RectTransform>(), 8f);
+
+                Image imagenIcono = icono.GetComponent<Image>();
+                imagenIcono.preserveAspect = true;
+                imagenIcono.enabled = false;
+
+                slots[i] = new SlotInterfaz { icono = imagenIcono, marcoSeleccion = marco };
             }
         }
 
@@ -153,10 +244,12 @@ namespace SoltaLaPala.Inventory
 
             Canvas canvas = objetoCanvas.AddComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            canvas.sortingOrder = 50;
 
             CanvasScaler escalador = objetoCanvas.AddComponent<CanvasScaler>();
             escalador.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
             escalador.referenceResolution = new Vector2(1920f, 1080f);
+            escalador.matchWidthOrHeight = 0.5f;
 
             return canvas;
         }
