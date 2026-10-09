@@ -55,6 +55,10 @@ namespace SoltaLaPala.NPC
         {
             dialogoNPC = GetComponent<DialogoNPC>();
             if (ojos == null) ojos = transform;
+            if (GetComponent<MiradaNPC>() == null)
+            {
+                gameObject.AddComponent<MiradaNPC>();
+            }
         }
 
         private void Start()
