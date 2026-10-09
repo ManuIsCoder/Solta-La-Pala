@@ -1,114 +1,131 @@
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace SoltaLaPala.Interaction
 {
-    // Pinta una silueta blanca cuando el jugador esta apuntando a este objeto.
+    // Pinta una silueta blanca (outline) cuando el jugador esta apuntando a este objeto.
     //
-    // Solo se enciende mientras el InteractorJugador lo tiene como objetivo, y ese
-    // solo elige objetos con los que se puede interactuar de verdad: si algo brilla,
-    // es que sirve.
+    // Usa un shader Inverted Hull sin alterar los materiales ni colores originales
+    // del objeto, evitando que se vuelva completamente blanco solido.
     public class ResaltadoInteractuable : MonoBehaviour
     {
-        [Header("Borde")]
-        public Color colorBorde = Color.white;
-        public float intensidad = 1.2f;
-        [Tooltip("Si se deja vacio se cogen todos los Renderer hijos al arrancar.")]
+        [Header("Silueta")]
+        [Tooltip("Color del contorno.")]
+        public Color colorSilueta = Color.white;
+
+        [Tooltip("Grosor del contorno en metros.")]
+        [Range(0.005f, 0.08f)]
+        public float grosor = 0.025f;
+
+        [Tooltip("Si se deja vacio se toman todos los MeshRenderer hijos al arrancar.")]
         public Renderer[] renderers;
 
-        private MaterialPropertyBlock propBlock;
-        private static readonly int EmissionColorProp = Shader.PropertyToID("_EmissionColor");
-
-        // Emision que tenia cada renderer antes de resaltarlo, para devolversela
-        // al apagar en vez de dejarlo todo en negro: un objeto que ya brillaba
-        // por su material se quedaria apagado para siempre.
-        private Color[] emisionOriginal;
-
+        private static Material materialSiluetaCompartido;
+        private readonly List<GameObject> siluetasCreadas = new List<GameObject>();
         private bool resaltado;
 
         private void Awake()
         {
             if (renderers == null || renderers.Length == 0)
             {
-                renderers = GetComponentsInChildren<Renderer>();
+                renderers = GetComponentsInChildren<Renderer>(true);
             }
 
-            propBlock = new MaterialPropertyBlock();
-
-            GuardarEmisionOriginal();
+            ConstruirSiluetas();
         }
 
-        // Lee la emision de partida de cada material. Se hace una sola vez, antes
-        // de que nadie la haya tocado.
-        private void GuardarEmisionOriginal()
+        private static Material ObtenerMaterialSilueta()
         {
-            emisionOriginal = new Color[renderers.Length];
+            if (materialSiluetaCompartido == null)
+            {
+                Shader shader = Shader.Find("Custom/OutlineSilueta");
+                if (shader == null)
+                {
+                    Debug.LogWarning("[ResaltadoInteractuable] No se encontro el shader 'Custom/OutlineSilueta'.");
+                    return null;
+                }
+                materialSiluetaCompartido = new Material(shader)
+                {
+                    name = "Material_Silueta_Compartido"
+                };
+            }
+            return materialSiluetaCompartido;
+        }
+
+        // Crea un objeto hijo 'Silueta' por cada MeshRenderer existente
+        private void ConstruirSiluetas()
+        {
+            Material mat = ObtenerMaterialSilueta();
+            if (mat == null || renderers == null) return;
+
+            MaterialPropertyBlock propBlock = new MaterialPropertyBlock();
+            propBlock.SetColor("_Color", colorSilueta);
+            propBlock.SetFloat("_Grosor", grosor);
 
             for (int i = 0; i < renderers.Length; i++)
             {
                 Renderer rend = renderers[i];
+                if (rend == null || rend.name == "Silueta_Outline") continue;
 
-                emisionOriginal[i] = rend != null && rend.sharedMaterial != null
-                    && rend.sharedMaterial.HasProperty(EmissionColorProp)
-                        ? rend.sharedMaterial.GetColor(EmissionColorProp)
-                        : Color.black;
+                MeshFilter mfOriginal = rend.GetComponent<MeshFilter>();
+                if (mfOriginal == null || mfOriginal.sharedMesh == null) continue;
+
+                GameObject objSilueta = new GameObject("Silueta_Outline");
+                objSilueta.transform.SetParent(rend.transform, false);
+                objSilueta.transform.localPosition = Vector3.zero;
+                objSilueta.transform.localRotation = Quaternion.identity;
+                objSilueta.transform.localScale = Vector3.one;
+
+                MeshFilter mf = objSilueta.AddComponent<MeshFilter>();
+                mf.sharedMesh = mfOriginal.sharedMesh;
+
+                MeshRenderer mr = objSilueta.AddComponent<MeshRenderer>();
+                mr.sharedMaterial = mat;
+                mr.SetPropertyBlock(propBlock);
+                mr.shadowCastingMode = ShadowCastingMode.Off;
+                mr.receiveShadows = false;
+
+                objSilueta.SetActive(false);
+                siluetasCreadas.Add(objSilueta);
             }
         }
 
-        // Enciende o apaga la silueta blanca.
+        // Enciende o apaga la silueta blanca
         public void Resaltar(bool activo)
         {
-            if (renderers == null || resaltado == activo)
-            {
-                return;
-            }
-
+            if (resaltado == activo) return;
             resaltado = activo;
 
-            for (int i = 0; i < renderers.Length; i++)
+            for (int i = 0; i < siluetasCreadas.Count; i++)
             {
-                Renderer rend = renderers[i];
-
-                if (rend == null)
+                GameObject silueta = siluetasCreadas[i];
+                if (silueta != null)
                 {
-                    continue;
-                }
-
-                rend.GetPropertyBlock(propBlock);
-                propBlock.SetColor(EmissionColorProp, activo
-                    ? colorBorde * intensidad
-                    : emisionOriginal[i]);
-                rend.SetPropertyBlock(propBlock);
-
-                // La keyword se toca sobre el material de instancia y no se puede
-                // meter en el PropertyBlock. Se apaga al desresaltar salvo que el
-                // material ya emitiera de por si.
-                AjustarKeywordEmision(rend, activo || emisionOriginal[i] != Color.black);
-            }
-        }
-
-        private static void AjustarKeywordEmision(Renderer rend, bool encendida)
-        {
-            foreach (Material mat in rend.materials)
-            {
-                if (encendida)
-                {
-                    mat.EnableKeyword("_EMISSION");
-                }
-                else
-                {
-                    mat.DisableKeyword("_EMISSION");
+                    silueta.SetActive(activo);
                 }
             }
         }
 
-        // Si el objeto se desactiva estando resaltado (al recogerlo, por ejemplo)
-        // hay que dejarlo limpio: al reaparecer seguiria brillando.
+        // Si el objeto se desactiva (ej: al recogerlo), apaga el resaltado
         private void OnDisable()
         {
             if (resaltado)
             {
                 Resaltar(false);
             }
+        }
+
+        private void OnDestroy()
+        {
+            for (int i = 0; i < siluetasCreadas.Count; i++)
+            {
+                if (siluetasCreadas[i] != null)
+                {
+                    Destroy(siluetasCreadas[i]);
+                }
+            }
+            siluetasCreadas.Clear();
         }
     }
 }
