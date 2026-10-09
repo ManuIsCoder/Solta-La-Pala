@@ -47,7 +47,8 @@ namespace SoltaLaPala.NPC
         private void Awake()
         {
             detector = GetComponent<DetectorVisionNPC>();
-            CrearIcono();
+            // Desactivado: el icono ya no flota sobre los NPCs, ahora se muestra en el HUD (IndicadorVisionHUD).
+            // CrearIcono();
         }
 
         // El icono se orienta en LateUpdate para que la camara ya se haya movido

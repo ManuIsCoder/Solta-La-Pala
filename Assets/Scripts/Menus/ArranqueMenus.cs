@@ -56,6 +56,12 @@ namespace SoltaLaPala.Menus
                 objeto.AddComponent<BarraSospecha>();
             }
 
+            if (Object.FindAnyObjectByType<IndicadorVisionHUD>() == null)
+            {
+                GameObject objeto = new GameObject("IndicadorVisionHUD");
+                objeto.AddComponent<IndicadorVisionHUD>();
+            }
+
             if (Object.FindAnyObjectByType<MenuEntrega>() == null)
             {
                 GameObject objeto = new GameObject("MenuEntrega");
