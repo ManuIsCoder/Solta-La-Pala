@@ -15,6 +15,6 @@ MonoBehaviour:
   id: Telefono
   nombre: Telefono
   icono: {fileID: 21300000, guid: a9d77289d8284775acf2adcc0f965e2b, type: 3}
-  prefabEnMano: {fileID: 0}
+  prefabEnMano: {fileID: 919132149155446097, guid: 7aafe65c9734f1242bfefb913c6103f2, type: 3}
   descripcion: Telefono de escritorio con cable.
   esSospechoso: 0

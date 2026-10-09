@@ -15,6 +15,6 @@ MonoBehaviour:
   id: Planta
   nombre: Planta
   icono: {fileID: 21300000, guid: 08e1d65c323549038decb04269845a12, type: 3}
-  prefabEnMano: {fileID: 0}
+  prefabEnMano: {fileID: 919132149155446097, guid: 4b8a926e4c7499041a30d2553699f633, type: 3}
   descripcion: Una maceta de oficina con hojas verdes.
   esSospechoso: 0
