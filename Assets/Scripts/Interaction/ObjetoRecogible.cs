@@ -82,12 +82,22 @@ namespace SoltaLaPala.Interaction
         // Mete el item en el inventario del jugador y destruye este objeto del mundo.
         public void Interactuar(GameObject quienInteractua)
         {
+            if (item == null)
+            {
+                Debug.LogWarning($"[ObjetoRecogible] '{name}' no tiene asignado ningún ScriptableObject en el campo 'Item' del Inspector.");
+                return;
+            }
+
             if (quienInteractua != null)
             {
                 var inv = quienInteractua.GetComponent<InventarioJugador>();
-                if (inv != null && item != null)
+                if (inv != null)
                 {
-                    inv.IntentarAgregarItem(item);
+                    bool agregado = inv.IntentarAgregarItem(item);
+                    if (!agregado)
+                    {
+                        return;
+                    }
                 }
             }
             gameObject.SetActive(false);

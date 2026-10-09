@@ -199,6 +199,7 @@ namespace SoltaLaPala.Inventory
             if (itemASoltar.prefabEnMano != null)
             {
                 objetoSuelo = Instantiate(itemASoltar.prefabEnMano, posicionAparicion, Quaternion.identity);
+                objetoSuelo.transform.localScale = Vector3.one;
             }
             else
             {
