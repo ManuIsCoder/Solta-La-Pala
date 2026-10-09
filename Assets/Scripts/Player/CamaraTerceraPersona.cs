@@ -32,7 +32,7 @@ namespace SoltaLaPala.Player
 
         [Header("Primera persona")]
         [Tooltip("Altura de los ojos del PJ, para la vista en primera persona.")]
-        public Vector3 offsetPrimeraPersona = new Vector3(0f, 1.65f, 0f);
+        public Vector3 offsetPrimeraPersona = new Vector3(0f, 0.55f, 0.15f);
         [Tooltip("Cuanto puede mirar hacia arriba en primera persona. Mas libre " +
                  "que en tercera, donde la camara chocaria con el suelo.")]
         public float pitchMinimoPrimeraPersona = -75f;
@@ -263,7 +263,12 @@ namespace SoltaLaPala.Player
         // En primera persona el pivote son los ojos, y la camara se queda ahi.
         private Vector3 ObtenerPivote()
         {
-            return objetivo.position + (EnPrimeraPersona ? offsetPrimeraPersona : offsetObjetivo);
+            if (EnPrimeraPersona){
+                // Posiciona la camara en la cara, respetando hacia donde gira el jugador
+                return objetivo.position + objetivo.TransformDirection(offsetPrimeraPersona);
+            }
+
+            return objetivo.position + offsetObjetivo;
         }
 
         // Lanza un rayo del jugador a la posicion deseada y, si choca con algo,
