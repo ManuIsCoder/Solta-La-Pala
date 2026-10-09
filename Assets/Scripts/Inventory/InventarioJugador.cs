@@ -249,10 +249,12 @@ namespace SoltaLaPala.Inventory
             }
             ident.AsignarIdNuevo();
 
-            if (objetoSuelo.GetComponent<ResaltadoInteractuable>() == null)
+            ResaltadoInteractuable resaltado = objetoSuelo.GetComponent<ResaltadoInteractuable>();
+            if (resaltado == null)
             {
-                objetoSuelo.AddComponent<ResaltadoInteractuable>();
+                resaltado = objetoSuelo.AddComponent<ResaltadoInteractuable>();
             }
+            resaltado.renderers = objetoSuelo.GetComponentsInChildren<Renderer>(true);
         }
 
         // Selecciona el slot indicado y actualiza lo que hay en la mano.
