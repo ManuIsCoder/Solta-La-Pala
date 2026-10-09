@@ -1,4 +1,6 @@
+using SoltaLaPala.Dialogue;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace SoltaLaPala.NPC
 {
@@ -22,18 +24,91 @@ namespace SoltaLaPala.NPC
         [Tooltip("Velocidad de giro de la cabeza en grados por segundo.")]
         public float velocidadGiro = 240f;
 
+        [Header("Indicador visible")]
+        [Tooltip("Pelota pegada a la cabeza que gira con ella, para que se vea en el juego " +
+                 "hacia donde mira el NPC. Roja cuando te sigue, blanca cuando mira al frente.")]
+        public bool mostrarIndicador = true;
+
+        [Tooltip("Donde flota la pelota respecto a la cabeza. Z = hacia adelante.")]
+        public Vector3 offsetIndicador = new Vector3(0f, 0f, 0.6f);
+
+        [Tooltip("Diametro de la pelota.")]
+        public float tamanoIndicador = 0.3f;
+
+        public Color colorSiguiendo = new Color(0.9f, 0.15f, 0.15f, 1f);
+        public Color colorAlFrente = Color.white;
+
         [Header("Gizmos")]
         public bool dibujarGizmos = true;
 
         private DetectorVisionNPC detector;
+        private DialogoNPC dialogoNPC;
         private Transform transformJugador;
         private Quaternion rotacionLocalInicial = Quaternion.identity;
         private bool estaSiguiendo = false;
+        private Renderer renderIndicador;
+
+        // Ultimo color pintado, para no tocar el material cada frame.
+        private bool? indicadorRojo;
 
         private void Awake()
         {
             detector = GetComponent<DetectorVisionNPC>();
+            dialogoNPC = GetComponent<DialogoNPC>();
             AsegurarCabeza();
+            CrearIndicador();
+        }
+
+        // Crea la pelota como hija de la cabeza. Sin collider ni sombra: es solo una
+        // marca visual, no debe empujar al jugador ni ser apuntable.
+        private void CrearIndicador()
+        {
+            if (!mostrarIndicador || cabeza == null)
+            {
+                return;
+            }
+
+            GameObject esfera = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            esfera.name = "IndicadorMirada";
+
+            Collider colisionador = esfera.GetComponent<Collider>();
+            if (colisionador != null)
+            {
+                Destroy(colisionador);
+            }
+
+            // El tamano es en metros: se compensa la escala del NPC para que
+            // no salga gigante o diminuta segun el modelo.
+            esfera.transform.SetParent(cabeza, false);
+            Vector3 escalaPadre = cabeza.lossyScale;
+            esfera.transform.localScale = new Vector3(
+                tamanoIndicador / Mathf.Max(escalaPadre.x, 0.0001f),
+                tamanoIndicador / Mathf.Max(escalaPadre.y, 0.0001f),
+                tamanoIndicador / Mathf.Max(escalaPadre.z, 0.0001f));
+            esfera.transform.localPosition = new Vector3(
+                offsetIndicador.x / Mathf.Max(escalaPadre.x, 0.0001f),
+                offsetIndicador.y / Mathf.Max(escalaPadre.y, 0.0001f),
+                offsetIndicador.z / Mathf.Max(escalaPadre.z, 0.0001f));
+
+            renderIndicador = esfera.GetComponent<Renderer>();
+            renderIndicador.shadowCastingMode = ShadowCastingMode.Off;
+            renderIndicador.receiveShadows = false;
+
+            PintarIndicador(false);
+        }
+
+        // Pinta la pelota solo cuando cambia el estado. El material por defecto de
+        // la esfera ya es el del pipeline del proyecto, asi que no hace falta
+        // buscar un shader a mano.
+        private void PintarIndicador(bool siguiendo)
+        {
+            if (renderIndicador == null || indicadorRojo == siguiendo)
+            {
+                return;
+            }
+
+            indicadorRojo = siguiendo;
+            renderIndicador.material.color = siguiendo ? colorSiguiendo : colorAlFrente;
         }
 
         private void Start()
@@ -101,9 +176,13 @@ namespace SoltaLaPala.NPC
             Vector3 direccionHaciaJugador = destino - origen;
             float distancia = direccionHaciaJugador.magnitude;
 
-            estaSiguiendo = false;
+            // Si el jugador esta hablando con ESTE NPC, lo mira siempre, sin importar
+            // desde donde le hable ni a que distancia: es su interlocutor.
+            bool hablandoConmigo = EstaHablandoConElJugador();
 
-            if (distancia <= distanciaEfectiva)
+            estaSiguiendo = hablandoConmigo;
+
+            if (!hablandoConmigo && distancia <= distanciaEfectiva)
             {
                 // Comprobar ángulo frontal horizontal
                 Vector3 direccionPlana = new Vector3(direccionHaciaJugador.x, 0f, direccionHaciaJugador.z);
@@ -119,6 +198,8 @@ namespace SoltaLaPala.NPC
                 }
             }
 
+            PintarIndicador(estaSiguiendo);
+
             Quaternion rotacionObjetivo;
 
             if (estaSiguiendo)
@@ -133,8 +214,21 @@ namespace SoltaLaPala.NPC
                 rotacionObjetivo = rotacionLocalInicial;
             }
 
-            // Giro suave
-            cabeza.localRotation = Quaternion.RotateTowards(cabeza.localRotation, rotacionObjetivo, velocidadGiro * Time.deltaTime);
+            // Giro suave. Durante un dialogo el juego esta congelado (timeScale 0) y
+            // Time.deltaTime vale 0: la cabeza no giraria hacia el jugador.
+            float dt = hablandoConmigo ? Time.unscaledDeltaTime : Time.deltaTime;
+            cabeza.localRotation = Quaternion.RotateTowards(cabeza.localRotation, rotacionObjetivo, velocidadGiro * dt);
+        }
+
+        // True si hay un dialogo en marcha y es con este NPC.
+        private bool EstaHablandoConElJugador()
+        {
+            GestorDialogos gestor = GestorDialogos.Instancia;
+
+            return dialogoNPC != null
+                && gestor != null
+                && gestor.DialogoActivo
+                && gestor.NpcActual == dialogoNPC;
         }
 
         private void VolverAlFrente()

@@ -106,6 +106,7 @@ namespace SoltaLaPala.Dialogue
             indiceLinea = 0;
 
             BloquearJugador(true);
+            GestorMenus.Instancia?.RefrescarTiempo();
 
             if (interfaz != null)
             {
@@ -143,6 +144,7 @@ namespace SoltaLaPala.Dialogue
             DialogoActivo = true;
 
             BloquearJugador(true);
+            GestorMenus.Instancia?.RefrescarTiempo();
 
             if (interfaz != null)
             {
@@ -182,6 +184,23 @@ namespace SoltaLaPala.Dialogue
             }
         }
 
+        // Corta el dialogo en marcha sin avisar al NPC, como si fuera una frase
+        // suelta: ni avanza su estado ni lo marca como escuchado.
+        //
+        // Lo usa el reinicio de nivel: un dialogo de captura puede quedar abierto
+        // detras de la pantalla de derrota, y con el tiempo congelado por el
+        // dialogo el nivel nuevo arrancaria parado.
+        public void CancelarDialogo()
+        {
+            if (!DialogoActivo)
+            {
+                return;
+            }
+
+            fraseSuelta = true;
+            TerminarDialogo();
+        }
+
         // Cierra el cuadro, devuelve el control al jugador y avisa al NPC
         // para que aplique la transicion de tipo de dialogo.
         private void TerminarDialogo()
@@ -194,6 +213,7 @@ namespace SoltaLaPala.Dialogue
             }
 
             BloquearJugador(false);
+            GestorMenus.Instancia?.RefrescarTiempo();
 
             if (npcActual != null)
             {

@@ -1,4 +1,5 @@
 using System;
+using SoltaLaPala.Dialogue;
 using SoltaLaPala.Guardado;
 using SoltaLaPala.Interaction;
 using SoltaLaPala.Menus;
@@ -79,8 +80,14 @@ namespace SoltaLaPala.Inventory
             AnimarItemEnMano();
 
             // Con un menu abierto el juego esta pausado y el jugador esta navegando
-            // la UI: no debe cambiar de item sin querer.
+            // la UI: no debe cambiar de item sin querer. Lo mismo hablando con un NPC:
+            // no se puede soltar ni cambiar de item en mitad de una conversacion.
             if (GestorMenus.Instancia != null && GestorMenus.Instancia.HayMenuAbierto)
+            {
+                return;
+            }
+
+            if (GestorDialogos.Instancia != null && GestorDialogos.Instancia.DialogoActivo)
             {
                 return;
             }

@@ -5,7 +5,7 @@ using UnityEngine.UI;
 namespace SoltaLaPala.Dialogue
 {
     // Cuadro de dialogo: rectangulo con el nombre del NPC arriba
-    // y el texto de la frase escribiendose letra a letra.
+    // y el texto de la frase escribiendose palabra a palabra.
     public class InterfazDialogo : MonoBehaviour
     {
         [Header("Referencias")]
@@ -16,13 +16,24 @@ namespace SoltaLaPala.Dialogue
         public GameObject indicadorContinuar;
 
         [Header("Ajustes")]
-        public float letrasPorSegundo = 35f;
+        [Tooltip("Palabras que aparecen por segundo. Un valor mas alto escribe mas rapido.")]
+        public float palabrasPorSegundo = 5f;
 
         private Coroutine rutinaEscritura;
         private string lineaActualCompleta = "";
 
-        // True mientras el texto se esta escribiendo letra a letra.
+        // True mientras el texto se esta escribiendo palabra a palabra.
         public bool Escribiendo { get; private set; }
+
+        // Se dispara al empezar a escribir una linea. Parametro: segundos que va a
+        // tardar en escribirse entera. Es el gancho para el sonido de balbuceo: que
+        // suene lo mismo que dura el texto.
+        public event System.Action<float> AlEmpezarLinea;
+
+        // Se dispara cuando la linea deja de escribirse: porque termino sola, porque
+        // el jugador la completo con espacio o porque se cerro el cuadro.
+        // El balbuceo tiene que cortarse aca.
+        public event System.Action AlTerminarLinea;
 
         private void Awake()
         {
@@ -47,7 +58,11 @@ namespace SoltaLaPala.Dialogue
                 StopCoroutine(rutinaEscritura);
                 rutinaEscritura = null;
             }
-            Escribiendo = false;
+            if (Escribiendo)
+            {
+                Escribiendo = false;
+                AlTerminarLinea?.Invoke();
+            }
             if (panel != null) panel.SetActive(false);
         }
 
@@ -75,9 +90,13 @@ namespace SoltaLaPala.Dialogue
             Escribiendo = false;
             if (textoDialogo != null) textoDialogo.text = lineaActualCompleta;
             if (indicadorContinuar != null) indicadorContinuar.SetActive(true);
+            AlTerminarLinea?.Invoke();
         }
 
-        // Corrutina que va anadiendo caracteres al texto segun letrasPorSegundo.
+        // Corrutina que va anadiendo una palabra por vez al texto segun palabrasPorSegundo.
+        //
+        // Espera en tiempo real y no en tiempo de juego: mientras dura el dialogo el
+        // juego esta congelado (timeScale 0) y con WaitForSeconds el texto no avanzaria.
         private IEnumerator EscribirLinea(string linea)
         {
             Escribiendo = true;
@@ -85,17 +104,24 @@ namespace SoltaLaPala.Dialogue
             if (textoDialogo != null) textoDialogo.text = "";
             if (indicadorContinuar != null) indicadorContinuar.SetActive(false);
 
-            float delay = 1f / Mathf.Max(letrasPorSegundo, 1f);
+            string[] palabras = linea.Split(new[] { ' ' }, System.StringSplitOptions.RemoveEmptyEntries);
+            float delay = 1f / Mathf.Max(palabrasPorSegundo, 0.1f);
 
-            for (int i = 0; i < linea.Length; i++)
+            AlEmpezarLinea?.Invoke(palabras.Length * delay);
+
+            for (int i = 0; i < palabras.Length; i++)
             {
-                if (textoDialogo != null) textoDialogo.text += linea[i];
-                yield return new WaitForSeconds(delay);
+                if (textoDialogo != null)
+                {
+                    textoDialogo.text += (i > 0 ? " " : "") + palabras[i];
+                }
+                yield return new WaitForSecondsRealtime(delay);
             }
 
             Escribiendo = false;
             rutinaEscritura = null;
             if (indicadorContinuar != null) indicadorContinuar.SetActive(true);
+            AlTerminarLinea?.Invoke();
         }
     }
 }

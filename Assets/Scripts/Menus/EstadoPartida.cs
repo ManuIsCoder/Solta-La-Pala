@@ -109,6 +109,10 @@ namespace SoltaLaPala.Menus
 
         private static void ReiniciarDialogos()
         {
+            // Primero se cierra el dialogo en marcha (si lo hay), que si no deja el
+            // tiempo congelado y al jugador bloqueado en el nivel nuevo.
+            GestorDialogos.Instancia?.CancelarDialogo();
+
             foreach (DialogoNPC npc in
                      FindObjectsByType<DialogoNPC>(FindObjectsInactive.Include, FindObjectsSortMode.None))
             {

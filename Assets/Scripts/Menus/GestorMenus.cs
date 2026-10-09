@@ -240,12 +240,27 @@ namespace SoltaLaPala.Menus
             }
         }
 
+        // Congela o reanuda el tiempo: parado mientras haya un menu abierto o un
+        // dialogo en marcha. Lo llama GestorDialogos al abrir y cerrar cada dialogo,
+        // para que este siga siendo el unico sitio que toca Time.timeScale.
+        public void RefrescarTiempo()
+        {
+            RefrescarTiempo(HayMenuAbierto);
+        }
+
+        private static void RefrescarTiempo(bool menuAbierto)
+        {
+            bool hayDialogo = GestorDialogos.Instancia != null && GestorDialogos.Instancia.DialogoActivo;
+
+            Time.timeScale = menuAbierto || hayDialogo ? 0f : 1f;
+        }
+
         // Congela el juego y libera el cursor mientras hay un menu abierto.
         private void AplicarEstadoJuego(bool menuAbierto)
         {
             // timeScale 0 congela fisica y animaciones. Los menus usan
             // WaitForSecondsRealtime / unscaledDeltaTime si necesitan tiempo.
-            Time.timeScale = menuAbierto ? 0f : 1f;
+            RefrescarTiempo(menuAbierto);
 
             Cursor.lockState = menuAbierto ? CursorLockMode.None : CursorLockMode.Locked;
             Cursor.visible = menuAbierto;
