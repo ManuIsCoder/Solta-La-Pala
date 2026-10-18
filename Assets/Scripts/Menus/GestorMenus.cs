@@ -292,8 +292,9 @@ namespace SoltaLaPala.Menus
             menuVictoriaDerrota = AsegurarPantalla(menuVictoriaDerrota, "MenuVictoriaDerrota");
         }
 
-        // Si la pantalla no esta asignada, busca una en la escena y si tampoco hay,
-        // la crea como hijo de este objeto.
+        // Si la pantalla no esta asignada, busca una en la escena; si no hay, usa
+        // el prefab de Resources/Menus; y si tampoco hay, la crea como hijo de este
+        // objeto y se construye por codigo.
         private T AsegurarPantalla<T>(T actual, string nombre) where T : MenuBase
         {
             if (actual != null)
@@ -305,6 +306,15 @@ namespace SoltaLaPala.Menus
             if (enEscena != null)
             {
                 return enEscena;
+            }
+
+            // Asi el mismo prefab sirve para todos los niveles sin ponerlo en cada escena.
+            GameObject prefab = Resources.Load<GameObject>($"Menus/{nombre}");
+            if (prefab != null && prefab.GetComponent<T>() != null)
+            {
+                GameObject instancia = Instantiate(prefab, transform);
+                instancia.name = nombre;
+                return instancia.GetComponent<T>();
             }
 
             GameObject objeto = new GameObject(nombre);

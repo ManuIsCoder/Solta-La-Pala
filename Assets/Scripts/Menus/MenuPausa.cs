@@ -10,8 +10,25 @@ namespace SoltaLaPala.Menus
     {
         protected override int OrdenPantalla => 120;
 
-        // Confirma al jugador que el guardado manual se escribio.
-        private Text textoAviso;
+        [Header("Prefab (Resources/Menus)")]
+        public Button botonContinuar;
+        public Button botonGuardar;
+        public Button botonReiniciar;
+        public Button botonConfiguracion;
+        public Button botonResultados;
+        public Button botonMenuPrincipal;
+        [Tooltip("Confirma al jugador que el guardado manual se escribio.")]
+        public Text textoAviso;
+
+        protected override void Enlazar()
+        {
+            Enganchar(botonContinuar, ContinuarJugando);
+            Enganchar(botonGuardar, Guardar);
+            Enganchar(botonReiniciar, ReiniciarNivel);
+            Enganchar(botonConfiguracion, () => Gestor?.Abrir(PantallaMenu.Configuracion));
+            Enganchar(botonResultados, () => Gestor?.Abrir(PantallaMenu.Resultados));
+            Enganchar(botonMenuPrincipal, VolverAlMenuPrincipal);
+        }
 
         protected override void Construir(Transform raiz)
         {

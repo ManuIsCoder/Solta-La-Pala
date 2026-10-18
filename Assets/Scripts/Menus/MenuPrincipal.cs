@@ -14,8 +14,67 @@ namespace SoltaLaPala.Menus
         [Header("Arte")]
         public Sprite spriteTitulo;
 
-        private Button botonPrincipal;
-        private Text etiquetaPrincipal;
+        // Con prefab el menu tiene dos pasos sobre el mismo fondo:
+        //   inicio:  Jugar, Opciones, Salir
+        //   partida: Nueva partida, Continuar partida (al pulsar Jugar)
+        // No se elige nivel: Continuar retoma el ultimo guardado.
+        [Header("Prefab (Resources/Menus)")]
+        [Tooltip("Contiene Jugar, Opciones y Salir.")]
+        public GameObject grupoInicio;
+        [Tooltip("Contiene Nueva partida y Continuar partida. Se muestra al pulsar Jugar.")]
+        public GameObject grupoPartida;
+        [Tooltip("Jugar. Sin prefab es el boton Jugar/Continuar del menu generado por codigo.")]
+        public Button botonPrincipal;
+        public Text etiquetaPrincipal;
+        public Button botonConfiguracion;
+        public Button botonSalir;
+        public Button botonNuevaPartida;
+        public Button botonContinuarPartida;
+
+        private bool UsaPasos => grupoInicio != null && grupoPartida != null;
+
+        protected override void Enlazar()
+        {
+            Enganchar(botonConfiguracion, () => Gestor?.Abrir(PantallaMenu.Configuracion));
+            Enganchar(botonSalir, () => Gestor?.SalirDelJuego());
+
+            if (UsaPasos)
+            {
+                Enganchar(botonPrincipal, () => MostrarPaso(partida: true));
+                Enganchar(botonNuevaPartida, EmpezarNuevaPartida);
+                Enganchar(botonContinuarPartida, () => Gestor?.CargarPartidaGuardada());
+            }
+        }
+
+        private void MostrarPaso(bool partida)
+        {
+            grupoInicio.SetActive(!partida);
+            grupoPartida.SetActive(partida);
+
+            if (partida && botonContinuarPartida != null)
+            {
+                // Sin guardado se ve apagado en vez de esconderse, para que el
+                // diseno no cambie segun haya partida o no.
+                botonContinuarPartida.interactable = GuardadoPartida.Existe();
+            }
+        }
+
+        // Borra el guardado y el progreso de niveles y arranca desde el nivel 1.
+        private void EmpezarNuevaPartida()
+        {
+            ProgresoNiveles.Reiniciar();
+            Gestor?.ReiniciarYJugar();
+        }
+
+        // ESC en el segundo paso vuelve a Jugar/Opciones/Salir. El gestor no
+        // cierra el menu principal con ESC, asi que no hay doble lectura.
+        private void Update()
+        {
+            if (UsaPasos && grupoPartida.activeSelf && ControlesJuego.Pulsada(AccionJuego.Pausa))
+            {
+                MostrarPaso(partida: false);
+            }
+        }
 
         protected override void Construir(Transform raiz)
         {
@@ -79,11 +138,19 @@ namespace SoltaLaPala.Menus
                 new Vector2(0f, y), tamanoBoton, () => Gestor?.SalirDelJuego());
         }
 
-        // Un solo boton que cambia de nombre en vez de dos botones, uno de ellos
-        // apagado: asi nunca ofrece algo que no va a hacer. La unica forma de
+        // Con prefab siempre se abre en el primer paso.
+        //
+        // Sin prefab (menu generado por codigo): un solo boton que cambia de
+        // nombre en vez de dos botones, uno de ellos apagado. La unica forma de
         // pisar una partida guardada es elegir un nivel a mano.
         protected override void AlMostrar()
         {
+            if (UsaPasos)
+            {
+                MostrarPaso(partida: false);
+                return;
+            }
+
             if (botonPrincipal == null)
             {
                 return;

@@ -13,23 +13,92 @@ namespace SoltaLaPala.Menus
         protected override int OrdenPantalla => 140;
 
         // Fila de la lista de controles: la etiqueta de la accion y el boton con su tecla.
-        private class FilaControl
+        [System.Serializable]
+        public class FilaControl
         {
             public AccionJuego accion;
             public Button boton;
             public Text textoTecla;
         }
 
-        private readonly List<FilaControl> filas = new List<FilaControl>();
+        [Header("Prefab (Resources/Menus)")]
+        public Slider sliderGeneral;
+        public Slider sliderMusica;
+        public Slider sliderEfectos;
+        [Tooltip("Un solo slider para los dos ejes. Si esta asignado, X e Y se ignoran.")]
+        public Slider sliderSensibilidad;
+        public Slider sliderSensibilidadX;
+        public Slider sliderSensibilidadY;
+        public Button botonInvertirY;
+        public Text textoInvertirY;
+        public Sprite spriteInvertirSi;
+        public Sprite spriteInvertirNo;
+        public Button botonPantallaCompleta;
+        public Text textoPantallaCompleta;
+        public Sprite spritePantallaSi;
+        public Sprite spritePantallaNo;
+        public Button botonRestaurar;
+        public Button botonVolver;
+        public Text textoEstado;
+        [Tooltip("Una fila por accion reasignable.")]
+        public List<FilaControl> filas = new List<FilaControl>();
+        [Tooltip("Color del nombre de la tecla dentro de cada boton.")]
+        public Color colorTextoTecla = ConstructorUI.ColorTexto;
 
-        private Slider sliderGeneral;
-        private Slider sliderMusica;
-        private Slider sliderEfectos;
-        private Slider sliderSensibilidadX;
-        private Slider sliderSensibilidadY;
-        private Text textoInvertirY;
-        private Text textoPantallaCompleta;
-        private Text textoEstado;
+        protected override void Enlazar()
+        {
+            EngancharSlider(sliderGeneral, valor => AjustesJuego.VolumenGeneral = valor);
+            EngancharSlider(sliderMusica, valor => AjustesJuego.VolumenMusica = valor);
+            EngancharSlider(sliderEfectos, valor => AjustesJuego.VolumenEfectos = valor);
+
+            if (sliderSensibilidadX != null)
+            {
+                sliderSensibilidadX.minValue = AjustesJuego.SensibilidadMinima;
+                sliderSensibilidadX.maxValue = AjustesJuego.SensibilidadMaxima;
+            }
+            if (sliderSensibilidadY != null)
+            {
+                sliderSensibilidadY.minValue = AjustesJuego.SensibilidadMinima;
+                sliderSensibilidadY.maxValue = AjustesJuego.SensibilidadMaxima;
+            }
+            EngancharSlider(sliderSensibilidadX, valor => AjustesJuego.SensibilidadX = valor);
+            EngancharSlider(sliderSensibilidadY, valor => AjustesJuego.SensibilidadY = valor);
+
+            if (sliderSensibilidad != null)
+            {
+                sliderSensibilidad.minValue = AjustesJuego.SensibilidadMinima;
+                sliderSensibilidad.maxValue = AjustesJuego.SensibilidadMaxima;
+            }
+            EngancharSlider(sliderSensibilidad, valor =>
+            {
+                AjustesJuego.SensibilidadX = valor;
+                AjustesJuego.SensibilidadY = valor * ProporcionSensibilidadY;
+            });
+
+            Enganchar(botonInvertirY, () => { AjustesJuego.InvertirY = !AjustesJuego.InvertirY; RefrescarValores(); });
+            Enganchar(botonPantallaCompleta, () => { AjustesJuego.PantallaCompleta = !AjustesJuego.PantallaCompleta; RefrescarValores(); });
+            Enganchar(botonRestaurar, RestaurarTodo);
+            Enganchar(botonVolver, IntentarVolver);
+
+            foreach (FilaControl fila in filas)
+            {
+                // Copia local: sin esto todos los botones compartirian la ultima fila.
+                AccionJuego accionFila = fila.accion;
+                Enganchar(fila.boton, () => EmpezarEscucha(accionFila));
+            }
+        }
+
+        // El slider unico mueve los dos ejes manteniendo la proporcion de fabrica
+        // (200 horizontal, 150 vertical): el eje Y siempre va un poco mas lento.
+        private const float ProporcionSensibilidadY = 0.75f;
+
+        private static void EngancharSlider(Slider slider, UnityEngine.Events.UnityAction<float> alCambiar)
+        {
+            if (slider != null)
+            {
+                slider.onValueChanged.AddListener(alCambiar);
+            }
+        }
 
         // Accion que se esta reasignando ahora mismo, o null si no hay ninguna.
         private AccionJuego? accionEscuchando;
@@ -179,6 +248,10 @@ namespace SoltaLaPala.Menus
             sliderEfectos?.SetValueWithoutNotify(AjustesJuego.VolumenEfectos);
             sliderSensibilidadX?.SetValueWithoutNotify(AjustesJuego.SensibilidadX);
             sliderSensibilidadY?.SetValueWithoutNotify(AjustesJuego.SensibilidadY);
+            sliderSensibilidad?.SetValueWithoutNotify(AjustesJuego.SensibilidadX);
+
+            PonerSprite(botonInvertirY, AjustesJuego.InvertirY ? spriteInvertirSi : spriteInvertirNo);
+            PonerSprite(botonPantallaCompleta, AjustesJuego.PantallaCompleta ? spritePantallaSi : spritePantallaNo);
 
             if (textoInvertirY != null)
             {
@@ -195,6 +268,32 @@ namespace SoltaLaPala.Menus
             }
         }
 
+        // Los botones de SI/NO cambian de sprite en vez de texto cuando hay arte.
+        private static void PonerSprite(Button boton, Sprite sprite)
+        {
+            // GetComponent y no boton.image: en BotonMenu el targetGraphic es el Brillo.
+            Image imagen = boton != null ? boton.GetComponent<Image>() : null;
+            if (imagen != null && sprite != null)
+            {
+                imagen.sprite = sprite;
+            }
+        }
+
+        // Nombre corto para que entre en la cajita de la tecla.
+        private static string NombreTeclaCorto(KeyCode tecla)
+        {
+            switch (tecla)
+            {
+                case KeyCode.LeftShift: return "↑IZQ";
+                case KeyCode.RightShift: return "↑DER";
+                case KeyCode.LeftControl: return "CTRL I";
+                case KeyCode.RightControl: return "CTRL D";
+                case KeyCode.Space: return "ESP";
+                case KeyCode.Return: return "ENTER";
+                default: return MenuTutorial.NombreTecla(tecla).ToUpperInvariant();
+            }
+        }
+
         // Pone en cada boton la tecla que tiene asignada su accion.
         private void RefrescarTeclas()
         {
@@ -208,16 +307,17 @@ namespace SoltaLaPala.Menus
                 // La fila que se esta reasignando muestra un aviso en vez de la tecla.
                 if (EstaEscuchando && accionEscuchando.Value == fila.accion)
                 {
-                    fila.textoTecla.text = "Pulsa una tecla...";
+                    // Corto para que entre en la cajita; el detalle lo da textoEstado.
+                    fila.textoTecla.text = "...";
                     fila.textoTecla.color = ConstructorUI.ColorAcento;
                     continue;
                 }
 
                 KeyCode tecla = ControlesJuego.ObtenerTecla(fila.accion);
-                fila.textoTecla.text = MenuTutorial.NombreTecla(tecla);
+                fila.textoTecla.text = NombreTeclaCorto(tecla);
                 fila.textoTecla.color = tecla == KeyCode.None
                     ? ConstructorUI.ColorFallo
-                    : ConstructorUI.ColorTexto;
+                    : colorTextoTecla;
             }
         }
 

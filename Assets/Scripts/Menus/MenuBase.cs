@@ -48,10 +48,27 @@ namespace SoltaLaPala.Menus
                 panel = canvas.gameObject;
                 Construir(canvas.transform);
             }
+            else
+            {
+                Enlazar();
+            }
         }
 
         // Cada pantalla arma aca su contenido dentro del canvas que recibe.
         protected abstract void Construir(Transform raiz);
+
+        // Panel armado en el editor (prefab): engancha las acciones a los botones
+        // y sliders asignados en el inspector.
+        protected virtual void Enlazar() { }
+
+        // Engancha una accion a un boton asignado en el inspector, si lo hay.
+        protected static void Enganchar(Button boton, UnityEngine.Events.UnityAction accion)
+        {
+            if (boton != null)
+            {
+                boton.onClick.AddListener(accion);
+            }
+        }
 
         // Enciende o apaga la pantalla. Al abrirse se refresca por si los datos
         // que muestra cambiaron desde la ultima vez.
