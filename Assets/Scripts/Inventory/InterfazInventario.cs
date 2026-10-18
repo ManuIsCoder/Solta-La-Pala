@@ -29,6 +29,13 @@ namespace SoltaLaPala.Inventory
         public Vector2 tamanoBase = new Vector2(293f, 89f);
         [Tooltip("Margen desde la esquina inferior derecha de la pantalla (aumentar X lo mueve a la izquierda).")]
         public Vector2 margen = new Vector2(70f, 30f);
+        [Tooltip("Posicion (x, y desde abajo) y tamano en pixeles del sprite de cada recuadro de slot.")]
+        public Rect[] recuadrosSlotEnSprite =
+        {
+            new Rect(63f, 17f, 64f, 64f),
+            new Rect(139f, 17f, 64f, 64f),
+            new Rect(215f, 17f, 64f, 64f),
+        };
 
         [Header("Generacion automatica (prototipo sin sprite)")]
         [Tooltip("Lado del cuadrado de cada slot, en pixeles.")]
@@ -212,11 +219,14 @@ namespace SoltaLaPala.Inventory
                 GameObject slotObj = new GameObject($"Slot{i + 1}");
                 slotObj.transform.SetParent(barra.transform, false);
 
+                // Anclas relativas al sprite: el slot sigue al recuadro dibujado
+                // aunque cambie la escala de la barra.
+                Rect recuadro = recuadrosSlotEnSprite[i];
                 RectTransform rectSlot = slotObj.AddComponent<RectTransform>();
-                rectSlot.anchorMin = new Vector2((float)i / InventarioJugador.CantidadSlots, 0f);
-                rectSlot.anchorMax = new Vector2((float)(i + 1) / InventarioJugador.CantidadSlots, 1f);
-                rectSlot.offsetMin = new Vector2(6f, 6f);
-                rectSlot.offsetMax = new Vector2(-6f, -6f);
+                rectSlot.anchorMin = new Vector2(recuadro.xMin / tamanoBase.x, recuadro.yMin / tamanoBase.y);
+                rectSlot.anchorMax = new Vector2(recuadro.xMax / tamanoBase.x, recuadro.yMax / tamanoBase.y);
+                rectSlot.offsetMin = Vector2.zero;
+                rectSlot.offsetMax = Vector2.zero;
 
                 // Marco de seleccion
                 GameObject marco = CrearImagen("Marco", slotObj.transform, new Color(1f, 1f, 1f, 0.45f));

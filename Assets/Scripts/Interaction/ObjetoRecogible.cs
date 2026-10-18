@@ -19,6 +19,29 @@ namespace SoltaLaPala.Interaction
             ActualizarVisualSiTieneModelo();
         }
 
+        // En Start y no en Awake para que el jugador ya exista al cargar la escena.
+        private void Start()
+        {
+            IgnorarColisionConJugador();
+        }
+
+        // El jugador atraviesa el objeto sin chocarlo, pero el objeto sigue apoyandose
+        // en el suelo y el SphereCast del InteractorJugador lo sigue detectando.
+        private void IgnorarColisionConJugador()
+        {
+            var jugador = GameObject.FindGameObjectWithTag("Player");
+            if (jugador == null) return;
+
+            var collidersJugador = jugador.GetComponentsInChildren<Collider>(true);
+            foreach (var propio in GetComponentsInChildren<Collider>(true))
+            {
+                foreach (var delJugador in collidersJugador)
+                {
+                    Physics.IgnoreCollision(propio, delJugador, true);
+                }
+            }
+        }
+
         // Si el item tiene un modelo 3D asignado (prefabEnMano) y este objeto en la escena
         // es solo un cubo prototipo primitivo, reemplaza la visual por el modelo 3D real.
         private void ActualizarVisualSiTieneModelo()
