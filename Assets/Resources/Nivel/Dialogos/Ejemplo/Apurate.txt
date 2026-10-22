@@ -1,3 +1,6 @@
 # Recordatorio del encargo. Sale cuando vuelves sin nada que entregar.
 Sigo esperando esa pala, eh.
 Que no tengo todo el dia.
+# Respuestas que bajan la sospecha.
+> Perdon, me entretuvieron en otra oficina. | -15 | Bueno, pero date prisa.
+> Ya casi la tengo. | -5

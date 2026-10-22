@@ -1,4 +1,7 @@
+using System;
 using System.Collections;
+using System.Collections.Generic;
+using SoltaLaPala.Menus;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -27,6 +30,17 @@ namespace SoltaLaPala.Dialogue
         public float duracionVibracion = 0.3f;
         [Tooltip("Cuantas veces sube y baja cada letra durante la vibracion.")]
         public float ciclosVibracion = 2f;
+
+        [Header("Respuestas del jugador")]
+        [Tooltip("Donde van los botones de respuesta. Si se deja vacio se crea solo, encima del cuadro.")]
+        public RectTransform contenedorOpciones;
+        public int tamanoFuenteOpciones = 22;
+        public float altoOpcion = 46f;
+        public Color colorOpcion = new Color(0.10f, 0.10f, 0.16f, 0.95f);
+        public Color colorOpcionResaltada = new Color(0.24f, 0.24f, 0.36f, 1f);
+        public Color colorOpcionPulsada = new Color(0.34f, 0.34f, 0.50f, 1f);
+
+        private readonly List<GameObject> botonesOpciones = new List<GameObject>();
 
         private Coroutine rutinaEscritura;
         private string lineaActualCompleta = "";
@@ -86,7 +100,112 @@ namespace SoltaLaPala.Dialogue
                 Escribiendo = false;
                 AlTerminarLinea?.Invoke();
             }
+            OcultarOpciones();
             if (panel != null) panel.SetActive(false);
+        }
+
+        // Muestra un boton por respuesta, numerados desde 1. alElegir recibe el
+        // indice (desde 0) de la que se toco con el mouse; los numeros del
+        // teclado los lee GestorDialogos.
+        public void MostrarOpciones(IList<string> textos, Action<int> alElegir)
+        {
+            OcultarOpciones();
+            AsegurarContenedorOpciones();
+            ConstructorUI.AsegurarEventSystem();
+
+            for (int i = 0; i < textos.Count; i++)
+            {
+                int indice = i;
+                botonesOpciones.Add(CrearBotonOpcion($"{i + 1}. {textos[i]}", () => alElegir?.Invoke(indice)));
+            }
+
+            contenedorOpciones.gameObject.SetActive(true);
+
+            // Mientras hay que elegir, ESPACIO no avanza: no se ofrece.
+            if (indicadorContinuar != null) indicadorContinuar.SetActive(false);
+        }
+
+        public void OcultarOpciones()
+        {
+            foreach (GameObject boton in botonesOpciones)
+            {
+                Destroy(boton);
+            }
+            botonesOpciones.Clear();
+
+            if (contenedorOpciones != null) contenedorOpciones.gameObject.SetActive(false);
+        }
+
+        // Columna pegada al borde de arriba del cuadro, del mismo ancho, que
+        // crece hacia arriba segun cuantas respuestas haya.
+        private void AsegurarContenedorOpciones()
+        {
+            if (contenedorOpciones != null)
+            {
+                return;
+            }
+
+            GameObject objeto = new GameObject("Opciones", typeof(RectTransform));
+            objeto.transform.SetParent(panel.transform, false);
+
+            contenedorOpciones = (RectTransform)objeto.transform;
+            contenedorOpciones.anchorMin = new Vector2(0f, 1f);
+            contenedorOpciones.anchorMax = new Vector2(1f, 1f);
+            contenedorOpciones.pivot = new Vector2(0.5f, 0f);
+            contenedorOpciones.anchoredPosition = new Vector2(0f, 10f);
+            contenedorOpciones.sizeDelta = Vector2.zero;
+
+            VerticalLayoutGroup columna = objeto.AddComponent<VerticalLayoutGroup>();
+            columna.spacing = 6f;
+            columna.childControlWidth = true;
+            columna.childControlHeight = true;
+            columna.childForceExpandWidth = true;
+            columna.childForceExpandHeight = false;
+
+            objeto.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+        }
+
+        private GameObject CrearBotonOpcion(string texto, Action alPulsar)
+        {
+            GameObject objeto = new GameObject("Opcion", typeof(RectTransform));
+            objeto.transform.SetParent(contenedorOpciones, false);
+
+            objeto.AddComponent<LayoutElement>().preferredHeight = altoOpcion;
+
+            Image fondo = objeto.AddComponent<Image>();
+            fondo.color = Color.white;
+
+            // Los colores van en el ColorBlock y no en la Image: el tinte multiplica,
+            // asi que con la Image en blanco cada estado se ve con su color exacto.
+            Button boton = objeto.AddComponent<Button>();
+            boton.targetGraphic = fondo;
+            ColorBlock colores = ColorBlock.defaultColorBlock;
+            colores.normalColor = colorOpcion;
+            colores.highlightedColor = colorOpcionResaltada;
+            colores.pressedColor = colorOpcionPulsada;
+            colores.selectedColor = colorOpcion;
+            colores.fadeDuration = 0.05f;
+            boton.colors = colores;
+            boton.onClick.AddListener(() => alPulsar());
+
+            GameObject objetoTexto = new GameObject("Texto", typeof(RectTransform));
+            objetoTexto.transform.SetParent(objeto.transform, false);
+
+            RectTransform rectTexto = (RectTransform)objetoTexto.transform;
+            rectTexto.anchorMin = Vector2.zero;
+            rectTexto.anchorMax = Vector2.one;
+            rectTexto.offsetMin = new Vector2(20f, 0f);
+            rectTexto.offsetMax = new Vector2(-20f, 0f);
+
+            Text etiqueta = objetoTexto.AddComponent<Text>();
+            etiqueta.text = texto;
+            etiqueta.font = textoDialogo != null ? textoDialogo.font : ConstructorUI.Fuente;
+            etiqueta.fontSize = tamanoFuenteOpciones;
+            etiqueta.alignment = TextAnchor.MiddleLeft;
+            etiqueta.color = Color.white;
+            etiqueta.raycastTarget = false;
+
+            return objeto;
         }
 
         // Empieza a escribir una linea letra a letra.

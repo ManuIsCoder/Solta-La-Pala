@@ -30,8 +30,15 @@ namespace SoltaLaPala.Dialogue
         // True si lo que se esta mostrando es una frase suelta y no un dialogo
         // de archivo: al cerrarse no avisa al NPC ni avanza su estado.
         private bool fraseSuelta;
-        private List<string> lineasActuales = new List<string>();
+        private List<LineaDialogo> lineasActuales = new List<LineaDialogo>();
         private int indiceLinea;
+
+        // True mientras se esperan las respuestas de la linea actual: ESPACIO no
+        // avanza, hay que elegir una con el mouse o con los numeros.
+        private bool esperandoRespuesta;
+
+        private LineaDialogo LineaActual =>
+            indiceLinea >= 0 && indiceLinea < lineasActuales.Count ? lineasActuales[indiceLinea] : null;
 
         // True mientras hay una conversacion en marcha.
         public bool DialogoActivo { get; private set; }
@@ -69,10 +76,87 @@ namespace SoltaLaPala.Dialogue
             // la misma tecla podria estar usandose para navegar la UI.
             if (GestorMenus.Instancia != null && GestorMenus.Instancia.HayMenuAbierto) return;
 
+            if (esperandoRespuesta)
+            {
+                LeerRespuestaPorTeclado();
+                return;
+            }
+
+            // Las respuestas aparecen recien cuando la frase termino de escribirse,
+            // para que el jugador lea antes de contestar.
+            LineaDialogo linea = LineaActual;
+            if (linea != null && linea.TieneOpciones && interfaz != null && !interfaz.Escribiendo)
+            {
+                MostrarOpciones(linea);
+                return;
+            }
+
             if (ControlesJuego.Pulsada(AccionJuego.AvanzarDialogo))
             {
                 AvanzarDialogo();
             }
+        }
+
+        private void MostrarOpciones(LineaDialogo linea)
+        {
+            esperandoRespuesta = true;
+
+            List<string> textos = new List<string>(linea.opciones.Count);
+            foreach (OpcionDialogo opcion in linea.opciones)
+            {
+                textos.Add(opcion.texto);
+            }
+
+            interfaz.MostrarOpciones(textos, ElegirRespuesta);
+        }
+
+        // 1..9 de la fila de numeros o del teclado numerico. Se leen fijas y no
+        // por ControlesJuego: son "elegir la opcion N", no una accion reasignable.
+        private void LeerRespuestaPorTeclado()
+        {
+            LineaDialogo linea = LineaActual;
+            if (linea == null)
+            {
+                return;
+            }
+
+            int cantidad = Mathf.Min(linea.opciones.Count, 9);
+            for (int i = 0; i < cantidad; i++)
+            {
+                if (Input.GetKeyDown(KeyCode.Alpha1 + i) || Input.GetKeyDown(KeyCode.Keypad1 + i))
+                {
+                    ElegirRespuesta(i);
+                    return;
+                }
+            }
+        }
+
+        // Aplica la sospecha de la respuesta y sigue: con la reaccion del NPC si
+        // la tiene, o con la frase siguiente del archivo.
+        private void ElegirRespuesta(int indice)
+        {
+            LineaDialogo linea = LineaActual;
+            if (!esperandoRespuesta || linea == null || indice < 0 || indice >= linea.opciones.Count)
+            {
+                return;
+            }
+
+            OpcionDialogo opcion = linea.opciones[indice];
+            esperandoRespuesta = false;
+            interfaz?.OcultarOpciones();
+
+            // La reaccion se mete como una frase mas, justo despues de esta, asi
+            // se escribe y se avanza con ESPACIO igual que el resto.
+            if (!string.IsNullOrWhiteSpace(opcion.reaccion))
+            {
+                lineasActuales.Insert(indiceLinea + 1, new LineaDialogo(opcion.reaccion));
+            }
+
+            PasarALineaSiguiente();
+
+            // Al final: si la sospecha llega al tope, la pantalla de derrota tiene
+            // que quedar encima del dialogo y no al reves.
+            EstadoPartida.Instancia?.CambiarSospecha(opcion.sospecha);
         }
 
         // Empieza una conversacion: carga las lineas del NPC para ese tipo,
@@ -104,6 +188,7 @@ namespace SoltaLaPala.Dialogue
 
             DialogoActivo = true;
             indiceLinea = 0;
+            esperandoRespuesta = false;
 
             BloquearJugador(true);
             GestorMenus.Instancia?.RefrescarTiempo();
@@ -139,8 +224,9 @@ namespace SoltaLaPala.Dialogue
             // NPC acaba de pasar (Charla, tras completar el encargo).
             fraseSuelta = true;
 
-            lineasActuales = new List<string> { frase };
+            lineasActuales = new List<LineaDialogo> { new LineaDialogo(frase) };
             indiceLinea = 0;
+            esperandoRespuesta = false;
             DialogoActivo = true;
 
             BloquearJugador(true);
@@ -164,6 +250,17 @@ namespace SoltaLaPala.Dialogue
                 return;
             }
 
+            // Con respuestas pendientes no se puede saltar: hay que elegir una.
+            if (esperandoRespuesta)
+            {
+                return;
+            }
+
+            PasarALineaSiguiente();
+        }
+
+        private void PasarALineaSiguiente()
+        {
             indiceLinea++;
             if (indiceLinea < lineasActuales.Count)
             {
@@ -180,7 +277,7 @@ namespace SoltaLaPala.Dialogue
         {
             if (indice >= 0 && indice < lineasActuales.Count && interfaz != null)
             {
-                interfaz.MostrarLinea(lineasActuales[indice]);
+                interfaz.MostrarLinea(lineasActuales[indice].texto);
             }
         }
 
@@ -206,6 +303,7 @@ namespace SoltaLaPala.Dialogue
         private void TerminarDialogo()
         {
             DialogoActivo = false;
+            esperandoRespuesta = false;
 
             if (interfaz != null)
             {

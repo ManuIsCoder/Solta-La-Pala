@@ -262,6 +262,18 @@ namespace SoltaLaPala.Menus
             ComprobarFinal();
         }
 
+        // Sube o baja la sospecha por una decision del jugador, como las respuestas
+        // de dialogo. Igual que un sabotaje: si llega al maximo te pillan.
+        public void CambiarSospecha(int cantidad)
+        {
+            if (cantidad == 0)
+            {
+                return;
+            }
+
+            RegistrarSabotaje(0, cantidad);
+        }
+
         // Baja la sospecha (por ejemplo al disimular o esperar).
         public void ReducirSospecha(int cantidad)
         {
