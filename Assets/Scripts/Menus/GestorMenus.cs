@@ -40,6 +40,11 @@ namespace SoltaLaPala.Menus
         // Pantalla que se esta mostrando ahora mismo.
         public PantallaMenu PantallaActual { get; private set; } = PantallaMenu.Ninguna;
 
+        // Avisa cada vez que cambia la pantalla (Ninguna = de vuelta al juego).
+        // Estatico para poder suscribirse antes de que exista el gestor: el menu
+        // principal se abre en su Start.
+        public static event System.Action<PantallaMenu> AlCambiarPantalla;
+
         // True si hay cualquier menu abierto. Lo consultan los scripts de gameplay
         // para no leer input mientras el jugador esta navegando menus.
         public bool HayMenuAbierto => PantallaActual != PantallaMenu.Ninguna;
@@ -235,6 +240,8 @@ namespace SoltaLaPala.Menus
             EstablecerVisible(menuVictoriaDerrota, finalVisible);
 
             AplicarEstadoJuego(pantalla != PantallaMenu.Ninguna);
+
+            AlCambiarPantalla?.Invoke(pantalla);
         }
 
         private static void EstablecerVisible(MenuBase menu, bool visible)

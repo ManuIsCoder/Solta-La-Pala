@@ -18,6 +18,14 @@ namespace SoltaLaPala.Menus
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void Arrancar()
         {
+            // Antes que GestorMenus: tiene que estar escuchando cuando el gestor
+            // abra el menu principal.
+            if (Object.FindAnyObjectByType<GestorMusica>() == null)
+            {
+                GameObject objeto = new GameObject("GestorMusica");
+                objeto.AddComponent<GestorMusica>();
+            }
+
             if (Object.FindAnyObjectByType<GestorMenus>() == null)
             {
                 GameObject objeto = new GameObject("GestorMenus");
