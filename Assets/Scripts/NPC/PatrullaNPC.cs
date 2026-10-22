@@ -52,9 +52,29 @@ namespace SoltaLaPala.NPC
         // True mientras esta plantado mirandote en vez de patrullando.
         public bool Vigilando { get; private set; }
 
+        // Donde y como estaba el NPC al cargar el nivel, para poder reiniciarlo.
+        private Vector3 posicionInicial;
+        private Quaternion rotacionInicial;
+
         private void Awake()
         {
             detector = GetComponent<DetectorVisionNPC>();
+
+            posicionInicial = transform.position;
+            rotacionInicial = transform.rotation;
+        }
+
+        // Deja al NPC como al entrar al nivel: en su sitio, mirando donde miraba,
+        // sin vigilar al jugador y con la ruta empezada de nuevo.
+        public void Reiniciar()
+        {
+            transform.SetPositionAndRotation(posicionInicial, rotacionInicial);
+
+            Vigilando = false;
+            vigilanciaRestante = 0f;
+            esperaRestante = 0f;
+            sentido = 1;
+            indiceDestino = BuscarPuntoMasCercano();
         }
 
         private void Start()

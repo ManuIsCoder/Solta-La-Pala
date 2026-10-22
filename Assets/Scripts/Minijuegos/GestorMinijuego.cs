@@ -40,6 +40,25 @@ namespace SoltaLaPala.Minijuegos
             minijuego.Iniciar(inventario, this);
         }
 
+        // Cierra el minijuego abierto, si lo hay. Lo usa el reinicio de nivel: si se
+        // acaba el tiempo con uno abierto, sin esto el jugador seguiria bloqueado y
+        // el HUD oculto en el nivel nuevo.
+        public void ForzarCierre()
+        {
+            if (!MinijuegoActivo)
+            {
+                return;
+            }
+
+            if (minijuegoActual != null)
+            {
+                minijuegoActual.Salir();
+            }
+
+            // Salir() ya llama a CerrarMinijuego; esto cubre que no hubiera minijuego.
+            CerrarMinijuego();
+        }
+
         public void CerrarMinijuego()
         {
             if(!MinijuegoActivo) return;

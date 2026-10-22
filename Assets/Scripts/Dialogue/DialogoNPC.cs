@@ -19,6 +19,16 @@ namespace SoltaLaPala.Dialogue
         [Tooltip("Tipo de dialogo con el que arranca el NPC en esta escena.")]
         public TipoDialogo tipoActual = TipoDialogo.Mision;
 
+        [Header("Sonido")]
+        [Tooltip("Voz de balbuceo que suena mientras el NPC habla. Ninguna = no suena nada.")]
+        public VozNPC voz = VozNPC.Agudo;
+        [Tooltip("Sonido de tos del NPC. Ninguna = no tose.")]
+        public TosNPC sonidoToz = TosNPC.Toz1;
+        [Tooltip("Cada cuantos segundos tose como minimo, cuando nadie le habla.")]
+        public float tosCadaMinimo = 30f;
+        [Tooltip("Cada cuantos segundos tose como maximo.")]
+        public float tosCadaMaximo = 45f;
+
         public Transform Transform => transform;
 
         // Encargo opcional. Si lo hay, el dialogo de Mision no avanza hasta que
@@ -37,6 +47,13 @@ namespace SoltaLaPala.Dialogue
         {
             mision = GetComponent<MisionEntrega>();
             tipoInicial = tipoActual;
+
+            // Los NPC ya puestos en las escenas no tienen este componente guardado:
+            // se anade aqui para que todos tengan sonido sin tocar ninguna escena.
+            if (GetComponent<SonidosNPC>() == null)
+            {
+                gameObject.AddComponent<SonidosNPC>();
+            }
         }
 
         // Deja al NPC como al empezar el nivel: su dialogo inicial y sin recordar

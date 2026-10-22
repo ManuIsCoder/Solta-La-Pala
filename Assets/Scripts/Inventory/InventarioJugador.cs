@@ -242,6 +242,12 @@ namespace SoltaLaPala.Inventory
             rb.detectCollisions = true;
             rb.AddForce(direccionLanzamiento * 2.5f + Vector3.up * 1.2f, ForceMode.VelocityChange);
 
+            // Se marca para poder borrarlo al reiniciar el nivel (el original reaparece solo).
+            if (objetoSuelo.GetComponent<ObjetoSoltado>() == null)
+            {
+                objetoSuelo.AddComponent<ObjetoSoltado>();
+            }
+
             // Componentes necesarios para volver a recogerlo y que tenga silueta blanca
             ObjetoRecogible recogible = objetoSuelo.GetComponent<ObjetoRecogible>();
             if (recogible == null)
