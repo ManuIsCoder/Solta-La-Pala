@@ -48,6 +48,9 @@ namespace SoltaLaPala.Menus
         // Avisa cada vez que corre el reloj, con los segundos que quedan.
         public event Action<float> AlCambiarTiempo;
 
+        // Avisa cuando arranca un nivel, nuevo o cargado de un guardado.
+        public event Action AlEmpezarNivel;
+
         public int Impacto => impacto;
         public int Sospecha => sospecha;
         public int ImpactoObjetivo => impactoObjetivo;
@@ -80,6 +83,7 @@ namespace SoltaLaPala.Menus
         public void EmpezarNivel()
         {
             PartidaEnCurso = true;
+            AlEmpezarNivel?.Invoke();
         }
 
         // Deja el nivel como recien empezado: contadores, reloj, objetos gastados,
