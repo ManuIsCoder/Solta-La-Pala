@@ -18,8 +18,9 @@ namespace SoltaLaPala.NPC
         [Range(20f, 120f)]
         public float anguloMirada = 60f;
 
-        [Tooltip("Distancia máxima de mirada. Si es 0, usa la misma distancia en la que el ojo se pone rojo.")]
-        public float distanciaMirada = 0f;
+        [Tooltip("Distancia máxima hasta la que el NPC te sigue con la mirada, en metros. " +
+                 "Si es 0, usa la misma distancia en la que el ojo se pone rojo.")]
+        public float distanciaMirada = 2.5f;
 
         [Tooltip("Velocidad de giro de la cabeza en grados por segundo.")]
         public float velocidadGiro = 240f;

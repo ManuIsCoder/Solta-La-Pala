@@ -242,6 +242,12 @@ namespace SoltaLaPala.Inventory
             rb.detectCollisions = true;
             rb.AddForce(direccionLanzamiento * 2.5f + Vector3.up * 1.2f, ForceMode.VelocityChange);
 
+            // Se marca para poder borrarlo al reiniciar el nivel (el original reaparece solo).
+            if (objetoSuelo.GetComponent<ObjetoSoltado>() == null)
+            {
+                objetoSuelo.AddComponent<ObjetoSoltado>();
+            }
+
             // Componentes necesarios para volver a recogerlo y que tenga silueta blanca
             ObjetoRecogible recogible = objetoSuelo.GetComponent<ObjetoRecogible>();
             if (recogible == null)
@@ -451,6 +457,25 @@ namespace SoltaLaPala.Inventory
 
             ActualizarItemEnMano();
             AlCambiarSeleccion?.Invoke(slotSeleccionado);
+        }
+
+        public bool TieneItem(string id)
+        {
+            for (int i = 0; i < CantidadSlots; i++)
+                if (slots[i] != null && slots[i].Id == id) return true;
+            return false;
+        }
+        public bool QuitarItem(string id)
+        {
+            for (int i = 0; i < CantidadSlots; i++)
+            {
+                if (slots[i] != null && slots[i].Id == id)
+                {
+                    QuitarItem(i);
+                    return true;
+                }
+            }
+            return false;
         }
     }
 }

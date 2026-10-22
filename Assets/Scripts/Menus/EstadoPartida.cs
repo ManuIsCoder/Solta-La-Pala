@@ -1,7 +1,9 @@
 using System;
 using SoltaLaPala.Dialogue;
 using SoltaLaPala.Guardado;
+using SoltaLaPala.Interaction;
 using SoltaLaPala.Inventory;
+using SoltaLaPala.Minijuegos;
 using SoltaLaPala.NPC;
 using SoltaLaPala.Player;
 using SoltaLaPala.Sabotaje;
@@ -90,11 +92,29 @@ namespace SoltaLaPala.Menus
         {
             Reiniciar();
 
+            // Lo primero: cerrar lo que pueda estar a medias (minijuego, dialogo),
+            // porque deja bloqueado al jugador y el HUD oculto.
+            GestorMinijuego.Instancia?.ForzarCierre();
+
+            // Los objetos soltados se borran antes de reactivar los originales,
+            // para que no quede cada objeto duplicado.
+            ObjetoSoltado.DestruirTodos();
             RegistroObjetosConsumidos.Instancia?.Limpiar();
 
             ReiniciarMisiones();
             ReiniciarDialogos();
+            ReiniciarNpcs();
             ReiniciarJugador();
+        }
+
+        // Los NPC vuelven a su sitio, sin vigilar y con la ruta desde el principio.
+        private static void ReiniciarNpcs()
+        {
+            foreach (PatrullaNPC patrulla in
+                     FindObjectsByType<PatrullaNPC>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+            {
+                patrulla.Reiniciar();
+            }
         }
 
         // Las misiones vuelven a estar pendientes y los NPC a su dialogo inicial.
@@ -369,6 +389,10 @@ namespace SoltaLaPala.Menus
             sospechaAcumulada = sospecha;
             tiempoRestante = duracionNivel;
             PartidaTerminada = false;
+
+            // Es estatica y sobrevive al nivel: si quedo encendida, la sospecha
+            // seguiria subiendo desde el primer segundo del nivel nuevo.
+            AccionSospechosaEnCurso = false;
 
             // Reiniciar deja el nivel listo, no lanzado: lo arranca EmpezarNivel
             // cuando el jugador vuelve al juego.
