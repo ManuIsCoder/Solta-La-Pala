@@ -89,6 +89,11 @@ namespace SoltaLaPala.Menus
                     return;
                 }
 
+                if (SoltaLaPala.Minijuegos.GestorMinijuego.Instancia != null && SoltaLaPala.Minijuegos.GestorMinijuego.Instancia.MinijuegoActivo)
+                {
+                    return;
+                }
+
                 Abrir(PantallaMenu.Pausa);
             }
             else if (PuedeCerrarseConEscape(PantallaActual))
