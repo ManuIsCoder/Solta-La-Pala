@@ -452,5 +452,24 @@ namespace SoltaLaPala.Inventory
             ActualizarItemEnMano();
             AlCambiarSeleccion?.Invoke(slotSeleccionado);
         }
+
+        public bool TieneItem(string id)
+        {
+            for (int i = 0; i < CantidadSlots; i++)
+                if (slots[i] != null && slots[i].Id == id) return true;
+            return false;
+        }
+        public bool QuitarItem(string id)
+        {
+            for (int i = 0; i < CantidadSlots; i++)
+            {
+                if (slots[i] != null && slots[i].Id == id)
+                {
+                    QuitarItem(i);
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 }
