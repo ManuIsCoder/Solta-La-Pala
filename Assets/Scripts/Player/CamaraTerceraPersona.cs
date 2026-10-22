@@ -48,6 +48,9 @@ namespace SoltaLaPala.Player
         private float yaw;
         // Angulo vertical acumulado (arriba/abajo).
         private float pitch;
+        // Angulos con los que arranco la escena, para volver a ellos al reiniciar el nivel.
+        private float yawInicial;
+        private float pitchInicial;
         private bool camaraBloqueada;
         // Velocidad que va acumulando SmoothDamp al seguir al jugador.
         private Vector3 velocidadSeguimiento;
@@ -80,6 +83,8 @@ namespace SoltaLaPala.Player
             Vector3 rotacionInicial = transform.eulerAngles;
             yaw = rotacionInicial.y;
             pitch = Mathf.Clamp(NormalizarAngulo(rotacionInicial.x), pitchMinimo, pitchMaximo);
+            yawInicial = yaw;
+            pitchInicial = pitch;
 
             AplicarAjustes();
 
@@ -337,6 +342,16 @@ namespace SoltaLaPala.Player
         {
             yaw = Mathf.Repeat(datos.rotacionCamaraY, 360f);
             pitch = Mathf.Clamp(NormalizarAngulo(datos.rotacionCamaraX), PitchMinimoActual, PitchMaximoActual);
+
+            ColocarSinSuavizado();
+        }
+
+        // Vuelve al angulo con el que arranco la escena, sin suavizado. Lo usa el
+        // reinicio de nivel despues de devolver al jugador a su punto de inicio.
+        public void VolverAlInicio()
+        {
+            yaw = yawInicial;
+            pitch = Mathf.Clamp(pitchInicial, PitchMinimoActual, PitchMaximoActual);
 
             ColocarSinSuavizado();
         }

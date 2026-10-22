@@ -17,3 +17,4 @@ MonoBehaviour:
   icono: {fileID: 21300000, guid: c628516806184b25a153cfac0562b73d, type: 3}
   prefabEnMano: {fileID: 919132149155446097, guid: c30cc6d2417808247b2828d8577d6ec2, type: 3}
   descripcion: Una pala de obra, pesada y seria.
+  esSospechoso: 0

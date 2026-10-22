@@ -152,6 +152,10 @@ namespace SoltaLaPala.Menus
 
             jugador.GetComponent<InventarioJugador>()?.Vaciar();
             jugador.GetComponent<MovimientoJugador>()?.VolverAlInicio();
+
+            // Despues del jugador: la camara se coloca respecto de donde quedo el PJ.
+            // Sin esto conserva el angulo viejo y viaja volando hasta el punto de inicio.
+            FindFirstObjectByType<CamaraTerceraPersona>()?.VolverAlInicio();
         }
 
         // Corre el reloj del nivel y pierde la partida al llegar a 0.

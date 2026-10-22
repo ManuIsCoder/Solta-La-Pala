@@ -37,7 +37,7 @@ namespace SoltaLaPala.Menus
 
         // Colores del Brillo: transparente en reposo, cada vez mas blanco al
         // pasar por encima y al pulsar. Apagado oscurece en vez de aclarar.
-        private static ColorBlock ColoresBrillo()
+        public static ColorBlock ColoresBrillo()
         {
             ColorBlock colores = ColorBlock.defaultColorBlock;
             colores.normalColor = new Color(1f, 1f, 1f, 0f);

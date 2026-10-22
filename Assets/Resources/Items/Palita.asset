@@ -17,3 +17,4 @@ MonoBehaviour:
   icono: {fileID: 21300000, guid: 98799011ec88d2740991619da18b4319, type: 3}
   prefabEnMano: {fileID: 1009039907746672283, guid: a2428baae932c3442b38b466662a3597, type: 3}
   descripcion: Una palita de playa, de plastico. No es lo que nadie pidio.
+  esSospechoso: 0

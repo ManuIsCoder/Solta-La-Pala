@@ -99,12 +99,12 @@ namespace SoltaLaPala.Menus
         // Guardado manual, para quien prefiere no confiar en el automatico.
         private void Guardar()
         {
+            bool guardado = Gestor != null && Gestor.GuardarPartida();
+
             if (textoAviso == null)
             {
                 return;
             }
-
-            bool guardado = Gestor != null && Gestor.GuardarPartida();
 
             textoAviso.text = guardado
                 ? "Partida guardada."
