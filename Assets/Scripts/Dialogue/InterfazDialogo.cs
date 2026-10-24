@@ -163,9 +163,8 @@ namespace SoltaLaPala.Dialogue
             if (contenedorOpciones != null) contenedorOpciones.gameObject.SetActive(false);
         }
 
-        // Columna pegada al borde de arriba del cuadro, del mismo ancho, que
-        // crece hacia arriba segun cuantas respuestas haya (sin sprite) o usa
-        // un tamaño fijo de 4 slots cuando hay sprite de fondo.
+        // Columna centrada encima del cuadro de dialogo con el panel de opciones
+        // con su sprite disenado (1000x580) y 4 slots proporcionados.
         private void AsegurarContenedorOpciones()
         {
             if (contenedorOpciones != null)
@@ -177,35 +176,49 @@ namespace SoltaLaPala.Dialogue
             objeto.transform.SetParent(panel.transform, false);
 
             contenedorOpciones = (RectTransform)objeto.transform;
-            contenedorOpciones.anchorMin = new Vector2(0f, 1f);
-            contenedorOpciones.anchorMax = new Vector2(1f, 1f);
-            contenedorOpciones.pivot     = new Vector2(0.5f, 0f);
-            contenedorOpciones.anchoredPosition = new Vector2(0f, 10f);
 
             if (spritePanelOpciones != null)
             {
-                // Tamaño fijo calculado para 4 slots: no necesita ContentSizeFitter.
-                float spacing = 6f;
-                float altoFijo = altoOpcion * 4f + spacing * 3f + 12f;
-                contenedorOpciones.sizeDelta = new Vector2(0f, altoFijo);
+                // Anclado arriba-centro del diálogo, tamaño proporcional al sprite (1000×580)
+                contenedorOpciones.anchorMin = new Vector2(0.5f, 1f);
+                contenedorOpciones.anchorMax = new Vector2(0.5f, 1f);
+                contenedorOpciones.pivot     = new Vector2(0.5f, 0f);
+                contenedorOpciones.anchoredPosition = new Vector2(0f, 15f);
+                contenedorOpciones.sizeDelta = new Vector2(700f, 406f);
 
                 Image imagenFondo = objeto.AddComponent<Image>();
-                imagenFondo.sprite = spritePanelOpciones;
-                imagenFondo.type   = Image.Type.Simple;
-                imagenFondo.color  = Color.white;
+                imagenFondo.sprite          = spritePanelOpciones;
+                imagenFondo.type            = Image.Type.Simple;
+                imagenFondo.preserveAspect  = true;
+                imagenFondo.color           = Color.white;
+
+                VerticalLayoutGroup columna = objeto.AddComponent<VerticalLayoutGroup>();
+                columna.padding.top          = 22;
+                columna.padding.bottom       = 22;
+                columna.padding.left         = 28;
+                columna.padding.right        = 28;
+                columna.spacing              = 8f;
+                columna.childControlWidth    = true;
+                columna.childControlHeight   = true;
+                columna.childForceExpandWidth  = true;
+                columna.childForceExpandHeight = false;
             }
             else
             {
+                contenedorOpciones.anchorMin = new Vector2(0f, 1f);
+                contenedorOpciones.anchorMax = new Vector2(1f, 1f);
+                contenedorOpciones.pivot     = new Vector2(0.5f, 0f);
+                contenedorOpciones.anchoredPosition = new Vector2(0f, 10f);
                 contenedorOpciones.sizeDelta = Vector2.zero;
                 objeto.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-            }
 
-            VerticalLayoutGroup columna = objeto.AddComponent<VerticalLayoutGroup>();
-            columna.spacing              = 6f;
-            columna.childControlWidth    = true;
-            columna.childControlHeight   = true;
-            columna.childForceExpandWidth  = true;
-            columna.childForceExpandHeight = false;
+                VerticalLayoutGroup columna = objeto.AddComponent<VerticalLayoutGroup>();
+                columna.spacing              = 6f;
+                columna.childControlWidth    = true;
+                columna.childControlHeight   = true;
+                columna.childForceExpandWidth  = true;
+                columna.childForceExpandHeight = false;
+            }
         }
 
         private GameObject CrearBotonOpcion(string texto, Action alPulsar)
@@ -213,7 +226,8 @@ namespace SoltaLaPala.Dialogue
             GameObject objeto = new GameObject("Opcion", typeof(RectTransform));
             objeto.transform.SetParent(contenedorOpciones, false);
 
-            objeto.AddComponent<LayoutElement>().preferredHeight = altoOpcion;
+            float alturaBoton = spriteBarraSeleccionada != null ? 65f : altoOpcion;
+            objeto.AddComponent<LayoutElement>().preferredHeight = alturaBoton;
 
             if (spriteBarraSeleccionada != null)
             {

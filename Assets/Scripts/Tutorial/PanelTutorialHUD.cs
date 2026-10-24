@@ -271,13 +271,15 @@ namespace SoltaLaPala.Tutorial
                 Debug.LogWarning("[PanelTutorialHUD] No se encontró el sprite 'Sprites/UI/paneles/Panel tutorial'.", this);
             }
 
-            // RectTransform del panel: arriba-derecha, 400×160, con margen de 20px
+            // RectTransform del panel: arriba-derecha, 400×230 (proporción 800×460 del sprite)
             RectTransform rtPanel = panelObj.GetComponent<RectTransform>();
             rtPanel.anchorMin        = new Vector2(1f, 1f);
             rtPanel.anchorMax        = new Vector2(1f, 1f);
             rtPanel.pivot            = new Vector2(1f, 1f);
             rtPanel.anchoredPosition = new Vector2(-20f, -20f);
-            rtPanel.sizeDelta        = new Vector2(400f, 160f);
+            rtPanel.sizeDelta        = new Vector2(400f, 230f);
+
+            image.preserveAspect = true;
 
             // ── Texto de contenido ──
             GameObject textoObj = new GameObject("TextoContenido");
@@ -285,22 +287,19 @@ namespace SoltaLaPala.Tutorial
 
             _textoContenido                   = textoObj.AddComponent<Text>();
             _textoContenido.font              = ConstructorUI.Fuente;
-            _textoContenido.fontSize          = 20;
-            _textoContenido.color             = Color.black;
+            _textoContenido.fontSize          = 18;
+            _textoContenido.color             = Color.white;
             _textoContenido.alignment         = TextAnchor.MiddleCenter;
             _textoContenido.supportRichText    = true;
             _textoContenido.horizontalOverflow = HorizontalWrapMode.Wrap;
             _textoContenido.verticalOverflow   = VerticalWrapMode.Overflow;
 
-            // Anclar arriba y ocupar todo el ancho con padding lateral de 16px
+            // Situado en el área azul del diseño (el encabezado mide ~75px a esta escala)
             RectTransform rtTexto = textoObj.GetComponent<RectTransform>();
-            rtTexto.anchorMin        = new Vector2(0f, 1f);
+            rtTexto.anchorMin        = new Vector2(0f, 0f);
             rtTexto.anchorMax        = new Vector2(1f, 1f);
-            rtTexto.pivot            = new Vector2(0.5f, 1f);
-            rtTexto.anchoredPosition = new Vector2(0f, -8f);   // -8px para dejar espacio al encabezado del sprite
-            rtTexto.sizeDelta        = new Vector2(0f, 110f);   // altura fija; ancho se controla con offsetMin/Max
-            rtTexto.offsetMin        = new Vector2(16f,  rtTexto.offsetMin.y);   // padding izquierdo
-            rtTexto.offsetMax        = new Vector2(-16f, rtTexto.offsetMax.y);   // padding derecho
+            rtTexto.offsetMin        = new Vector2(25f, 35f);
+            rtTexto.offsetMax        = new Vector2(-25f, -75f);
 
             // ── Texto indicador de navegación ──
             GameObject indicadorObj = new GameObject("TextoIndicador");
@@ -308,19 +307,19 @@ namespace SoltaLaPala.Tutorial
 
             _textoIndicador                   = indicadorObj.AddComponent<Text>();
             _textoIndicador.font              = ConstructorUI.Fuente;
-            _textoIndicador.fontSize          = 16;
-            _textoIndicador.color             = Color.black;
+            _textoIndicador.fontSize          = 15;
+            _textoIndicador.color             = new Color(1f, 1f, 1f, 0.9f);
             _textoIndicador.alignment         = TextAnchor.MiddleCenter;
             _textoIndicador.supportRichText    = false;
             _textoIndicador.horizontalOverflow = HorizontalWrapMode.Overflow;
 
-            // Anclar abajo-centro, a 10px del borde inferior, 200×24
+            // Anclado en la parte inferior, centrado entre las flechas
             RectTransform rtIndicador = indicadorObj.GetComponent<RectTransform>();
             rtIndicador.anchorMin        = new Vector2(0.5f, 0f);
             rtIndicador.anchorMax        = new Vector2(0.5f, 0f);
             rtIndicador.pivot            = new Vector2(0.5f, 0f);
             rtIndicador.anchoredPosition = new Vector2(0f, 10f);
-            rtIndicador.sizeDelta        = new Vector2(200f, 24f);
+            rtIndicador.sizeDelta        = new Vector2(200f, 22f);
         }
 
         // ── Suscripción al evento de instancia ────────────────────────────────

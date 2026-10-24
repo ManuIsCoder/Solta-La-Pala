@@ -6,6 +6,7 @@ using SoltaLaPala.Menus;
 using SoltaLaPala.NPC;
 using SoltaLaPala.Player;
 using SoltaLaPala.Sabotaje;
+using SoltaLaPala.Tutorial;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -93,6 +94,8 @@ namespace SoltaLaPala.EditorTools
             CrearCamara(jugador.transform);
             CrearUiInteraccion();
             CrearUiDialogo();
+            CrearUiTutorial();
+            CrearUiTareas();
             CrearMenuSabotaje();
 
             CrearObjetosInteractuables();
@@ -659,36 +662,51 @@ namespace SoltaLaPala.EditorTools
             interfaz.texto = texto;
         }
 
-        // Cuadro de dialogo abajo, con nombre del NPC y la frase.
+        // Cuadro de dialogo abajo, con el sprite disenado de Caja de dialogo vacia.
         private static void CrearUiDialogo()
         {
             Canvas canvas = CrearCanvas("CanvasDialogo", 20);
 
-            GameObject panel = CrearPanel("PanelDialogo", canvas.transform,
-                new Color(0.05f, 0.05f, 0.09f, 0.92f));
+            Sprite spriteCaja = AssetDatabase.LoadAssetAtPath<Sprite>(
+                "Assets/Resources/Sprites/UI/paneles/Caja de dialogo vacia.png");
+            Sprite spriteOpciones = AssetDatabase.LoadAssetAtPath<Sprite>(
+                "Assets/Resources/Sprites/UI/paneles/Panel de seleccionar una opcion.png");
+            Sprite spriteBarra = AssetDatabase.LoadAssetAtPath<Sprite>(
+                "Assets/Resources/Sprites/UI/paneles/Barra de opcion seleccionada.png");
+
+            GameObject panel = new GameObject("PanelDialogo");
+            panel.transform.SetParent(canvas.transform, false);
+
+            Image imagenFondo = panel.AddComponent<Image>();
+            imagenFondo.sprite = spriteCaja;
+            imagenFondo.color = Color.white;
+            imagenFondo.preserveAspect = true;
 
             RectTransform rectPanel = panel.GetComponent<RectTransform>();
             rectPanel.anchorMin = new Vector2(0.5f, 0f);
             rectPanel.anchorMax = new Vector2(0.5f, 0f);
             rectPanel.pivot = new Vector2(0.5f, 0f);
-            rectPanel.anchoredPosition = new Vector2(0f, 40f);
-            rectPanel.sizeDelta = new Vector2(1100f, 200f);
+            rectPanel.anchoredPosition = new Vector2(0f, 30f);
+            rectPanel.sizeDelta = new Vector2(1200f, 336f); // 1600x448 a escala 0.75
 
-            Text nombre = CrearTexto("Nombre", panel.transform, "", 28, TextAnchor.UpperLeft);
+            // Nombre centrado en el recuadro amarillo superior (X=66, Y=-24, 333x66)
+            Text nombre = CrearTexto("Nombre", panel.transform, "", 24, TextAnchor.MiddleCenter);
             RectTransform rectNombre = nombre.GetComponent<RectTransform>();
             rectNombre.anchorMin = new Vector2(0f, 1f);
             rectNombre.anchorMax = new Vector2(0f, 1f);
             rectNombre.pivot = new Vector2(0f, 1f);
-            rectNombre.anchoredPosition = new Vector2(30f, -18f);
-            rectNombre.sizeDelta = new Vector2(600f, 36f);
-            nombre.color = new Color(0.95f, 0.75f, 0.25f);
+            rectNombre.anchoredPosition = new Vector2(66f, -24f);
+            rectNombre.sizeDelta = new Vector2(333f, 66f);
+            nombre.color = new Color(0.12f, 0.12f, 0.18f); // Oscuro para contrastar con el fondo amarillo
 
+            // Frase de diálogo en el cuerpo celeste
             Text frase = CrearTexto("Frase", panel.transform, "", 24, TextAnchor.UpperLeft);
             RectTransform rectFrase = frase.GetComponent<RectTransform>();
             rectFrase.anchorMin = new Vector2(0f, 0f);
             rectFrase.anchorMax = new Vector2(1f, 1f);
-            rectFrase.offsetMin = new Vector2(30f, 50f);
-            rectFrase.offsetMax = new Vector2(-30f, -60f);
+            rectFrase.offsetMin = new Vector2(66f, 30f);
+            rectFrase.offsetMax = new Vector2(-66f, -100f);
+            frase.color = Color.white;
 
             Text continuar = CrearTexto("Continuar", panel.transform,
                 "[ESPACIO]", 18, TextAnchor.LowerRight);
@@ -696,20 +714,104 @@ namespace SoltaLaPala.EditorTools
             rectContinuar.anchorMin = new Vector2(1f, 0f);
             rectContinuar.anchorMax = new Vector2(1f, 0f);
             rectContinuar.pivot = new Vector2(1f, 0f);
-            rectContinuar.anchoredPosition = new Vector2(-30f, 16f);
+            rectContinuar.anchoredPosition = new Vector2(-40f, 20f);
             rectContinuar.sizeDelta = new Vector2(220f, 26f);
-            continuar.color = new Color(0.55f, 0.55f, 0.60f);
+            continuar.color = new Color(0.95f, 0.85f, 0.40f);
 
             InterfazDialogo interfaz = canvas.gameObject.AddComponent<InterfazDialogo>();
             interfaz.panel = panel;
             interfaz.textoNombre = nombre;
             interfaz.textoDialogo = frase;
             interfaz.indicadorContinuar = continuar.gameObject;
+            interfaz.spriteCajaDialogo = spriteCaja;
+            interfaz.spritePanelOpciones = spriteOpciones;
+            interfaz.spriteBarraSeleccionada = spriteBarra;
 
             panel.SetActive(false);
 
             // El gestor busca solo la interfaz y al jugador en su Awake.
             new GameObject("GestorDialogos").AddComponent<GestorDialogos>();
+        }
+
+        private static void CrearUiTutorial()
+        {
+            Canvas canvas = CrearCanvas("CanvasTutorialHUD", 55);
+            Object.DestroyImmediate(canvas.GetComponent<GraphicRaycaster>());
+
+            Sprite spriteTutorial = AssetDatabase.LoadAssetAtPath<Sprite>(
+                "Assets/Resources/Sprites/UI/paneles/Panel tutorial.png");
+
+            GameObject panel = new GameObject("PanelTutorial");
+            panel.transform.SetParent(canvas.transform, false);
+
+            Image imagen = panel.AddComponent<Image>();
+            imagen.sprite = spriteTutorial;
+            imagen.color = Color.white;
+            imagen.preserveAspect = true;
+
+            RectTransform rectPanel = panel.GetComponent<RectTransform>();
+            rectPanel.anchorMin = new Vector2(1f, 1f);
+            rectPanel.anchorMax = new Vector2(1f, 1f);
+            rectPanel.pivot = new Vector2(1f, 1f);
+            rectPanel.anchoredPosition = new Vector2(-20f, -20f);
+            rectPanel.sizeDelta = new Vector2(400f, 230f);
+
+            Text textoContenido = CrearTexto("TextoContenido", panel.transform, "", 18, TextAnchor.MiddleCenter);
+            RectTransform rectTexto = textoContenido.GetComponent<RectTransform>();
+            rectTexto.anchorMin = new Vector2(0f, 0f);
+            rectTexto.anchorMax = new Vector2(1f, 1f);
+            rectTexto.offsetMin = new Vector2(25f, 35f);
+            rectTexto.offsetMax = new Vector2(-25f, -75f);
+            textoContenido.color = Color.white;
+
+            Text textoIndicador = CrearTexto("TextoIndicador", panel.transform, "", 15, TextAnchor.MiddleCenter);
+            RectTransform rectIndicador = textoIndicador.GetComponent<RectTransform>();
+            rectIndicador.anchorMin = new Vector2(0.5f, 0f);
+            rectIndicador.anchorMax = new Vector2(0.5f, 0f);
+            rectIndicador.pivot = new Vector2(0.5f, 0f);
+            rectIndicador.anchoredPosition = new Vector2(0f, 10f);
+            rectIndicador.sizeDelta = new Vector2(200f, 22f);
+            textoIndicador.color = new Color(1f, 1f, 1f, 0.9f);
+
+            canvas.gameObject.AddComponent<PanelTutorialHUD>();
+        }
+
+        private static void CrearUiTareas()
+        {
+            Canvas canvas = CrearCanvas("CanvasTareasHUD", 55);
+            Object.DestroyImmediate(canvas.GetComponent<GraphicRaycaster>());
+
+            Sprite spriteTareas = AssetDatabase.LoadAssetAtPath<Sprite>(
+                "Assets/Resources/Sprites/UI/paneles/Panel de tareas.png");
+
+            GameObject panel = new GameObject("PanelTareas");
+            panel.transform.SetParent(canvas.transform, false);
+
+            Image imagen = panel.AddComponent<Image>();
+            imagen.sprite = spriteTareas;
+            imagen.color = Color.white;
+            imagen.preserveAspect = true;
+
+            RectTransform rectPanel = panel.GetComponent<RectTransform>();
+            rectPanel.anchorMin = new Vector2(0f, 1f);
+            rectPanel.anchorMax = new Vector2(0f, 1f);
+            rectPanel.pivot = new Vector2(0f, 1f);
+            rectPanel.anchoredPosition = new Vector2(20f, -100f);
+            rectPanel.sizeDelta = new Vector2(280f, 392f);
+
+            PanelTareasHUD hud = canvas.gameObject.AddComponent<PanelTareasHUD>();
+            hud.tareas = new string[]
+            {
+                "Hablar con Recepcionista [E]",
+                "Entregar la Pala a Recepcionista",
+                "Sabotear el café de la oficina"
+            };
+            hud.idMisionesAsociadas = new string[]
+            {
+                "",
+                "Recepcionista",
+                ""
+            };
         }
 
         // Panel de sabotaje con sus 4 opciones.

@@ -180,12 +180,12 @@ namespace SoltaLaPala.Tutorial
             goPanel.transform.SetParent(goCanvas.transform, false);
 
             _panelRect = goPanel.AddComponent<RectTransform>();
-            // Anclado arriba-izquierda
-            _panelRect.anchorMin       = new Vector2(0f, 1f);
-            _panelRect.anchorMax       = new Vector2(0f, 1f);
-            _panelRect.pivot           = new Vector2(0f, 1f);
+            // Anclado arriba-izquierda, tamaño proporcional al sprite (800×1120)
+            _panelRect.anchorMin        = new Vector2(0f, 1f);
+            _panelRect.anchorMax        = new Vector2(0f, 1f);
+            _panelRect.pivot            = new Vector2(0f, 1f);
             _panelRect.anchoredPosition = new Vector2(20f, -100f);
-            _panelRect.sizeDelta       = new Vector2(280f, alturaDinamica);
+            _panelRect.sizeDelta        = new Vector2(280f, 392f);
 
             // — Image del panel —
             Image imgPanel = goPanel.AddComponent<Image>();
@@ -193,10 +193,9 @@ namespace SoltaLaPala.Tutorial
 
             if (spritePanel != null)
             {
-                imgPanel.sprite = spritePanel;
-                imgPanel.type   = spritePanel.border != Vector4.zero
-                    ? Image.Type.Sliced
-                    : Image.Type.Simple;
+                imgPanel.sprite          = spritePanel;
+                imgPanel.type            = Image.Type.Simple;
+                imgPanel.preserveAspect  = true;
             }
             else
             {
@@ -205,7 +204,9 @@ namespace SoltaLaPala.Tutorial
 
             // — Textos de tareas —
             textosEntradas.Clear();
-            float anchoTexto = _panelRect.sizeDelta.x - 20f;
+            float margenIzquierdo = 25f;
+            float anchoTexto = _panelRect.sizeDelta.x - (margenIzquierdo * 2f);
+            float inicioY = 105f; // Debajo del encabezado del cartel, sobre la hoja crema
 
             for (int i = 0; i < tareas.Length; i++)
             {
@@ -213,16 +214,16 @@ namespace SoltaLaPala.Tutorial
                 goTexto.transform.SetParent(goPanel.transform, false);
 
                 RectTransform rt = goTexto.AddComponent<RectTransform>();
-                rt.anchorMin       = new Vector2(0f, 1f);
-                rt.anchorMax       = new Vector2(0f, 1f);
-                rt.pivot           = new Vector2(0f, 1f);
-                rt.anchoredPosition = new Vector2(10f, -(10f + i * AltoLinea));
-                rt.sizeDelta       = new Vector2(anchoTexto, 24f);
+                rt.anchorMin        = new Vector2(0f, 1f);
+                rt.anchorMax        = new Vector2(0f, 1f);
+                rt.pivot            = new Vector2(0f, 1f);
+                rt.anchoredPosition = new Vector2(margenIzquierdo, -(inicioY + i * AltoLinea));
+                rt.sizeDelta        = new Vector2(anchoTexto, 24f);
 
                 Text texto = goTexto.AddComponent<Text>();
                 texto.font               = ConstructorUI.Fuente;
-                texto.fontSize           = 18;
-                texto.color              = Color.black;
+                texto.fontSize           = 16;
+                texto.color              = new Color(0.12f, 0.12f, 0.18f); // Oscuro sobre la hoja crema
                 texto.horizontalOverflow = HorizontalWrapMode.Wrap;
                 texto.verticalOverflow   = VerticalWrapMode.Overflow;
                 texto.supportRichText    = true;
