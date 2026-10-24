@@ -40,6 +40,16 @@ namespace SoltaLaPala.Dialogue
         public Color colorOpcionResaltada = new Color(0.24f, 0.24f, 0.36f, 1f);
         public Color colorOpcionPulsada = new Color(0.34f, 0.34f, 0.50f, 1f);
 
+        [Header("Sprites de arte")]
+        [Tooltip("Sprite de la caja de diálogo. Se asigna desde el inspector.")]
+        public Sprite spriteCajaDialogo;
+
+        [Tooltip("Sprite del panel de opciones. Se asigna desde el inspector.")]
+        public Sprite spritePanelOpciones;
+
+        [Tooltip("Barra que se superpone sobre la opción seleccionada/hovered.")]
+        public Sprite spriteBarraSeleccionada;
+
         private readonly List<GameObject> botonesOpciones = new List<GameObject>();
 
         private Coroutine rutinaEscritura;
@@ -63,6 +73,22 @@ namespace SoltaLaPala.Dialogue
         private void Awake()
         {
             if (panel == null) panel = gameObject;
+
+            // Rellenar sprites desde Resources si no se asignaron en el inspector.
+            spriteCajaDialogo       = CargarSprite(spriteCajaDialogo,       "Sprites/UI/paneles/Caja de dialogo vacia");
+            spritePanelOpciones     = CargarSprite(spritePanelOpciones,     "Sprites/UI/paneles/Panel de seleccionar una opcion");
+            spriteBarraSeleccionada = CargarSprite(spriteBarraSeleccionada, "Sprites/UI/paneles/Barra de opcion seleccionada");
+
+            // Aplicar el sprite de fondo a la caja de dialogo si tiene Image.
+            if (spriteCajaDialogo != null)
+            {
+                Image imagenPanel = panel.GetComponent<Image>();
+                if (imagenPanel != null)
+                {
+                    imagenPanel.sprite = spriteCajaDialogo;
+                    imagenPanel.color  = Color.white;
+                }
+            }
 
             // El efecto se anade solo al texto del dialogo: asi no hay que tocar
             // la escena ni los prefabs para que las letras vibren.
@@ -113,7 +139,8 @@ namespace SoltaLaPala.Dialogue
             AsegurarContenedorOpciones();
             ConstructorUI.AsegurarEventSystem();
 
-            for (int i = 0; i < textos.Count; i++)
+            int total = Mathf.Min(textos.Count, 4);
+            for (int i = 0; i < total; i++)
             {
                 int indice = i;
                 botonesOpciones.Add(CrearBotonOpcion($"{i + 1}. {textos[i]}", () => alElegir?.Invoke(indice)));
@@ -137,7 +164,8 @@ namespace SoltaLaPala.Dialogue
         }
 
         // Columna pegada al borde de arriba del cuadro, del mismo ancho, que
-        // crece hacia arriba segun cuantas respuestas haya.
+        // crece hacia arriba segun cuantas respuestas haya (sin sprite) o usa
+        // un tamaño fijo de 4 slots cuando hay sprite de fondo.
         private void AsegurarContenedorOpciones()
         {
             if (contenedorOpciones != null)
@@ -151,18 +179,33 @@ namespace SoltaLaPala.Dialogue
             contenedorOpciones = (RectTransform)objeto.transform;
             contenedorOpciones.anchorMin = new Vector2(0f, 1f);
             contenedorOpciones.anchorMax = new Vector2(1f, 1f);
-            contenedorOpciones.pivot = new Vector2(0.5f, 0f);
+            contenedorOpciones.pivot     = new Vector2(0.5f, 0f);
             contenedorOpciones.anchoredPosition = new Vector2(0f, 10f);
-            contenedorOpciones.sizeDelta = Vector2.zero;
+
+            if (spritePanelOpciones != null)
+            {
+                // Tamaño fijo calculado para 4 slots: no necesita ContentSizeFitter.
+                float spacing = 6f;
+                float altoFijo = altoOpcion * 4f + spacing * 3f + 12f;
+                contenedorOpciones.sizeDelta = new Vector2(0f, altoFijo);
+
+                Image imagenFondo = objeto.AddComponent<Image>();
+                imagenFondo.sprite = spritePanelOpciones;
+                imagenFondo.type   = Image.Type.Simple;
+                imagenFondo.color  = Color.white;
+            }
+            else
+            {
+                contenedorOpciones.sizeDelta = Vector2.zero;
+                objeto.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            }
 
             VerticalLayoutGroup columna = objeto.AddComponent<VerticalLayoutGroup>();
-            columna.spacing = 6f;
-            columna.childControlWidth = true;
-            columna.childControlHeight = true;
-            columna.childForceExpandWidth = true;
+            columna.spacing              = 6f;
+            columna.childControlWidth    = true;
+            columna.childControlHeight   = true;
+            columna.childForceExpandWidth  = true;
             columna.childForceExpandHeight = false;
-
-            objeto.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
         }
 
         private GameObject CrearBotonOpcion(string texto, Action alPulsar)
@@ -172,21 +215,60 @@ namespace SoltaLaPala.Dialogue
 
             objeto.AddComponent<LayoutElement>().preferredHeight = altoOpcion;
 
-            Image fondo = objeto.AddComponent<Image>();
-            fondo.color = Color.white;
+            if (spriteBarraSeleccionada != null)
+            {
+                // Con sprite: la Image base es transparente (solo sirve de targetGraphic
+                // para el Button); la barra de seleccion es un hijo que se hace visible
+                // al hacer hover/seleccion mediante el ColorBlock.
+                Image fondoTransparente = objeto.AddComponent<Image>();
+                fondoTransparente.color = Color.clear;
 
-            // Los colores van en el ColorBlock y no en la Image: el tinte multiplica,
-            // asi que con la Image en blanco cada estado se ve con su color exacto.
-            Button boton = objeto.AddComponent<Button>();
-            boton.targetGraphic = fondo;
-            ColorBlock colores = ColorBlock.defaultColorBlock;
-            colores.normalColor = colorOpcion;
-            colores.highlightedColor = colorOpcionResaltada;
-            colores.pressedColor = colorOpcionPulsada;
-            colores.selectedColor = colorOpcion;
-            colores.fadeDuration = 0.05f;
-            boton.colors = colores;
-            boton.onClick.AddListener(() => alPulsar());
+                // Hijo con la barra de seleccion, estirado para cubrir todo el padre.
+                GameObject seleccionadoImg = new GameObject("BarraSeleccion", typeof(RectTransform));
+                seleccionadoImg.transform.SetParent(objeto.transform, false);
+
+                RectTransform rectBarra = (RectTransform)seleccionadoImg.transform;
+                rectBarra.anchorMin = Vector2.zero;
+                rectBarra.anchorMax = Vector2.one;
+                rectBarra.offsetMin = Vector2.zero;
+                rectBarra.offsetMax = Vector2.zero;
+
+                Image imagenBarra = seleccionadoImg.AddComponent<Image>();
+                imagenBarra.sprite = spriteBarraSeleccionada;
+                imagenBarra.type   = Image.Type.Simple;
+                // Empieza invisible; el Button lo muestra al hacer hover.
+                imagenBarra.color = Color.clear;
+
+                Button boton = objeto.AddComponent<Button>();
+                boton.targetGraphic = imagenBarra;
+                ColorBlock colores = ColorBlock.defaultColorBlock;
+                colores.normalColor      = Color.clear;
+                colores.highlightedColor = Color.white;
+                colores.pressedColor     = new Color(0.8f, 0.8f, 0.8f, 1f);
+                colores.selectedColor    = Color.white;
+                colores.fadeDuration     = 0.1f;
+                boton.colors = colores;
+                boton.onClick.AddListener(() => alPulsar());
+            }
+            else
+            {
+                // Sin sprite: comportamiento anterior con colores sobre el fondo plano.
+                Image fondo = objeto.AddComponent<Image>();
+                fondo.color = Color.white;
+
+                // Los colores van en el ColorBlock y no en la Image: el tinte multiplica,
+                // asi que con la Image en blanco cada estado se ve con su color exacto.
+                Button boton = objeto.AddComponent<Button>();
+                boton.targetGraphic = fondo;
+                ColorBlock colores = ColorBlock.defaultColorBlock;
+                colores.normalColor      = colorOpcion;
+                colores.highlightedColor = colorOpcionResaltada;
+                colores.pressedColor     = colorOpcionPulsada;
+                colores.selectedColor    = colorOpcion;
+                colores.fadeDuration     = 0.05f;
+                boton.colors = colores;
+                boton.onClick.AddListener(() => alPulsar());
+            }
 
             GameObject objetoTexto = new GameObject("Texto", typeof(RectTransform));
             objetoTexto.transform.SetParent(objeto.transform, false);
@@ -198,11 +280,11 @@ namespace SoltaLaPala.Dialogue
             rectTexto.offsetMax = new Vector2(-20f, 0f);
 
             Text etiqueta = objetoTexto.AddComponent<Text>();
-            etiqueta.text = texto;
-            etiqueta.font = textoDialogo != null ? textoDialogo.font : ConstructorUI.Fuente;
-            etiqueta.fontSize = tamanoFuenteOpciones;
-            etiqueta.alignment = TextAnchor.MiddleLeft;
-            etiqueta.color = Color.white;
+            etiqueta.text          = texto;
+            etiqueta.font          = textoDialogo != null ? textoDialogo.font : ConstructorUI.Fuente;
+            etiqueta.fontSize      = tamanoFuenteOpciones;
+            etiqueta.alignment     = TextAnchor.MiddleLeft;
+            etiqueta.color         = Color.white;
             etiqueta.raycastTarget = false;
 
             return objeto;
@@ -273,6 +355,13 @@ namespace SoltaLaPala.Dialogue
             rutinaEscritura = null;
             if (indicadorContinuar != null) indicadorContinuar.SetActive(true);
             AlTerminarLinea?.Invoke();
+        }
+
+        // Carga el sprite del path de Resources si el campo del inspector está vacío.
+        // Así el prefab funciona incluso si alguien olvida asignarlo a mano.
+        private static Sprite CargarSprite(Sprite asignado, string rutaResources)
+        {
+            return asignado != null ? asignado : Resources.Load<Sprite>(rutaResources);
         }
     }
 }
