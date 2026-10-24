@@ -43,8 +43,18 @@ namespace SoltaLaPala.Tutorial
         {
             if (tareas == null || tareas.Length == 0)
             {
-                Debug.LogWarning("[PanelTareasHUD] No se han asignado tareas. El panel no se construirá.", this);
-                return;
+                tareas = new string[]
+                {
+                    "Hablar con Recepcionista [E]",
+                    "Entregar encargo a Recepcionista",
+                    "Sabotear el café de la oficina"
+                };
+                idMisionesAsociadas = new string[]
+                {
+                    "",
+                    "Recepcionista",
+                    ""
+                };
             }
 
             completadas = new bool[tareas.Length];

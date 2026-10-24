@@ -47,13 +47,31 @@ namespace SoltaLaPala.Tutorial
 
         void Start()
         {
+            // Si no se asignó un ScriptableObject en el inspector, buscar uno en Resources
+            // o crear datos por defecto para que la UI funcione de inmediato.
+            if (datos == null)
+            {
+                datos = Resources.Load<DatosTutorial>("Tutorial/DatosTutorial");
+                if (datos == null)
+                {
+                    datos = ScriptableObject.CreateInstance<DatosTutorial>();
+                    datos.pasos = new PasoTutorial[]
+                    {
+                        new PasoTutorial { texto = "Usa WASD para moverte y el ratón para mirar. Mantén Shift para correr.", condicion = CondicionPaso.SoloManual },
+                        new PasoTutorial { texto = "Habla con la Recepcionista [E] para recibir tu encargo.", condicion = CondicionPaso.SoloManual },
+                        new PasoTutorial { texto = "Consigue la Pala o Palita y entrégasela a la Recepcionista.", condicion = CondicionPaso.AlCompletarMision, idMisionAsociada = "Recepcionista" },
+                        new PasoTutorial { texto = "Sabotea las tazas de café sin que los compañeros te descubran.", condicion = CondicionPaso.SoloManual }
+                    };
+                }
+            }
+
             ConstruirUI();
 
             // El panel empieza oculto; se muestra cuando empieza el nivel
             if (_canvas != null)
                 _canvas.gameObject.SetActive(false);
 
-            // Inicializar el array de completados si los datos ya están asignados
+            // Inicializar el array de completados
             if (datos != null && datos.pasos != null)
                 _completados = new bool[datos.pasos.Length];
 

@@ -82,6 +82,18 @@ namespace SoltaLaPala.Menus
                 objeto.AddComponent<MenuEntrega>();
             }
 
+            if (Object.FindAnyObjectByType<SoltaLaPala.Tutorial.PanelTutorialHUD>() == null)
+            {
+                GameObject objeto = new GameObject("PanelTutorialHUD");
+                objeto.AddComponent<SoltaLaPala.Tutorial.PanelTutorialHUD>();
+            }
+
+            if (Object.FindAnyObjectByType<SoltaLaPala.Tutorial.PanelTareasHUD>() == null)
+            {
+                GameObject objeto = new GameObject("PanelTareasHUD");
+                objeto.AddComponent<SoltaLaPala.Tutorial.PanelTareasHUD>();
+            }
+
             AsegurarInventario();
         }
 
