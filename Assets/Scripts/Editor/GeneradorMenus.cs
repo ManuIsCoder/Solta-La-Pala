@@ -142,6 +142,8 @@ namespace SoltaLaPala.EditorTools
             GameObject raiz = CrearRaiz<MenuPausa>("MenuPausa", 120, new Vector2(927f, 720f) * EscalaArte,
                 out MenuPausa menu, out Transform fondo);
 
+            fondo.localScale = new Vector3(0.5f, 0.5f, 1f);
+
             Image imagenFondo = fondo.GetComponent<Image>();
             imagenFondo.sprite = SpriteUI("Pausa/Menu pausa sin botones");
             imagenFondo.color = Color.white;

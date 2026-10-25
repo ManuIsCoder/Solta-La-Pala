@@ -3,38 +3,60 @@ using SoltaLaPala.Interaction;
 using SoltaLaPala.Menus;
 using SoltaLaPala.Player;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace SoltaLaPala.Dialogue
 {
-    // Menu para elegir que le entregas a un NPC que te encargo algo.
-    //
-    // Muestra todo lo que el NPC aceptaria: lo que llevas encima se puede pulsar,
-    // lo que te falta sale en gris. Asi se ve que hay mas de una forma de cerrar
-    // el encargo sin tener que adivinarlo.
-    //
-    // Se genera por codigo como el resto de la UI del prototipo.
+    // Menú para elegir qué le entregas a un NPC que te encargó algo (ej: Pala / Palita).
+    // Utiliza el mismo panel de opciones y sprites que las opciones de diálogo y el sabotaje.
+    // Las opciones que no se tienen aparecen en pantalla pero atenuadas y no se pueden seleccionar.
     public class MenuEntrega : MonoBehaviour
     {
         public static MenuEntrega Instancia { get; private set; }
 
+        [Header("Sprites de arte")]
+        [Tooltip("Sprite del panel de opciones (1000×580). Se carga de Resources si está vacío.")]
+        public Sprite spritePanelOpciones;
+
+        [Tooltip("Barra de selección superpuesta sobre la opción con hover/seleccionada.")]
+        public Sprite spriteBarraSeleccionada;
+
+        [Header("Ajustes de Tamaño y Posición")]
+        public Vector2 tamanoBase = new Vector2(490f, 284f);
+
+        [Range(0.5f, 2.5f)]
+        public float escala = 1.0f;
+
+        public Vector2 offsetPanel = Vector2.zero;
+
+        [Header("Espaciado y Fuente")]
+        [Range(0f, 40f)]
+        public float espacioEntreLineasOpciones = 6f;
+
+        [Range(12, 32)]
+        public int tamanoFuenteOpciones = 17;
+
         [Header("Controles")]
-        [Tooltip("Tecla que cierra el menu sin entregar nada.")]
+        [Tooltip("Tecla que cierra el menú sin entregar nada.")]
         public KeyCode teclaSalir = KeyCode.X;
 
-        // Por encima del dialogo (20) y por debajo de los menus de pausa (100+).
+        // Canvas por encima del diálogo (20) y debajo de pausa (120)
         private const int OrdenCanvas = 40;
 
         private GameObject panel;
-        private Text titulo;
-        private Transform contenedorBotones;
-
+        private VerticalLayoutGroup columnaLayout;
         private MisionEntrega misionActual;
+
         private readonly List<GameObject> botones = new List<GameObject>();
+        private readonly List<Image> barrasSeleccion = new List<Image>();
+        private readonly List<Text> textosBotones = new List<Text>();
+        private readonly List<MisionEntrega.Opcion> opcionesActuales = new List<MisionEntrega.Opcion>();
+        private int opcionSeleccionada = -1;
 
         public bool Abierto => panel != null && panel.activeSelf;
 
-        // Congela al jugador mientras el menu esta abierto.
+        // Congela al jugador mientras el menú está abierto.
         private readonly ControlJugador controlJugador = new ControlJugador();
 
         private void Awake()
@@ -46,7 +68,15 @@ namespace SoltaLaPala.Dialogue
             }
             Instancia = this;
 
+            spritePanelOpciones     = CargarSprite(spritePanelOpciones,     "Sprites/UI/paneles/Panel de seleccionar una opcion");
+            spriteBarraSeleccionada = CargarSprite(spriteBarraSeleccionada, "Sprites/UI/paneles/Barra de opcion seleccionada");
+
             Construir();
+        }
+
+        private static Sprite CargarSprite(Sprite asignado, string rutaResources)
+        {
+            return asignado != null ? asignado : Resources.Load<Sprite>(rutaResources);
         }
 
         private void OnDestroy()
@@ -59,14 +89,80 @@ namespace SoltaLaPala.Dialogue
 
         private void Update()
         {
-            if (Abierto && Input.GetKeyDown(teclaSalir))
+            if (!Abierto) return;
+
+            // Mantener tamaño, posición y espaciado en tiempo real
+            if (panel != null)
+            {
+                RectTransform rtPanel = panel.GetComponent<RectTransform>();
+                if (rtPanel != null)
+                {
+                    Vector2 tamanoDeseado = tamanoBase * escala;
+                    if (rtPanel.sizeDelta != tamanoDeseado)
+                        rtPanel.sizeDelta = tamanoDeseado;
+
+                    if (rtPanel.anchoredPosition != offsetPanel)
+                        rtPanel.anchoredPosition = offsetPanel;
+                }
+
+                if (columnaLayout != null && !Mathf.Approximately(columnaLayout.spacing, espacioEntreLineasOpciones))
+                    columnaLayout.spacing = espacioEntreLineasOpciones;
+
+                for (int i = 0; i < textosBotones.Count; i++)
+                {
+                    if (textosBotones[i] != null && textosBotones[i].fontSize != tamanoFuenteOpciones)
+                        textosBotones[i].fontSize = tamanoFuenteOpciones;
+                }
+            }
+
+            // Navegación por teclado (flechas arriba/abajo)
+            if (opcionesActuales.Count > 0)
+            {
+                if (Input.GetKeyDown(KeyCode.UpArrow))
+                {
+                    MoverSeleccion(-1);
+                }
+                else if (Input.GetKeyDown(KeyCode.DownArrow))
+                {
+                    MoverSeleccion(1);
+                }
+                else if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter) || Input.GetKeyDown(KeyCode.Space))
+                {
+                    if (opcionSeleccionada >= 0 && opcionSeleccionada < opcionesActuales.Count)
+                    {
+                        if (opcionesActuales[opcionSeleccionada].disponible)
+                        {
+                            Elegir(opcionesActuales[opcionSeleccionada]);
+                        }
+                    }
+                }
+            }
+
+            if (Input.GetKeyDown(teclaSalir) || Input.GetKeyDown(KeyCode.Escape))
             {
                 Cerrar();
             }
         }
 
-        // Abre el menu con las opciones de esa mision. Devuelve false si no hay
-        // nada que ofrecer, para que quien llama siga con el dialogo normal.
+        private void MoverSeleccion(int direccion)
+        {
+            int total = opcionesActuales.Count;
+            if (total == 0) return;
+
+            int nuevo = opcionSeleccionada;
+            for (int i = 0; i < total; i++)
+            {
+                nuevo = (nuevo + direccion + total) % total;
+                if (opcionesActuales[nuevo].disponible)
+                {
+                    ResaltarOpcion(nuevo);
+                    return;
+                }
+            }
+        }
+
+        // Abre el menú con las opciones de esa misión. Devuelve false si no hay
+        // nada que ofrecer, para que quien llama siga con el diálogo normal.
         public bool Abrir(MisionEntrega mision)
         {
             if (mision == null || mision.Completada)
@@ -75,29 +171,35 @@ namespace SoltaLaPala.Dialogue
             }
 
             List<MisionEntrega.Opcion> opciones = mision.ObtenerOpciones();
-
             if (opciones.Count == 0)
             {
                 return false;
             }
 
             misionActual = mision;
-
-            titulo.text = $"ENTREGAR A {mision.name.ToUpperInvariant()}";
             RellenarBotones(opciones);
 
             panel.SetActive(true);
             controlJugador.Bloquear(true);
+
+            // Seleccionar por defecto la primera opción disponible
+            int primeraValida = -1;
+            for (int i = 0; i < opciones.Count; i++)
+            {
+                if (opciones[i].disponible)
+                {
+                    primeraValida = i;
+                    break;
+                }
+            }
+            ResaltarOpcion(primeraValida);
 
             return true;
         }
 
         public void Cerrar()
         {
-            if (!Abierto)
-            {
-                return;
-            }
+            if (!Abierto) return;
 
             panel.SetActive(false);
             misionActual = null;
@@ -108,15 +210,26 @@ namespace SoltaLaPala.Dialogue
         private void Elegir(MisionEntrega.Opcion opcion)
         {
             MisionEntrega mision = misionActual;
-
-            // Se cierra antes de entregar: si la entrega termina la partida, la
-            // pantalla de derrota tiene que quedar encima de este menu.
             Cerrar();
-
             mision?.EntregarOpcion(opcion);
         }
 
-        // Un boton por opcion. Los que no llevas quedan apagados y sin accion.
+        private void ResaltarOpcion(int indice)
+        {
+            opcionSeleccionada = indice;
+
+            for (int i = 0; i < barrasSeleccion.Count; i++)
+            {
+                if (barrasSeleccion[i] != null)
+                {
+                    bool resaltar = (i == indice) && i < opcionesActuales.Count && opcionesActuales[i].disponible;
+                    barrasSeleccion[i].color = resaltar ? Color.white : Color.clear;
+                }
+            }
+        }
+
+        // Crea un botón por opción usando exactamente el diseño de InterfazDialogo.
+        // Las opciones no disponibles aparecen pero no se pueden seleccionar.
         private void RellenarBotones(List<MisionEntrega.Opcion> opciones)
         {
             foreach (GameObject viejo in botones)
@@ -124,48 +237,96 @@ namespace SoltaLaPala.Dialogue
                 Destroy(viejo);
             }
             botones.Clear();
+            barrasSeleccion.Clear();
+            textosBotones.Clear();
+            opcionesActuales.Clear();
 
-            float y = -90f;
+            opcionesActuales.AddRange(opciones);
 
-            foreach (MisionEntrega.Opcion opcion in opciones)
+            for (int i = 0; i < opciones.Count; i++)
             {
+                int indiceOpcion = i;
+                MisionEntrega.Opcion opcion = opciones[i];
+
                 string nombre = !string.IsNullOrEmpty(opcion.item.nombre)
                     ? opcion.item.nombre
                     : opcion.item.name;
 
                 string etiqueta = opcion.disponible
                     ? nombre
-                    : $"{nombre}  (no lo llevas)";
+                    : $"{nombre}  (no lo tienes)";
 
-                Button boton = ConstructorUI.CrearBoton($"Opcion{nombre}", contenedorBotones,
-                    etiqueta, new Vector2(0f, y), new Vector2(420f, 58f), null);
+                GameObject objeto = new GameObject($"Opcion_{nombre}", typeof(RectTransform));
+                objeto.transform.SetParent(panel.transform, false);
+
+                objeto.AddComponent<LayoutElement>().preferredHeight = 46f;
+
+                // EventTrigger para activar la barra seleccionada al pasar el ratón (solo si está disponible)
+                if (opcion.disponible)
+                {
+                    EventTrigger trigger = objeto.AddComponent<EventTrigger>();
+                    EventTrigger.Entry entryHover = new EventTrigger.Entry { eventID = EventTriggerType.PointerEnter };
+                    entryHover.callback.AddListener((data) => { ResaltarOpcion(indiceOpcion); });
+                    trigger.triggers.Add(entryHover);
+                }
+
+                // Imagen base para raycasts
+                Image fondoTransparente = objeto.AddComponent<Image>();
+                fondoTransparente.color = Color.clear;
+                fondoTransparente.raycastTarget = opcion.disponible;
+
+                // Overlay de selección
+                GameObject seleccionadoImg = new GameObject("BarraSeleccion", typeof(RectTransform));
+                seleccionadoImg.transform.SetParent(objeto.transform, false);
+
+                RectTransform rectBarra = (RectTransform)seleccionadoImg.transform;
+                rectBarra.anchorMin = Vector2.zero;
+                rectBarra.anchorMax = Vector2.one;
+                rectBarra.offsetMin = Vector2.zero;
+                rectBarra.offsetMax = Vector2.zero;
+
+                Image imagenBarra = seleccionadoImg.AddComponent<Image>();
+                imagenBarra.sprite = spriteBarraSeleccionada;
+                imagenBarra.type   = Image.Type.Simple;
+                imagenBarra.color  = Color.clear;
+                imagenBarra.raycastTarget = false;
+
+                barrasSeleccion.Add(imagenBarra);
+
+                Button boton = objeto.AddComponent<Button>();
+                boton.targetGraphic = fondoTransparente;
+                boton.transition = Selectable.Transition.None;
 
                 if (opcion.disponible)
                 {
-                    // La copia local evita que todos los botones capturen la misma
-                    // variable del bucle.
                     MisionEntrega.Opcion elegida = opcion;
                     boton.onClick.AddListener(() => Elegir(elegida));
                 }
                 else
                 {
                     boton.interactable = false;
-
-                    Image fondo = boton.GetComponent<Image>();
-                    if (fondo != null)
-                    {
-                        fondo.color = ConstructorUI.ColorBotonApagado;
-                    }
-
-                    Text texto = boton.GetComponentInChildren<Text>();
-                    if (texto != null)
-                    {
-                        texto.color = ConstructorUI.ColorTextoApagado;
-                    }
                 }
 
-                botones.Add(boton.gameObject);
-                y -= 70f;
+                // Texto de la opción
+                GameObject objetoTexto = new GameObject("Texto", typeof(RectTransform));
+                objetoTexto.transform.SetParent(objeto.transform, false);
+
+                RectTransform rectTexto = (RectTransform)objetoTexto.transform;
+                rectTexto.anchorMin = Vector2.zero;
+                rectTexto.anchorMax = Vector2.one;
+                rectTexto.offsetMin = new Vector2(25f, 0f);
+                rectTexto.offsetMax = new Vector2(-25f, 0f);
+
+                Text textoComponent = objetoTexto.AddComponent<Text>();
+                textoComponent.text          = etiqueta;
+                textoComponent.font          = ConstructorUI.Fuente;
+                textoComponent.fontSize      = tamanoFuenteOpciones;
+                textoComponent.alignment     = TextAnchor.MiddleLeft;
+                textoComponent.color         = opcion.disponible ? Color.white : new Color(1f, 1f, 1f, 0.35f);
+                textoComponent.raycastTarget = false;
+
+                textosBotones.Add(textoComponent);
+                botones.Add(objeto);
             }
         }
 
@@ -174,19 +335,42 @@ namespace SoltaLaPala.Dialogue
             ConstructorUI.AsegurarEventSystem();
 
             Canvas canvas = ConstructorUI.CrearCanvas("CanvasEntrega", transform, OrdenCanvas);
+            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
 
-            panel = ConstructorUI.CrearPanel("PanelEntrega", canvas.transform,
-                new Vector2(520f, 440f));
-            contenedorBotones = panel.transform;
+            GameObject goPanel = new GameObject("PanelEntrega", typeof(RectTransform));
+            goPanel.transform.SetParent(canvas.transform, false);
+            panel = goPanel;
 
-            titulo = ConstructorUI.CrearTexto("Titulo", panel.transform, "ENTREGAR",
-                30, TextAnchor.MiddleCenter, new Vector2(0f, -30f), new Vector2(460f, 44f));
-            titulo.color = ConstructorUI.ColorAcento;
+            RectTransform rtPanel = panel.GetComponent<RectTransform>();
+            rtPanel.anchorMin        = new Vector2(0.5f, 0.5f);
+            rtPanel.anchorMax        = new Vector2(0.5f, 0.5f);
+            rtPanel.pivot            = new Vector2(0.5f, 0.5f);
+            rtPanel.anchoredPosition = offsetPanel;
+            rtPanel.sizeDelta        = tamanoBase * escala;
 
-            Text ayuda = ConstructorUI.CrearTexto("Ayuda", panel.transform,
-                "[X] Cancelar", 18, TextAnchor.MiddleCenter,
-                new Vector2(0f, -380f), new Vector2(300f, 26f));
-            ayuda.color = ConstructorUI.ColorTextoApagado;
+            Image img = panel.AddComponent<Image>();
+            if (spritePanelOpciones != null)
+            {
+                img.sprite = spritePanelOpciones;
+                img.color  = Color.white;
+                img.type   = Image.Type.Simple;
+                img.preserveAspect = true;
+            }
+            else
+            {
+                img.color = new Color(0.12f, 0.12f, 0.18f, 0.95f);
+            }
+
+            columnaLayout = panel.AddComponent<VerticalLayoutGroup>();
+            columnaLayout.padding.top          = 15;
+            columnaLayout.padding.bottom       = 15;
+            columnaLayout.padding.left         = 20;
+            columnaLayout.padding.right        = 20;
+            columnaLayout.spacing              = espacioEntreLineasOpciones;
+            columnaLayout.childControlWidth    = true;
+            columnaLayout.childControlHeight   = true;
+            columnaLayout.childForceExpandWidth  = true;
+            columnaLayout.childForceExpandHeight = false;
 
             panel.SetActive(false);
         }

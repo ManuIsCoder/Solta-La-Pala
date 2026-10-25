@@ -28,6 +28,19 @@ namespace SoltaLaPala.Menus
             Enganchar(botonConfiguracion, () => Gestor?.Abrir(PantallaMenu.Configuracion));
             Enganchar(botonResultados, () => Gestor?.Abrir(PantallaMenu.Resultados));
             Enganchar(botonMenuPrincipal, VolverAlMenuPrincipal);
+
+            AjustarEscala();
+        }
+
+        private void AjustarEscala()
+        {
+            // Reduce el menú de pausa un 50%
+            Transform fondo = transform.Find("Canvas/Fondo");
+            if (fondo == null) fondo = transform.Find("Fondo");
+            if (fondo != null)
+            {
+                fondo.localScale = new Vector3(0.5f, 0.5f, 1f);
+            }
         }
 
         protected override void Construir(Transform raiz)

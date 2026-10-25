@@ -796,7 +796,28 @@ MonoBehaviour:
   textoNombre: {fileID: 712785125}
   textoDialogo: {fileID: 326415398}
   indicadorContinuar: {fileID: 752976853}
-  palabrasPorSegundo: 5
+  letrasPorSegundo: 35
+  amplitudVibracion: 6
+  duracionVibracion: 0.3
+  ciclosVibracion: 2
+  contenedorOpciones: {fileID: 0}
+  altoOpcion: 46
+  colorOpcion: {r: 0.1, g: 0.1, b: 0.16, a: 0.95}
+  colorOpcionResaltada: {r: 0.24, g: 0.24, b: 0.36, a: 1}
+  colorOpcionPulsada: {r: 0.34, g: 0.34, b: 0.5, a: 1}
+  tamanoFuenteNombre: 37
+  tamanoFuenteDialogo: 32
+  tamanoFuenteOpciones: 23
+  spriteCajaDialogo: {fileID: 0}
+  spritePanelOpciones: {fileID: 0}
+  spriteBarraSeleccionada: {fileID: 0}
+  escalaCajaDialogo: 0.97
+  escalaPanelOpciones: 1.14
+  tamanoBaseCaja: {x: 1380, y: 386}
+  tamanoBaseOpciones: {x: 490, y: 284}
+  offsetCajaDialogo: {x: -28, y: 30}
+  offsetPanelOpciones: {x: 0, y: 15}
+  espacioEntreLineasOpciones: 20.6
 --- !u!114 &102200328
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4792,6 +4813,10 @@ MonoBehaviour:
   nombre: Companero
   id: "Compa\xF1ero"
   tipoActual: 1
+  voz: 1
+  sonidoToz: 1
+  tosCadaMinimo: 30
+  tosCadaMaximo: 45
 --- !u!114 &815587656
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5087,6 +5112,10 @@ MonoBehaviour:
   nombre: Recepcionista
   id: Ejemplo
   tipoActual: 1
+  voz: 1
+  sonidoToz: 1
+  tosCadaMinimo: 30
+  tosCadaMaximo: 45
 --- !u!114 &863338103
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6171,7 +6200,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SoltaLaPala.Menus.EstadoPartida
   impactoObjetivo: 6
   sospechaMaxima: 40
-  duracionNivel: 60
+  duracionNivel: 300
   velocidadSospechaLejos: 10
   velocidadSospechaCerca: 25
   impacto: 0
@@ -11173,6 +11202,10 @@ MonoBehaviour:
   nombre: Supervisor
   id: Supervisor
   tipoActual: 1
+  voz: 1
+  sonidoToz: 1
+  tosCadaMinimo: 30
+  tosCadaMaximo: 45
 --- !u!114 &2108293261
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -27,8 +27,8 @@ namespace SoltaLaPala.Inventory
         public float escalaBarra = 1.35f;
         [Tooltip("Tamano nativo en pixeles de la imagen del inventario.")]
         public Vector2 tamanoBase = new Vector2(293f, 89f);
-        [Tooltip("Margen desde la esquina inferior derecha de la pantalla (aumentar X lo mueve a la izquierda).")]
-        public Vector2 margen = new Vector2(70f, 30f);
+        [Tooltip("Margen desde la esquina inferior derecha de la pantalla (0 en X lo pega al extremo derecho).")]
+        public Vector2 margen = new Vector2(0f, 30f);
         [Tooltip("Posicion (x, y desde abajo) y tamano en pixeles del sprite de cada recuadro de slot.")]
         public Rect[] recuadrosSlotEnSprite =
         {
