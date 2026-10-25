@@ -230,8 +230,6 @@ namespace SoltaLaPala.Tutorial
             // Sin GraphicRaycaster intencionalmente
 
             // — Panel —
-            float alturaDinamica = AltoBase + tareas.Length * AltoLinea;
-
             GameObject goPanel = new GameObject("Panel");
             goPanel.transform.SetParent(goCanvas.transform, false);
 
@@ -240,8 +238,8 @@ namespace SoltaLaPala.Tutorial
             _panelRect.anchorMin        = new Vector2(0f, 1f);
             _panelRect.anchorMax        = new Vector2(0f, 1f);
             _panelRect.pivot            = new Vector2(0f, 1f);
-            _panelRect.anchoredPosition = new Vector2(20f, -100f);
-            _panelRect.sizeDelta        = new Vector2(350f, 490f);
+            _panelRect.anchoredPosition = new Vector2(margen.x, -margen.y);
+            _panelRect.sizeDelta        = tamanoBase * escala;
 
             // — Image del panel —
             Image imgPanel = goPanel.AddComponent<Image>();
@@ -290,15 +288,15 @@ namespace SoltaLaPala.Tutorial
         }
 
         /// <summary>
-        /// Recalcula la altura del panel según el número de tareas actuales.
+        /// Recalcula el tamaño y posición del panel según las configuraciones de escala actuales.
         /// Se puede llamar externamente si las tareas cambian en tiempo de ejecución.
         /// </summary>
-        private void ActualizarPanel()
+        public void ActualizarPanel()
         {
-            if (_panelRect == null || tareas == null) return;
+            if (_panelRect == null) return;
 
-            float alturaDinamica = AltoBase + tareas.Length * AltoLinea;
-            _panelRect.sizeDelta = new Vector2(_panelRect.sizeDelta.x, alturaDinamica);
+            _panelRect.sizeDelta = tamanoBase * escala;
+            _panelRect.anchoredPosition = new Vector2(margen.x, -margen.y);
         }
 
         // ── Suscripción al evento de instancia ────────────────────────────────
