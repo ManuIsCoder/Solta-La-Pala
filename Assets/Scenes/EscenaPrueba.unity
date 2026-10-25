@@ -815,6 +815,9 @@ MonoBehaviour:
   escalaPanelOpciones: 1.14
   tamanoBaseCaja: {x: 1380, y: 386}
   tamanoBaseOpciones: {x: 490, y: 284}
+  offsetCajaDialogo: {x: -28, y: 30}
+  offsetPanelOpciones: {x: 0, y: 15}
+  espacioEntreLineasOpciones: 20.6
 --- !u!114 &102200328
 MonoBehaviour:
   m_ObjectHideFlags: 0
