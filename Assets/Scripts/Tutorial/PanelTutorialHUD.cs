@@ -43,6 +43,11 @@ namespace SoltaLaPala.Tutorial
         [Range(10, 24)]
         public int tamanoFuenteIndicador = 15;
 
+        [Header("Posición de Elementos")]
+        [Tooltip("Posición u offset vertical del indicador de navegación (← 1/4 →) respecto al fondo de la caja.")]
+        [Range(0f, 80f)]
+        public float offsetVerticalIndicador = 28f;
+
         // ──────────────────────────────────────────────
         //  Referencias internas de UI
         // ──────────────────────────────────────────────
@@ -51,6 +56,7 @@ namespace SoltaLaPala.Tutorial
         RectTransform _panelRect;       // RectTransform del panel de fondo
         Text          _textoContenido;  // Texto principal del paso actual
         Text          _textoIndicador;  // Indicador "← N/T →"
+        RectTransform _lineaTachadoTutorial; // Línea de tachado si se completa un paso
 
         // ──────────────────────────────────────────────
         //  Estado
@@ -129,8 +135,15 @@ namespace SoltaLaPala.Tutorial
                     _textoContenido.fontSize = fuenteEscalada;
 
                 int indicadorEscalado = Mathf.Max(8, Mathf.RoundToInt(tamanoFuenteIndicador * escala));
-                if (_textoIndicador != null && _textoIndicador.fontSize != indicadorEscalado)
-                    _textoIndicador.fontSize = indicadorEscalado;
+                if (_textoIndicador != null)
+                {
+                    if (_textoIndicador.fontSize != indicadorEscalado)
+                        _textoIndicador.fontSize = indicadorEscalado;
+
+                    Vector2 posInd = new Vector2(0f, offsetVerticalIndicador * escala);
+                    if (_textoIndicador.rectTransform.anchoredPosition != posInd)
+                        _textoIndicador.rectTransform.anchoredPosition = posInd;
+                }
             }
 
             // Guardia: sin datos no hay nada que hacer
@@ -269,10 +282,23 @@ namespace SoltaLaPala.Tutorial
             PasoTutorial paso = datos.pasos[_pasoActual];
 
             // Texto con tachado si el paso está completado
+            _textoContenido.text = paso.texto;
             if (_completados[_pasoActual])
-                _textoContenido.text = "<s>" + paso.texto + "</s>";
+            {
+                _textoContenido.color = new Color(1f, 1f, 1f, 0.45f);
+                if (_lineaTachadoTutorial != null)
+                {
+                    _lineaTachadoTutorial.gameObject.SetActive(true);
+                    float ancho = Mathf.Min(_textoContenido.preferredWidth + (10f * escala), _textoContenido.rectTransform.rect.width);
+                    _lineaTachadoTutorial.sizeDelta = new Vector2(ancho, Mathf.Max(2f, 3f * escala));
+                }
+            }
             else
-                _textoContenido.text = paso.texto;
+            {
+                _textoContenido.color = Color.white;
+                if (_lineaTachadoTutorial != null)
+                    _lineaTachadoTutorial.gameObject.SetActive(false);
+            }
 
             // Indicador de navegación: "← N/T →"
             int total = datos.pasos.Length;
@@ -345,6 +371,19 @@ namespace SoltaLaPala.Tutorial
             rtTexto.offsetMin        = new Vector2(25f, 35f);
             rtTexto.offsetMax        = new Vector2(-25f, -75f);
 
+            // Línea de tachado opcional para tutorial
+            GameObject goTachado = new GameObject("LineaTachado", typeof(RectTransform));
+            goTachado.transform.SetParent(textoObj.transform, false);
+            _lineaTachadoTutorial = (RectTransform)goTachado.transform;
+            _lineaTachadoTutorial.anchorMin        = new Vector2(0.5f, 0.5f);
+            _lineaTachadoTutorial.anchorMax        = new Vector2(0.5f, 0.5f);
+            _lineaTachadoTutorial.pivot            = new Vector2(0.5f, 0.5f);
+            _lineaTachadoTutorial.anchoredPosition = Vector2.zero;
+            Image imgTach = goTachado.AddComponent<Image>();
+            imgTach.color = new Color(1f, 1f, 1f, 0.85f);
+            imgTach.raycastTarget = false;
+            goTachado.SetActive(false);
+
             // ── Texto indicador de navegación ──
             GameObject indicadorObj = new GameObject("TextoIndicador");
             indicadorObj.transform.SetParent(panelObj.transform, false);
@@ -362,7 +401,7 @@ namespace SoltaLaPala.Tutorial
             rtIndicador.anchorMin        = new Vector2(0.5f, 0f);
             rtIndicador.anchorMax        = new Vector2(0.5f, 0f);
             rtIndicador.pivot            = new Vector2(0.5f, 0f);
-            rtIndicador.anchoredPosition = new Vector2(0f, 10f);
+            rtIndicador.anchoredPosition = new Vector2(0f, offsetVerticalIndicador * escala);
             rtIndicador.sizeDelta        = new Vector2(200f, 22f);
         }
 

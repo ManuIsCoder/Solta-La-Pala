@@ -177,6 +177,20 @@ namespace SoltaLaPala.Dialogue
 
             panel = ConstructorUI.CrearPanel("PanelEntrega", canvas.transform,
                 new Vector2(520f, 440f));
+
+            Sprite spritePanel = Resources.Load<Sprite>("Sprites/UI/paneles/Panel de seleccionar una opcion");
+            if (spritePanel != null)
+            {
+                Image img = panel.GetComponent<Image>();
+                if (img != null)
+                {
+                    img.sprite = spritePanel;
+                    img.color = Color.white;
+                    img.type = Image.Type.Simple;
+                    img.preserveAspect = true;
+                }
+            }
+
             contenedorBotones = panel.transform;
 
             titulo = ConstructorUI.CrearTexto("Titulo", panel.transform, "ENTREGAR",

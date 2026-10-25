@@ -772,12 +772,13 @@ namespace SoltaLaPala.EditorTools
             rectIndicador.anchorMin = new Vector2(0.5f, 0f);
             rectIndicador.anchorMax = new Vector2(0.5f, 0f);
             rectIndicador.pivot = new Vector2(0.5f, 0f);
-            rectIndicador.anchoredPosition = new Vector2(0f, 10f);
+            rectIndicador.anchoredPosition = new Vector2(0f, 28f);
             rectIndicador.sizeDelta = new Vector2(200f, 22f);
             textoIndicador.color = new Color(1f, 1f, 1f, 0.9f);
 
             PanelTutorialHUD tutorialHUD = canvas.gameObject.AddComponent<PanelTutorialHUD>();
             tutorialHUD.escala = 1.26f;
+            tutorialHUD.offsetVerticalIndicador = 28f;
         }
 
         private static void CrearUiTareas()
@@ -805,7 +806,10 @@ namespace SoltaLaPala.EditorTools
 
             PanelTareasHUD hud = canvas.gameObject.AddComponent<PanelTareasHUD>();
             hud.escala = 1.07f;
-            hud.offsetHorizontalTareas = 32f;
+            hud.margen = new Vector2(0.4f, 100f);
+            hud.espacioEntreLineas = 59.4f;
+            hud.offsetVerticalInicial = 134.6f;
+            hud.offsetHorizontalTareas = 76.67f;
             hud.tareas = new string[]
             {
                 "Hablar con Recepcionista [E]",
@@ -820,89 +824,25 @@ namespace SoltaLaPala.EditorTools
             };
         }
 
-        // Panel de sabotaje con sus 4 opciones.
+        // Panel de sabotaje con sus 4 opciones usando el mismo panel de opciones de diálogo.
         private static void CrearMenuSabotaje()
         {
-            Canvas canvas = CrearCanvas("CanvasSabotaje", 30);
+            Canvas canvas = CrearCanvas("CanvasSabotaje", 45);
 
-            GameObject panel = CrearPanel("PanelSabotaje", canvas.transform,
-                new Color(0.10f, 0.10f, 0.15f, 0.97f));
+            Sprite spriteOpciones = AssetDatabase.LoadAssetAtPath<Sprite>(
+                "Assets/Resources/Sprites/UI/paneles/Panel de seleccionar una opcion.png");
+            Sprite spriteBarra = AssetDatabase.LoadAssetAtPath<Sprite>(
+                "Assets/Resources/Sprites/UI/paneles/Barra de opcion seleccionada.png");
 
-            RectTransform rectPanel = panel.GetComponent<RectTransform>();
-            rectPanel.anchorMin = new Vector2(0.5f, 0.5f);
-            rectPanel.anchorMax = new Vector2(0.5f, 0.5f);
-            rectPanel.anchoredPosition = Vector2.zero;
-            rectPanel.sizeDelta = new Vector2(560f, 520f);
-
-            Text titulo = CrearTexto("Titulo", panel.transform,
-                "SABOTEAR CAFE", 34, TextAnchor.MiddleCenter);
-            RectTransform rectTitulo = titulo.GetComponent<RectTransform>();
-            rectTitulo.anchorMin = new Vector2(0.5f, 1f);
-            rectTitulo.anchorMax = new Vector2(0.5f, 1f);
-            rectTitulo.pivot = new Vector2(0.5f, 1f);
-            rectTitulo.anchoredPosition = new Vector2(0f, -30f);
-            rectTitulo.sizeDelta = new Vector2(500f, 46f);
-            titulo.color = new Color(0.95f, 0.75f, 0.25f);
+            GameObject panel = new GameObject("PanelSabotaje");
+            panel.transform.SetParent(canvas.transform, false);
 
             MenuSabotajeTaza menu = canvas.gameObject.AddComponent<MenuSabotajeTaza>();
             menu.panel = panel;
-            menu.textoTitulo = titulo;
-
-            float y = -110f;
-            menu.botonNormal = CrearBotonSabotaje(panel.transform, "Cafe normal", ref y);
-            menu.botonSal = CrearBotonSabotaje(panel.transform, "Con sal", ref y);
-            menu.botonFrio = CrearBotonSabotaje(panel.transform, "Frio y rancio", ref y);
-            menu.botonDetergente = CrearBotonSabotaje(panel.transform, "Con detergente", ref y);
-
-            Text resultado = CrearTexto("Resultado", panel.transform, "",
-                20, TextAnchor.MiddleCenter);
-            RectTransform rectResultado = resultado.GetComponent<RectTransform>();
-            rectResultado.anchorMin = new Vector2(0.5f, 0f);
-            rectResultado.anchorMax = new Vector2(0.5f, 0f);
-            rectResultado.pivot = new Vector2(0.5f, 0f);
-            rectResultado.anchoredPosition = new Vector2(0f, 60f);
-            rectResultado.sizeDelta = new Vector2(500f, 60f);
-            menu.textoResultado = resultado;
-
-            Text ayuda = CrearTexto("Ayuda", panel.transform,
-                "[X] Salir", 18, TextAnchor.MiddleCenter);
-            RectTransform rectAyuda = ayuda.GetComponent<RectTransform>();
-            rectAyuda.anchorMin = new Vector2(0.5f, 0f);
-            rectAyuda.anchorMax = new Vector2(0.5f, 0f);
-            rectAyuda.pivot = new Vector2(0.5f, 0f);
-            rectAyuda.anchoredPosition = new Vector2(0f, 24f);
-            rectAyuda.sizeDelta = new Vector2(300f, 26f);
-            ayuda.color = new Color(0.55f, 0.55f, 0.60f);
+            menu.spritePanelOpciones = spriteOpciones;
+            menu.spriteBarraSeleccionada = spriteBarra;
 
             panel.SetActive(false);
-        }
-
-        private static Button CrearBotonSabotaje(Transform padre, string etiqueta, ref float y)
-        {
-            GameObject objeto = CrearPanel($"Boton{etiqueta}", padre,
-                new Color(0.22f, 0.22f, 0.30f));
-
-            RectTransform rect = objeto.GetComponent<RectTransform>();
-            rect.anchorMin = new Vector2(0.5f, 1f);
-            rect.anchorMax = new Vector2(0.5f, 1f);
-            rect.pivot = new Vector2(0.5f, 1f);
-            rect.anchoredPosition = new Vector2(0f, y);
-            rect.sizeDelta = new Vector2(420f, 60f);
-
-            Button boton = objeto.AddComponent<Button>();
-            boton.targetGraphic = objeto.GetComponent<Image>();
-
-            Text texto = CrearTexto("Etiqueta", objeto.transform, etiqueta,
-                24, TextAnchor.MiddleCenter);
-            RectTransform rectTexto = texto.GetComponent<RectTransform>();
-            rectTexto.anchorMin = Vector2.zero;
-            rectTexto.anchorMax = Vector2.one;
-            rectTexto.offsetMin = Vector2.zero;
-            rectTexto.offsetMax = Vector2.zero;
-
-            y -= 72f;
-
-            return boton;
         }
 
         // --- Interactuables ---------------------------------------------------

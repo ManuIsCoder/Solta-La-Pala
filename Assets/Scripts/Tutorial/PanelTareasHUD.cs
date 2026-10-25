@@ -31,7 +31,7 @@ namespace SoltaLaPala.Tutorial
         public float escala = 1.07f;
 
         [Tooltip("Margen respecto a la esquina superior izquierda (X a la derecha, Y hacia abajo).")]
-        public Vector2 margen = new Vector2(20f, 100f);
+        public Vector2 margen = new Vector2(0.4f, 100f);
 
         [Tooltip("Tamaño base del panel en píxeles de referencia.")]
         public Vector2 tamanoBase = new Vector2(350f, 490f);
@@ -42,21 +42,22 @@ namespace SoltaLaPala.Tutorial
         public int tamanoFuente = 20;
 
         [Tooltip("Espacio vertical entre cada línea de tarea.")]
-        [Range(15f, 70f)]
-        public float espacioEntreLineas = 35f;
+        [Range(15f, 90f)]
+        public float espacioEntreLineas = 59.4f;
 
         [Tooltip("Margen vertical desde arriba hacia la primera tarea.")]
-        public float offsetVerticalInicial = 130f;
+        public float offsetVerticalInicial = 134.6f;
 
         [Tooltip("Margen u offset horizontal desde el borde izquierdo hacia las tareas.")]
         [Range(0f, 150f)]
-        public float offsetHorizontalTareas = 32f;
+        public float offsetHorizontalTareas = 76.67f;
 
         // ── Estado interno ─────────────────────────────────────────────────────
 
         private Canvas          _canvas;
         private RectTransform   _panelRect;
         private List<Text>      textosEntradas = new List<Text>();
+        private List<Image>     lineasTachado  = new List<Image>();
         private bool[]          completadas;
 
         // ── Ciclo de vida Unity ────────────────────────────────────────────────
@@ -137,6 +138,12 @@ namespace SoltaLaPala.Tutorial
                         rt.anchoredPosition = new Vector2(margenIzqActual, -(inicioYActual + i * espacioActual));
                         rt.sizeDelta = new Vector2(anchoTextoActual, 30f * escala);
                     }
+
+                    if (i < lineasTachado.Count && lineasTachado[i] != null && lineasTachado[i].gameObject.activeSelf)
+                    {
+                        float anchoTachado = Mathf.Min(textosEntradas[i].preferredWidth + (10f * escala), anchoTextoActual);
+                        lineasTachado[i].rectTransform.sizeDelta = new Vector2(anchoTachado, Mathf.Max(2f, 3f * escala));
+                    }
                 }
             }
 
@@ -176,7 +183,7 @@ namespace SoltaLaPala.Tutorial
         // ── API pública ────────────────────────────────────────────────────────
 
         /// <summary>
-        /// Marca la tarea en el índice dado como completada (tachado semitransparente).
+        /// Marca la tarea en el índice dado como completada (tachado gráfico con tinta).
         /// </summary>
         public void MarcarTareaCompletada(int indice)
         {
@@ -187,8 +194,17 @@ namespace SoltaLaPala.Tutorial
 
             if (indice < textosEntradas.Count && textosEntradas[indice] != null)
             {
-                textosEntradas[indice].text  = "<s>" + tareas[indice] + "</s>";
-                textosEntradas[indice].color = new Color(0f, 0f, 0f, 0.45f);
+                textosEntradas[indice].text  = tareas[indice];
+                textosEntradas[indice].color = new Color(0.12f, 0.12f, 0.18f, 0.40f); // Tinta apagada
+
+                if (indice < lineasTachado.Count && lineasTachado[indice] != null)
+                {
+                    lineasTachado[indice].gameObject.SetActive(true);
+                    float margenIzqActual = offsetHorizontalTareas * escala;
+                    float anchoTextoActual = _panelRect.sizeDelta.x - (margenIzqActual * 2f);
+                    float anchoTachado = Mathf.Min(textosEntradas[indice].preferredWidth + (10f * escala), anchoTextoActual);
+                    lineasTachado[indice].rectTransform.sizeDelta = new Vector2(anchoTachado, Mathf.Max(2f, 3f * escala));
+                }
             }
         }
 
@@ -203,10 +219,15 @@ namespace SoltaLaPala.Tutorial
             {
                 completadas[i] = false;
 
-                if (i < textosEntradas.Count && textosEntradas[i] != null)
+                if (i < textosEntradas.Count && textosEntradas[indice: i] != null)
                 {
                     textosEntradas[i].text  = tareas[i];
-                    textosEntradas[i].color = Color.black;
+                    textosEntradas[i].color = new Color(0.12f, 0.12f, 0.18f, 1f);
+                }
+
+                if (i < lineasTachado.Count && lineasTachado[i] != null)
+                {
+                    lineasTachado[i].gameObject.SetActive(false);
                 }
             }
         }
@@ -258,6 +279,7 @@ namespace SoltaLaPala.Tutorial
 
             // — Textos de tareas —
             textosEntradas.Clear();
+            lineasTachado.Clear();
             float margenIzquierdo = offsetHorizontalTareas * escala;
             float anchoTexto = _panelRect.sizeDelta.x - (margenIzquierdo * 2f);
             float inicioY = offsetVerticalInicial * escala;
@@ -284,6 +306,24 @@ namespace SoltaLaPala.Tutorial
                 texto.text               = tareas[i];
 
                 textosEntradas.Add(texto);
+
+                // Línea de tachado que tacha la tarea al completarse
+                GameObject goTachado = new GameObject("LineaTachado", typeof(RectTransform));
+                goTachado.transform.SetParent(goTexto.transform, false);
+
+                RectTransform rtTachado = (RectTransform)goTachado.transform;
+                rtTachado.anchorMin        = new Vector2(0f, 0.5f);
+                rtTachado.anchorMax        = new Vector2(0f, 0.5f);
+                rtTachado.pivot            = new Vector2(0f, 0.5f);
+                rtTachado.anchoredPosition = new Vector2(-2f, -1f);
+                rtTachado.sizeDelta        = new Vector2(0f, Mathf.Max(2f, 3f * escala));
+
+                Image imgTachado = goTachado.AddComponent<Image>();
+                imgTachado.color = new Color(0.18f, 0.18f, 0.24f, 0.85f); // Tinta azulada/oscura de lapicera
+                imgTachado.raycastTarget = false;
+
+                goTachado.SetActive(false);
+                lineasTachado.Add(imgTachado);
             }
         }
 
