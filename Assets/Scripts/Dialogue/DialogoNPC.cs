@@ -22,12 +22,12 @@ namespace SoltaLaPala.Dialogue
         [Header("Sonido")]
         [Tooltip("Voz de balbuceo que suena mientras el NPC habla. Ninguna = no suena nada.")]
         public VozNPC voz = VozNPC.Agudo;
-        [Tooltip("Sonido de tos del NPC. Ninguna = no tose.")]
+        [Tooltip("Sonido de estornudo / tos del NPC. Ninguna = no estornuda.")]
         public TosNPC sonidoToz = TosNPC.Toz1;
-        [Tooltip("Cada cuantos segundos tose como minimo, cuando nadie le habla.")]
-        public float tosCadaMinimo = 30f;
-        [Tooltip("Cada cuantos segundos tose como maximo.")]
-        public float tosCadaMaximo = 45f;
+        [Tooltip("Cada cuántos segundos estornuda/tose como mínimo, cuando nadie le habla.")]
+        public float tosCadaMinimo = 14f;
+        [Tooltip("Cada cuántos segundos estornuda/tose como máximo.")]
+        public float tosCadaMaximo = 24f;
 
         public Transform Transform => transform;
 

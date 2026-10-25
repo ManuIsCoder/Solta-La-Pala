@@ -56,8 +56,9 @@ namespace SoltaLaPala.Tutorial
 
         private Canvas          _canvas;
         private RectTransform   _panelRect;
-        private List<Text>      textosEntradas = new List<Text>();
-        private List<Image>     lineasTachado  = new List<Image>();
+        private List<Text>      textosEntradas  = new List<Text>();
+        private List<Image>     lineasTachado   = new List<Image>();
+        private List<Image>     lineasTachado2  = new List<Image>();
         private bool[]          completadas;
 
         // ── Ciclo de vida Unity ────────────────────────────────────────────────
@@ -136,13 +137,12 @@ namespace SoltaLaPala.Tutorial
                     if (rt != null)
                     {
                         rt.anchoredPosition = new Vector2(margenIzqActual, -(inicioYActual + i * espacioActual));
-                        rt.sizeDelta = new Vector2(anchoTextoActual, 30f * escala);
+                        rt.sizeDelta = new Vector2(anchoTextoActual, 50f * escala);
                     }
 
-                    if (i < lineasTachado.Count && lineasTachado[i] != null && lineasTachado[i].gameObject.activeSelf)
+                    if (completadas != null && i < completadas.Length && completadas[i])
                     {
-                        float anchoTachado = Mathf.Min(textosEntradas[i].preferredWidth + (10f * escala), anchoTextoActual);
-                        lineasTachado[i].rectTransform.sizeDelta = new Vector2(anchoTachado, Mathf.Max(2f, 3f * escala));
+                        ActualizarTachado(i, anchoTextoActual);
                     }
                 }
             }
@@ -183,7 +183,7 @@ namespace SoltaLaPala.Tutorial
         // ── API pública ────────────────────────────────────────────────────────
 
         /// <summary>
-        /// Marca la tarea en el índice dado como completada (tachado gráfico con tinta).
+        /// Marca la tarea en el índice dado como completada (tachando todas las letras aunque ocupen varias líneas).
         /// </summary>
         public void MarcarTareaCompletada(int indice)
         {
@@ -197,13 +197,42 @@ namespace SoltaLaPala.Tutorial
                 textosEntradas[indice].text  = tareas[indice];
                 textosEntradas[indice].color = new Color(0.12f, 0.12f, 0.18f, 0.40f); // Tinta apagada
 
-                if (indice < lineasTachado.Count && lineasTachado[indice] != null)
+                float margenIzqActual = offsetHorizontalTareas * escala;
+                float anchoTextoActual = _panelRect.sizeDelta.x - (margenIzqActual * 2f);
+                ActualizarTachado(indice, anchoTextoActual);
+            }
+        }
+
+        private void ActualizarTachado(int i, float anchoTextoActual)
+        {
+            if (i >= textosEntradas.Count || textosEntradas[i] == null) return;
+            if (i >= lineasTachado.Count || lineasTachado[i] == null) return;
+
+            Text texto = textosEntradas[i];
+            float grosor = Mathf.Max(2.5f, 3.5f * escala);
+
+            // Verificamos si el texto ocupa más de 1 línea para tachar todo
+            bool esMultilinea = texto.preferredWidth > (anchoTextoActual - 10f) || (tareas != null && i < tareas.Length && tareas[i].Length > 20);
+
+            // Línea 1 (cubre la primera línea)
+            lineasTachado[i].gameObject.SetActive(true);
+            float ancho1 = esMultilinea ? (anchoTextoActual + 8f * escala) : Mathf.Min(texto.preferredWidth + 14f * escala, anchoTextoActual + 8f * escala);
+            lineasTachado[i].rectTransform.sizeDelta = new Vector2(ancho1, grosor);
+            lineasTachado[i].rectTransform.anchoredPosition = new Vector2(-4f, -12f * escala);
+
+            // Línea 2 (cubre la segunda línea si el texto se extendió)
+            if (i < lineasTachado2.Count && lineasTachado2[i] != null)
+            {
+                if (esMultilinea)
                 {
-                    lineasTachado[indice].gameObject.SetActive(true);
-                    float margenIzqActual = offsetHorizontalTareas * escala;
-                    float anchoTextoActual = _panelRect.sizeDelta.x - (margenIzqActual * 2f);
-                    float anchoTachado = Mathf.Min(textosEntradas[indice].preferredWidth + (10f * escala), anchoTextoActual);
-                    lineasTachado[indice].rectTransform.sizeDelta = new Vector2(anchoTachado, Mathf.Max(2f, 3f * escala));
+                    lineasTachado2[i].gameObject.SetActive(true);
+                    float ancho2 = anchoTextoActual + 8f * escala;
+                    lineasTachado2[i].rectTransform.sizeDelta = new Vector2(ancho2, grosor);
+                    lineasTachado2[i].rectTransform.anchoredPosition = new Vector2(-4f, -34f * escala);
+                }
+                else
+                {
+                    lineasTachado2[i].gameObject.SetActive(false);
                 }
             }
         }
@@ -228,6 +257,11 @@ namespace SoltaLaPala.Tutorial
                 if (i < lineasTachado.Count && lineasTachado[i] != null)
                 {
                     lineasTachado[i].gameObject.SetActive(false);
+                }
+
+                if (i < lineasTachado2.Count && lineasTachado2[i] != null)
+                {
+                    lineasTachado2[i].gameObject.SetActive(false);
                 }
             }
         }
@@ -280,6 +314,7 @@ namespace SoltaLaPala.Tutorial
             // — Textos de tareas —
             textosEntradas.Clear();
             lineasTachado.Clear();
+            lineasTachado2.Clear();
             float margenIzquierdo = offsetHorizontalTareas * escala;
             float anchoTexto = _panelRect.sizeDelta.x - (margenIzquierdo * 2f);
             float inicioY = offsetVerticalInicial * escala;
@@ -294,7 +329,7 @@ namespace SoltaLaPala.Tutorial
                 rt.anchorMax        = new Vector2(0f, 1f);
                 rt.pivot            = new Vector2(0f, 1f);
                 rt.anchoredPosition = new Vector2(margenIzquierdo, -(inicioY + i * espacioEntreLineas * escala));
-                rt.sizeDelta        = new Vector2(anchoTexto, 30f * escala);
+                rt.sizeDelta        = new Vector2(anchoTexto, 50f * escala);
 
                 Text texto = goTexto.AddComponent<Text>();
                 texto.font               = ConstructorUI.Fuente;
@@ -307,23 +342,39 @@ namespace SoltaLaPala.Tutorial
 
                 textosEntradas.Add(texto);
 
-                // Línea de tachado que tacha la tarea al completarse
-                GameObject goTachado = new GameObject("LineaTachado", typeof(RectTransform));
-                goTachado.transform.SetParent(goTexto.transform, false);
+                // Línea 1 de tachado (primera línea de texto)
+                GameObject goTachado1 = new GameObject("LineaTachado_1", typeof(RectTransform));
+                goTachado1.transform.SetParent(goTexto.transform, false);
 
-                RectTransform rtTachado = (RectTransform)goTachado.transform;
-                rtTachado.anchorMin        = new Vector2(0f, 0.5f);
-                rtTachado.anchorMax        = new Vector2(0f, 0.5f);
-                rtTachado.pivot            = new Vector2(0f, 0.5f);
-                rtTachado.anchoredPosition = new Vector2(-2f, -1f);
-                rtTachado.sizeDelta        = new Vector2(0f, Mathf.Max(2f, 3f * escala));
+                RectTransform rtTachado1 = (RectTransform)goTachado1.transform;
+                rtTachado1.anchorMin        = new Vector2(0f, 1f);
+                rtTachado1.anchorMax        = new Vector2(0f, 1f);
+                rtTachado1.pivot            = new Vector2(0f, 1f);
+                rtTachado1.anchoredPosition = new Vector2(-4f, -12f * escala);
+                rtTachado1.sizeDelta        = new Vector2(0f, Mathf.Max(2.5f, 3.5f * escala));
 
-                Image imgTachado = goTachado.AddComponent<Image>();
-                imgTachado.color = new Color(0.18f, 0.18f, 0.24f, 0.85f); // Tinta azulada/oscura de lapicera
-                imgTachado.raycastTarget = false;
+                Image imgTachado1 = goTachado1.AddComponent<Image>();
+                imgTachado1.color = new Color(0.15f, 0.15f, 0.22f, 0.90f);
+                imgTachado1.raycastTarget = false;
+                goTachado1.SetActive(false);
+                lineasTachado.Add(imgTachado1);
 
-                goTachado.SetActive(false);
-                lineasTachado.Add(imgTachado);
+                // Línea 2 de tachado (para cuando el texto se extiende a una segunda línea)
+                GameObject goTachado2 = new GameObject("LineaTachado_2", typeof(RectTransform));
+                goTachado2.transform.SetParent(goTexto.transform, false);
+
+                RectTransform rtTachado2 = (RectTransform)goTachado2.transform;
+                rtTachado2.anchorMin        = new Vector2(0f, 1f);
+                rtTachado2.anchorMax        = new Vector2(0f, 1f);
+                rtTachado2.pivot            = new Vector2(0f, 1f);
+                rtTachado2.anchoredPosition = new Vector2(-4f, -34f * escala);
+                rtTachado2.sizeDelta        = new Vector2(0f, Mathf.Max(2.5f, 3.5f * escala));
+
+                Image imgTachado2 = goTachado2.AddComponent<Image>();
+                imgTachado2.color = new Color(0.15f, 0.15f, 0.22f, 0.90f);
+                imgTachado2.raycastTarget = false;
+                goTachado2.SetActive(false);
+                lineasTachado2.Add(imgTachado2);
             }
         }
 

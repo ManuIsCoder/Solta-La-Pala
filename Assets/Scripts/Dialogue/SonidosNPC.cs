@@ -31,7 +31,7 @@ namespace SoltaLaPala.Dialogue
             fuenteVoz = CrearFuente("Voz", loop: true);
             fuenteTos = CrearFuente("Tos", loop: false);
 
-            ProgramarProximaTos();
+            ProgramarProximaTos(primeraVez: true);
         }
 
         // Fuente 3D: se oye mas fuerte cuanto mas cerca esta el NPC del jugador.
@@ -156,9 +156,16 @@ namespace SoltaLaPala.Dialogue
             ProgramarProximaTos();
         }
 
-        private void ProgramarProximaTos()
+        private void ProgramarProximaTos(bool primeraVez = false)
         {
-            proximaTos = Time.time + Random.Range(npc.tosCadaMinimo, Mathf.Max(npc.tosCadaMinimo, npc.tosCadaMaximo));
+            if (primeraVez)
+            {
+                proximaTos = Time.time + Random.Range(4f, 10f);
+            }
+            else
+            {
+                proximaTos = Time.time + Random.Range(npc.tosCadaMinimo, Mathf.Max(npc.tosCadaMinimo, npc.tosCadaMaximo));
+            }
         }
 
         // Cargan el clip segun lo elegido en el Inspector, y recargan si cambia.
