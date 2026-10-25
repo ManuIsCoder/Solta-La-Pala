@@ -23,13 +23,25 @@ namespace SoltaLaPala.Tutorial
         [Header("Visibilidad")]
         public bool ocultarConMenusAbiertos = true;     // Ocultar el panel si hay algún menú abierto
 
+        [Header("Ajustes de Tamaño y Posición")]
+        [Tooltip("Escala del panel tutorial. Modifícalo en el inspector para agrandar o achicar.")]
+        [Range(0.5f, 2.5f)]
+        public float escala = 1.0f;
+
+        [Tooltip("Margen respecto a la esquina superior derecha (X hacia la izquierda, Y hacia abajo).")]
+        public Vector2 margen = new Vector2(20f, 20f);
+
+        [Tooltip("Tamaño base del panel en píxeles de referencia.")]
+        public Vector2 tamanoBase = new Vector2(400f, 230f);
+
         // ──────────────────────────────────────────────
         //  Referencias internas de UI
         // ──────────────────────────────────────────────
 
-        Canvas   _canvas;       // Canvas propio del HUD de tutorial
-        Text     _textoContenido;  // Texto principal del paso actual
-        Text     _textoIndicador;  // Indicador "← N/T →"
+        Canvas        _canvas;          // Canvas propio del HUD de tutorial
+        RectTransform _panelRect;       // RectTransform del panel de fondo
+        Text          _textoContenido;  // Texto principal del paso actual
+        Text          _textoIndicador;  // Indicador "← N/T →"
 
         // ──────────────────────────────────────────────
         //  Estado
@@ -90,6 +102,19 @@ namespace SoltaLaPala.Tutorial
         {
             // EstadoPartida puede crearse después que este HUD: reengancharse al nuevo.
             SuscribirseAlNivel();
+
+            // Permite modificar tamaño y posición desde el inspector de Unity en tiempo real
+            if (_panelRect != null)
+            {
+                Vector2 tamanoDeseado = tamanoBase * escala;
+                Vector2 posDeseada = new Vector2(-margen.x, -margen.y);
+
+                if (_panelRect.sizeDelta != tamanoDeseado)
+                    _panelRect.sizeDelta = tamanoDeseado;
+
+                if (_panelRect.anchoredPosition != posDeseada)
+                    _panelRect.anchoredPosition = posDeseada;
+            }
 
             // Guardia: sin datos no hay nada que hacer
             if (datos == null || datos.pasos == null || datos.pasos.Length == 0)
@@ -276,8 +301,10 @@ namespace SoltaLaPala.Tutorial
             rtPanel.anchorMin        = new Vector2(1f, 1f);
             rtPanel.anchorMax        = new Vector2(1f, 1f);
             rtPanel.pivot            = new Vector2(1f, 1f);
-            rtPanel.anchoredPosition = new Vector2(-20f, -20f);
-            rtPanel.sizeDelta        = new Vector2(400f, 230f);
+            rtPanel.anchoredPosition = new Vector2(-margen.x, -margen.y);
+            rtPanel.sizeDelta        = tamanoBase * escala;
+
+            _panelRect = rtPanel;
 
             image.preserveAspect = true;
 

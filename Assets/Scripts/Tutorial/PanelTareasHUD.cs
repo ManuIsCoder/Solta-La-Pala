@@ -25,6 +25,17 @@ namespace SoltaLaPala.Tutorial
         [Header("Visibilidad")]
         public bool ocultarConMenusAbiertos = true;
 
+        [Header("Ajustes de Tamaño y Posición")]
+        [Tooltip("Escala del panel de tareas. Modifícalo en el inspector para agrandar o achicar.")]
+        [Range(0.5f, 2.5f)]
+        public float escala = 1.0f;
+
+        [Tooltip("Margen respecto a la esquina superior izquierda (X a la derecha, Y hacia abajo).")]
+        public Vector2 margen = new Vector2(20f, 100f);
+
+        [Tooltip("Tamaño base del panel en píxeles de referencia.")]
+        public Vector2 tamanoBase = new Vector2(350f, 490f);
+
         // ── Constantes de layout ───────────────────────────────────────────────
 
         private const float AltoBase  = 25f;
@@ -83,6 +94,19 @@ namespace SoltaLaPala.Tutorial
             SuscribirseAlNivel();
 
             if (_canvas == null) return;
+
+            // Permite modificar tamaño y posición desde el inspector de Unity en tiempo real
+            if (_panelRect != null)
+            {
+                Vector2 tamanoDeseado = tamanoBase * escala;
+                Vector2 posDeseada = new Vector2(margen.x, -margen.y);
+
+                if (_panelRect.sizeDelta != tamanoDeseado)
+                    _panelRect.sizeDelta = tamanoDeseado;
+
+                if (_panelRect.anchoredPosition != posDeseada)
+                    _panelRect.anchoredPosition = posDeseada;
+            }
 
             bool jugando = _estadoSuscrito != null
                 && _estadoSuscrito.PartidaEnCurso

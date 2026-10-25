@@ -50,6 +50,21 @@ namespace SoltaLaPala.Dialogue
         [Tooltip("Barra que se superpone sobre la opción seleccionada/hovered.")]
         public Sprite spriteBarraSeleccionada;
 
+        [Header("Escala y Ajustes de Tamaño")]
+        [Tooltip("Escala de la caja de diálogo. Modifícalo en el inspector para agrandar o achicar.")]
+        [Range(0.5f, 2.5f)]
+        public float escalaCajaDialogo = 1.0f;
+
+        [Tooltip("Escala del panel de opciones. Modifícalo en el inspector para agrandar o achicar.")]
+        [Range(0.5f, 2.5f)]
+        public float escalaPanelOpciones = 1.0f;
+
+        [Tooltip("Tamaño base de la caja de diálogo.")]
+        public Vector2 tamanoBaseCaja = new Vector2(1380f, 386f);
+
+        [Tooltip("Tamaño base del panel de opciones.")]
+        public Vector2 tamanoBaseOpciones = new Vector2(490f, 284f);
+
         private readonly List<GameObject> botonesOpciones = new List<GameObject>();
 
         private Coroutine rutinaEscritura;
@@ -94,7 +109,7 @@ namespace SoltaLaPala.Dialogue
                 RectTransform rectPanel = panel.GetComponent<RectTransform>();
                 if (rectPanel != null)
                 {
-                    rectPanel.sizeDelta = new Vector2(1380f, 386f);
+                    rectPanel.sizeDelta = tamanoBaseCaja * escalaCajaDialogo;
                 }
 
                 if (textoNombre != null)
@@ -149,6 +164,29 @@ namespace SoltaLaPala.Dialogue
             }
 
             Cerrar();
+        }
+
+        // Permite ajustar las escalas de la caja de diálogo y panel de opciones
+        // desde el inspector de Unity en tiempo real mientras se prueba.
+        private void Update()
+        {
+            if (panel != null && panel.activeSelf)
+            {
+                RectTransform rectPanel = panel.GetComponent<RectTransform>();
+                if (rectPanel != null)
+                {
+                    Vector2 tamanoDeseado = tamanoBaseCaja * escalaCajaDialogo;
+                    if (rectPanel.sizeDelta != tamanoDeseado)
+                        rectPanel.sizeDelta = tamanoDeseado;
+                }
+            }
+
+            if (contenedorOpciones != null && contenedorOpciones.gameObject.activeSelf)
+            {
+                Vector2 tamanoDeseadoOpciones = tamanoBaseOpciones * escalaPanelOpciones;
+                if (contenedorOpciones.sizeDelta != tamanoDeseadoOpciones)
+                    contenedorOpciones.sizeDelta = tamanoDeseadoOpciones;
+            }
         }
 
         // Abre el cuadro de dialogo y pone el nombre del NPC.
@@ -231,7 +269,7 @@ namespace SoltaLaPala.Dialogue
                 contenedorOpciones.anchorMax = new Vector2(0.5f, 1f);
                 contenedorOpciones.pivot     = new Vector2(0.5f, 0f);
                 contenedorOpciones.anchoredPosition = new Vector2(0f, 15f);
-                contenedorOpciones.sizeDelta = new Vector2(490f, 284f);
+                contenedorOpciones.sizeDelta = tamanoBaseOpciones * escalaPanelOpciones;
 
                 Image imagenFondo = objeto.AddComponent<Image>();
                 imagenFondo.sprite          = spritePanelOpciones;
