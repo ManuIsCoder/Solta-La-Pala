@@ -726,6 +726,9 @@ namespace SoltaLaPala.EditorTools
             interfaz.spriteCajaDialogo = spriteCaja;
             interfaz.spritePanelOpciones = spriteOpciones;
             interfaz.spriteBarraSeleccionada = spriteBarra;
+            interfaz.offsetCajaDialogo = new Vector2(0f, 30f);
+            interfaz.offsetPanelOpciones = new Vector2(0f, 15f);
+            interfaz.espacioEntreLineasOpciones = 6f;
 
             panel.SetActive(false);
 
@@ -773,7 +776,8 @@ namespace SoltaLaPala.EditorTools
             rectIndicador.sizeDelta = new Vector2(200f, 22f);
             textoIndicador.color = new Color(1f, 1f, 1f, 0.9f);
 
-            canvas.gameObject.AddComponent<PanelTutorialHUD>();
+            PanelTutorialHUD tutorialHUD = canvas.gameObject.AddComponent<PanelTutorialHUD>();
+            tutorialHUD.escala = 1.26f;
         }
 
         private static void CrearUiTareas()
@@ -800,6 +804,8 @@ namespace SoltaLaPala.EditorTools
             rectPanel.sizeDelta = new Vector2(350f, 490f);
 
             PanelTareasHUD hud = canvas.gameObject.AddComponent<PanelTareasHUD>();
+            hud.escala = 1.07f;
+            hud.offsetHorizontalTareas = 32f;
             hud.tareas = new string[]
             {
                 "Hablar con Recepcionista [E]",

@@ -26,7 +26,7 @@ namespace SoltaLaPala.Tutorial
         [Header("Ajustes de Tamaño y Posición")]
         [Tooltip("Escala del panel tutorial. Modifícalo en el inspector para agrandar o achicar.")]
         [Range(0.5f, 2.5f)]
-        public float escala = 1.0f;
+        public float escala = 1.26f;
 
         [Tooltip("Margen respecto a la esquina superior derecha (X hacia la izquierda, Y hacia abajo).")]
         public Vector2 margen = new Vector2(20f, 20f);

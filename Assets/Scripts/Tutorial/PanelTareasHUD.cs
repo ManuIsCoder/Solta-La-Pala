@@ -28,7 +28,7 @@ namespace SoltaLaPala.Tutorial
         [Header("Ajustes de Tamaño y Posición")]
         [Tooltip("Escala del panel de tareas. Modifícalo en el inspector para agrandar o achicar.")]
         [Range(0.5f, 2.5f)]
-        public float escala = 1.0f;
+        public float escala = 1.07f;
 
         [Tooltip("Margen respecto a la esquina superior izquierda (X a la derecha, Y hacia abajo).")]
         public Vector2 margen = new Vector2(20f, 100f);
@@ -48,9 +48,9 @@ namespace SoltaLaPala.Tutorial
         [Tooltip("Margen vertical desde arriba hacia la primera tarea.")]
         public float offsetVerticalInicial = 130f;
 
-        // ── Constantes de layout ───────────────────────────────────────────────
-
-        private const float MargenIzquierdoBase = 32f;
+        [Tooltip("Margen u offset horizontal desde el borde izquierdo hacia las tareas.")]
+        [Range(0f, 150f)]
+        public float offsetHorizontalTareas = 32f;
 
         // ── Estado interno ─────────────────────────────────────────────────────
 
@@ -119,7 +119,7 @@ namespace SoltaLaPala.Tutorial
                     _panelRect.anchoredPosition = posDeseada;
 
                 // Las palabras y el espaciado escalan con el panel y responden a los ajustes del Inspector
-                float margenIzqActual = MargenIzquierdoBase * escala;
+                float margenIzqActual = offsetHorizontalTareas * escala;
                 float anchoTextoActual = _panelRect.sizeDelta.x - (margenIzqActual * 2f);
                 int fuenteEscalada = Mathf.Max(10, Mathf.RoundToInt(tamanoFuente * escala));
                 float espacioActual = espacioEntreLineas * escala;
@@ -258,7 +258,7 @@ namespace SoltaLaPala.Tutorial
 
             // — Textos de tareas —
             textosEntradas.Clear();
-            float margenIzquierdo = MargenIzquierdoBase * escala;
+            float margenIzquierdo = offsetHorizontalTareas * escala;
             float anchoTexto = _panelRect.sizeDelta.x - (margenIzquierdo * 2f);
             float inicioY = offsetVerticalInicial * escala;
 

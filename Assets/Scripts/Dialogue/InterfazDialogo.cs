@@ -78,6 +78,18 @@ namespace SoltaLaPala.Dialogue
         [Tooltip("Tamaño base del panel de opciones.")]
         public Vector2 tamanoBaseOpciones = new Vector2(490f, 284f);
 
+        [Header("Posición y Desplazamiento")]
+        [Tooltip("Offset horizontal y vertical de la caja de diálogo (X horizontal, Y vertical).")]
+        public Vector2 offsetCajaDialogo = new Vector2(0f, 30f);
+
+        [Tooltip("Offset horizontal y vertical del panel de opciones respecto a la caja de diálogo (X horizontal, Y vertical).")]
+        public Vector2 offsetPanelOpciones = new Vector2(0f, 15f);
+
+        [Header("Espaciado de Opciones")]
+        [Tooltip("Espacio vertical entre cada línea/opción en el panel de opciones.")]
+        [Range(0f, 40f)]
+        public float espacioEntreLineasOpciones = 6f;
+
         private readonly List<GameObject> botonesOpciones = new List<GameObject>();
         private readonly List<Image> barrasOpciones = new List<Image>();
         private readonly List<Text> textosOpciones = new List<Text>();
@@ -127,6 +139,7 @@ namespace SoltaLaPala.Dialogue
                 if (rectPanel != null)
                 {
                     rectPanel.sizeDelta = tamanoBaseCaja * escalaCajaDialogo;
+                    rectPanel.anchoredPosition = offsetCajaDialogo;
                 }
 
                 if (textoNombre != null)
@@ -208,6 +221,9 @@ namespace SoltaLaPala.Dialogue
                     Vector2 tamanoDeseado = tamanoBaseCaja * escalaCajaDialogo;
                     if (rectPanel.sizeDelta != tamanoDeseado)
                         rectPanel.sizeDelta = tamanoDeseado;
+
+                    if (rectPanel.anchoredPosition != offsetCajaDialogo)
+                        rectPanel.anchoredPosition = offsetCajaDialogo;
                 }
             }
 
@@ -216,6 +232,13 @@ namespace SoltaLaPala.Dialogue
                 Vector2 tamanoDeseadoOpciones = tamanoBaseOpciones * escalaPanelOpciones;
                 if (contenedorOpciones.sizeDelta != tamanoDeseadoOpciones)
                     contenedorOpciones.sizeDelta = tamanoDeseadoOpciones;
+
+                if (contenedorOpciones.anchoredPosition != offsetPanelOpciones)
+                    contenedorOpciones.anchoredPosition = offsetPanelOpciones;
+
+                VerticalLayoutGroup columna = contenedorOpciones.GetComponent<VerticalLayoutGroup>();
+                if (columna != null && !Mathf.Approximately(columna.spacing, espacioEntreLineasOpciones))
+                    columna.spacing = espacioEntreLineasOpciones;
 
                 // Navegación con flechas de arriba y abajo entre las opciones
                 if (botonesOpciones.Count > 0)
@@ -351,7 +374,7 @@ namespace SoltaLaPala.Dialogue
                 contenedorOpciones.anchorMin = new Vector2(0.5f, 1f);
                 contenedorOpciones.anchorMax = new Vector2(0.5f, 1f);
                 contenedorOpciones.pivot     = new Vector2(0.5f, 0f);
-                contenedorOpciones.anchoredPosition = new Vector2(0f, 15f);
+                contenedorOpciones.anchoredPosition = offsetPanelOpciones;
                 contenedorOpciones.sizeDelta = tamanoBaseOpciones * escalaPanelOpciones;
 
                 Image imagenFondo = objeto.AddComponent<Image>();
@@ -365,7 +388,7 @@ namespace SoltaLaPala.Dialogue
                 columna.padding.bottom       = 15;
                 columna.padding.left         = 20;
                 columna.padding.right        = 20;
-                columna.spacing              = 6f;
+                columna.spacing              = espacioEntreLineasOpciones;
                 columna.childControlWidth    = true;
                 columna.childControlHeight   = true;
                 columna.childForceExpandWidth  = true;
@@ -376,12 +399,12 @@ namespace SoltaLaPala.Dialogue
                 contenedorOpciones.anchorMin = new Vector2(0f, 1f);
                 contenedorOpciones.anchorMax = new Vector2(1f, 1f);
                 contenedorOpciones.pivot     = new Vector2(0.5f, 0f);
-                contenedorOpciones.anchoredPosition = new Vector2(0f, 10f);
+                contenedorOpciones.anchoredPosition = offsetPanelOpciones;
                 contenedorOpciones.sizeDelta = Vector2.zero;
                 objeto.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
 
                 VerticalLayoutGroup columna = objeto.AddComponent<VerticalLayoutGroup>();
-                columna.spacing              = 6f;
+                columna.spacing              = espacioEntreLineasOpciones;
                 columna.childControlWidth    = true;
                 columna.childControlHeight   = true;
                 columna.childForceExpandWidth  = true;
