@@ -219,7 +219,7 @@ namespace SoltaLaPala.Tutorial
             {
                 completadas[i] = false;
 
-                if (i < textosEntradas.Count && textosEntradas[indice: i] != null)
+                if (i < textosEntradas.Count && textosEntradas[i] != null)
                 {
                     textosEntradas[i].text  = tareas[i];
                     textosEntradas[i].color = new Color(0.12f, 0.12f, 0.18f, 1f);
