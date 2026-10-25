@@ -52,6 +52,15 @@ namespace SoltaLaPala.Tutorial
         [Range(0f, 150f)]
         public float offsetHorizontalTareas = 76.67f;
 
+        [Header("Plegar / Ocultar con Tab")]
+        [Tooltip("Cantidad de píxeles que quedan visibles del panel a la izquierda cuando está oculto.")]
+        [Range(10f, 100f)]
+        public float anchoVisibleAlOcultar = 40f;
+
+        [Tooltip("Velocidad de desplazamiento del panel al pulsar Tab.")]
+        [Range(2f, 25f)]
+        public float velocidadDesplazamiento = 12f;
+
         // ── Estado interno ─────────────────────────────────────────────────────
 
         private Canvas          _canvas;
@@ -60,6 +69,10 @@ namespace SoltaLaPala.Tutorial
         private List<Image>     lineasTachado   = new List<Image>();
         private List<Image>     lineasTachado2  = new List<Image>();
         private bool[]          completadas;
+
+        private bool            _panelPlegado = false;
+        private float           _posXActual;
+        private bool            _posInicializada = false;
 
         // ── Ciclo de vida Unity ────────────────────────────────────────────────
 
@@ -83,6 +96,9 @@ namespace SoltaLaPala.Tutorial
 
             completadas = new bool[tareas.Length];
             ConstruirUI();
+
+            _posXActual = margen.x;
+            _posInicializada = true;
 
             // Empieza oculto; se revela cuando comienza el nivel
             _canvas.enabled = false;
@@ -108,17 +124,43 @@ namespace SoltaLaPala.Tutorial
 
             if (_canvas == null) return;
 
+            bool jugando = _estadoSuscrito != null
+                && _estadoSuscrito.PartidaEnCurso
+                && (!ocultarConMenusAbiertos || GestorMenus.Instancia == null || !GestorMenus.Instancia.HayMenuAbierto);
+
+            if (_canvas.enabled != jugando)
+            {
+                _canvas.enabled = jugando;
+            }
+
+            // Tecla Tab para ocultar / mostrar el panel deslizándolo hacia la izquierda
+            if (jugando && Input.GetKeyDown(KeyCode.Tab))
+            {
+                _panelPlegado = !_panelPlegado;
+            }
+
             // Permite modificar tamaño, posición, fuente y espaciado desde el inspector de Unity en tiempo real
             if (_panelRect != null)
             {
-                Vector2 tamanoDeseado = tamanoBase * escala;
-                Vector2 posDeseada = new Vector2(margen.x, -margen.y);
+                if (!_posInicializada)
+                {
+                    _posXActual = margen.x;
+                    _posInicializada = true;
+                }
 
+                Vector2 tamanoDeseado = tamanoBase * escala;
                 if (_panelRect.sizeDelta != tamanoDeseado)
                     _panelRect.sizeDelta = tamanoDeseado;
 
-                if (_panelRect.anchoredPosition != posDeseada)
-                    _panelRect.anchoredPosition = posDeseada;
+                // Desplazamiento fluido hacia la izquierda al ocultar, dejando ver un poco
+                float anchoTotal = _panelRect.sizeDelta.x;
+                float targetX = _panelPlegado ? -(anchoTotal - (anchoVisibleAlOcultar * escala)) : margen.x;
+
+                _posXActual = Mathf.Lerp(_posXActual, targetX, Time.unscaledDeltaTime * velocidadDesplazamiento);
+                if (Mathf.Abs(_posXActual - targetX) < 0.2f)
+                    _posXActual = targetX;
+
+                _panelRect.anchoredPosition = new Vector2(_posXActual, -margen.y);
 
                 // Las palabras y el espaciado escalan con el panel y responden a los ajustes del Inspector
                 float margenIzqActual = offsetHorizontalTareas * escala;
@@ -145,15 +187,6 @@ namespace SoltaLaPala.Tutorial
                         ActualizarTachado(i, anchoTextoActual);
                     }
                 }
-            }
-
-            bool jugando = _estadoSuscrito != null
-                && _estadoSuscrito.PartidaEnCurso
-                && (!ocultarConMenusAbiertos || GestorMenus.Instancia == null || !GestorMenus.Instancia.HayMenuAbierto);
-
-            if (_canvas.enabled != jugando)
-            {
-                _canvas.enabled = jugando;
             }
 
             if (!jugando) return;
@@ -387,7 +420,10 @@ namespace SoltaLaPala.Tutorial
             if (_panelRect == null) return;
 
             _panelRect.sizeDelta = tamanoBase * escala;
-            _panelRect.anchoredPosition = new Vector2(margen.x, -margen.y);
+            float anchoTotal = _panelRect.sizeDelta.x;
+            float targetX = _panelPlegado ? -(anchoTotal - (anchoVisibleAlOcultar * escala)) : margen.x;
+            _posXActual = targetX;
+            _panelRect.anchoredPosition = new Vector2(targetX, -margen.y);
         }
 
         // ── Suscripción al evento de instancia ────────────────────────────────
