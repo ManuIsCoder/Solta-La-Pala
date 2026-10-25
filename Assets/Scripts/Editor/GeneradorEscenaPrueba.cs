@@ -687,25 +687,25 @@ namespace SoltaLaPala.EditorTools
             rectPanel.anchorMax = new Vector2(0.5f, 0f);
             rectPanel.pivot = new Vector2(0.5f, 0f);
             rectPanel.anchoredPosition = new Vector2(0f, 30f);
-            rectPanel.sizeDelta = new Vector2(1200f, 336f); // 1600x448 a escala 0.75
+            rectPanel.sizeDelta = new Vector2(1380f, 386f); // 1600x448 aumentado un 15%
 
-            // Nombre centrado en el recuadro amarillo superior (X=66, Y=-24, 333x66)
-            Text nombre = CrearTexto("Nombre", panel.transform, "", 24, TextAnchor.MiddleCenter);
+            // Nombre centrado en el recuadro amarillo superior (X=76, Y=-28, 383x76)
+            Text nombre = CrearTexto("Nombre", panel.transform, "", 28, TextAnchor.MiddleCenter);
             RectTransform rectNombre = nombre.GetComponent<RectTransform>();
             rectNombre.anchorMin = new Vector2(0f, 1f);
             rectNombre.anchorMax = new Vector2(0f, 1f);
             rectNombre.pivot = new Vector2(0f, 1f);
-            rectNombre.anchoredPosition = new Vector2(66f, -24f);
-            rectNombre.sizeDelta = new Vector2(333f, 66f);
+            rectNombre.anchoredPosition = new Vector2(76f, -28f);
+            rectNombre.sizeDelta = new Vector2(383f, 76f);
             nombre.color = new Color(0.12f, 0.12f, 0.18f); // Oscuro para contrastar con el fondo amarillo
 
             // Frase de diálogo en el cuerpo celeste
-            Text frase = CrearTexto("Frase", panel.transform, "", 24, TextAnchor.UpperLeft);
+            Text frase = CrearTexto("Frase", panel.transform, "", 28, TextAnchor.UpperLeft);
             RectTransform rectFrase = frase.GetComponent<RectTransform>();
             rectFrase.anchorMin = new Vector2(0f, 0f);
             rectFrase.anchorMax = new Vector2(1f, 1f);
-            rectFrase.offsetMin = new Vector2(66f, 30f);
-            rectFrase.offsetMax = new Vector2(-66f, -100f);
+            rectFrase.offsetMin = new Vector2(76f, 35f);
+            rectFrase.offsetMax = new Vector2(-76f, -115f);
             frase.color = Color.white;
 
             Text continuar = CrearTexto("Continuar", panel.transform,
@@ -714,8 +714,8 @@ namespace SoltaLaPala.EditorTools
             rectContinuar.anchorMin = new Vector2(1f, 0f);
             rectContinuar.anchorMax = new Vector2(1f, 0f);
             rectContinuar.pivot = new Vector2(1f, 0f);
-            rectContinuar.anchoredPosition = new Vector2(-40f, 20f);
-            rectContinuar.sizeDelta = new Vector2(220f, 26f);
+            rectContinuar.anchoredPosition = new Vector2(-46f, 23f);
+            rectContinuar.sizeDelta = new Vector2(250f, 30f);
             continuar.color = new Color(0.95f, 0.85f, 0.40f);
 
             InterfazDialogo interfaz = canvas.gameObject.AddComponent<InterfazDialogo>();
@@ -797,7 +797,7 @@ namespace SoltaLaPala.EditorTools
             rectPanel.anchorMax = new Vector2(0f, 1f);
             rectPanel.pivot = new Vector2(0f, 1f);
             rectPanel.anchoredPosition = new Vector2(20f, -100f);
-            rectPanel.sizeDelta = new Vector2(280f, 392f);
+            rectPanel.sizeDelta = new Vector2(350f, 490f);
 
             PanelTareasHUD hud = canvas.gameObject.AddComponent<PanelTareasHUD>();
             hud.tareas = new string[]

@@ -79,7 +79,8 @@ namespace SoltaLaPala.Dialogue
             spritePanelOpciones     = CargarSprite(spritePanelOpciones,     "Sprites/UI/paneles/Panel de seleccionar una opcion");
             spriteBarraSeleccionada = CargarSprite(spriteBarraSeleccionada, "Sprites/UI/paneles/Barra de opcion seleccionada");
 
-            // Aplicar el sprite de fondo a la caja de dialogo si tiene Image.
+            // Aplicar el sprite de fondo a la caja de dialogo si tiene Image
+            // y ajustar sus dimensiones al tamaño oficial (+15% de escala).
             if (spriteCajaDialogo != null)
             {
                 Image imagenPanel = panel.GetComponent<Image>();
@@ -87,6 +88,52 @@ namespace SoltaLaPala.Dialogue
                 {
                     imagenPanel.sprite = spriteCajaDialogo;
                     imagenPanel.color  = Color.white;
+                    imagenPanel.preserveAspect = true;
+                }
+
+                RectTransform rectPanel = panel.GetComponent<RectTransform>();
+                if (rectPanel != null)
+                {
+                    rectPanel.sizeDelta = new Vector2(1380f, 386f);
+                }
+
+                if (textoNombre != null)
+                {
+                    RectTransform rectNombre = textoNombre.GetComponent<RectTransform>();
+                    if (rectNombre != null)
+                    {
+                        rectNombre.anchorMin = new Vector2(0f, 1f);
+                        rectNombre.anchorMax = new Vector2(0f, 1f);
+                        rectNombre.pivot     = new Vector2(0f, 1f);
+                        rectNombre.anchoredPosition = new Vector2(76f, -28f);
+                        rectNombre.sizeDelta = new Vector2(383f, 76f);
+                    }
+                    textoNombre.alignment = TextAnchor.MiddleCenter;
+                    textoNombre.fontSize = 28;
+                    textoNombre.color = new Color(0.12f, 0.12f, 0.18f);
+                }
+
+                if (textoDialogo != null)
+                {
+                    RectTransform rectFrase = textoDialogo.GetComponent<RectTransform>();
+                    if (rectFrase != null)
+                    {
+                        rectFrase.anchorMin = new Vector2(0f, 0f);
+                        rectFrase.anchorMax = new Vector2(1f, 1f);
+                        rectFrase.offsetMin = new Vector2(76f, 35f);
+                        rectFrase.offsetMax = new Vector2(-76f, -115f);
+                    }
+                    textoDialogo.color = Color.white;
+                    textoDialogo.fontSize = 28;
+                }
+
+                if (indicadorContinuar != null)
+                {
+                    RectTransform rectContinuar = indicadorContinuar.GetComponent<RectTransform>();
+                    if (rectContinuar != null)
+                    {
+                        rectContinuar.anchoredPosition = new Vector2(-46f, 23f);
+                    }
                 }
             }
 
@@ -179,12 +226,12 @@ namespace SoltaLaPala.Dialogue
 
             if (spritePanelOpciones != null)
             {
-                // Anclado arriba-centro del diálogo, tamaño proporcional al sprite (1000×580)
+                // Anclado arriba-centro del diálogo, tamaño proporcional al sprite (1000×580) reducido un 30%
                 contenedorOpciones.anchorMin = new Vector2(0.5f, 1f);
                 contenedorOpciones.anchorMax = new Vector2(0.5f, 1f);
                 contenedorOpciones.pivot     = new Vector2(0.5f, 0f);
                 contenedorOpciones.anchoredPosition = new Vector2(0f, 15f);
-                contenedorOpciones.sizeDelta = new Vector2(700f, 406f);
+                contenedorOpciones.sizeDelta = new Vector2(490f, 284f);
 
                 Image imagenFondo = objeto.AddComponent<Image>();
                 imagenFondo.sprite          = spritePanelOpciones;
@@ -193,11 +240,11 @@ namespace SoltaLaPala.Dialogue
                 imagenFondo.color           = Color.white;
 
                 VerticalLayoutGroup columna = objeto.AddComponent<VerticalLayoutGroup>();
-                columna.padding.top          = 22;
-                columna.padding.bottom       = 22;
-                columna.padding.left         = 28;
-                columna.padding.right        = 28;
-                columna.spacing              = 8f;
+                columna.padding.top          = 15;
+                columna.padding.bottom       = 15;
+                columna.padding.left         = 20;
+                columna.padding.right        = 20;
+                columna.spacing              = 6f;
                 columna.childControlWidth    = true;
                 columna.childControlHeight   = true;
                 columna.childForceExpandWidth  = true;
@@ -226,7 +273,7 @@ namespace SoltaLaPala.Dialogue
             GameObject objeto = new GameObject("Opcion", typeof(RectTransform));
             objeto.transform.SetParent(contenedorOpciones, false);
 
-            float alturaBoton = spriteBarraSeleccionada != null ? 65f : altoOpcion;
+            float alturaBoton = spriteBarraSeleccionada != null ? 46f : altoOpcion;
             objeto.AddComponent<LayoutElement>().preferredHeight = alturaBoton;
 
             if (spriteBarraSeleccionada != null)
@@ -296,7 +343,7 @@ namespace SoltaLaPala.Dialogue
             Text etiqueta = objetoTexto.AddComponent<Text>();
             etiqueta.text          = texto;
             etiqueta.font          = textoDialogo != null ? textoDialogo.font : ConstructorUI.Fuente;
-            etiqueta.fontSize      = tamanoFuenteOpciones;
+            etiqueta.fontSize      = spriteBarraSeleccionada != null ? 17 : tamanoFuenteOpciones;
             etiqueta.alignment     = TextAnchor.MiddleLeft;
             etiqueta.color         = Color.white;
             etiqueta.raycastTarget = false;
