@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using SoltaLaPala.Menus;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace SoltaLaPala.Dialogue
@@ -34,11 +35,23 @@ namespace SoltaLaPala.Dialogue
         [Header("Respuestas del jugador")]
         [Tooltip("Donde van los botones de respuesta. Si se deja vacio se crea solo, encima del cuadro.")]
         public RectTransform contenedorOpciones;
-        public int tamanoFuenteOpciones = 22;
         public float altoOpcion = 46f;
         public Color colorOpcion = new Color(0.10f, 0.10f, 0.16f, 0.95f);
         public Color colorOpcionResaltada = new Color(0.24f, 0.24f, 0.36f, 1f);
         public Color colorOpcionPulsada = new Color(0.34f, 0.34f, 0.50f, 1f);
+
+        [Header("Ajustes de Texto")]
+        [Tooltip("Tamaño de la fuente del nombre del NPC.")]
+        [Range(14, 40)]
+        public int tamanoFuenteNombre = 28;
+
+        [Tooltip("Tamaño de la fuente del texto del diálogo.")]
+        [Range(14, 40)]
+        public int tamanoFuenteDialogo = 28;
+
+        [Tooltip("Tamaño de la fuente de las opciones.")]
+        [Range(12, 32)]
+        public int tamanoFuenteOpciones = 17;
 
         [Header("Sprites de arte")]
         [Tooltip("Sprite de la caja de diálogo. Se asigna desde el inspector.")]
@@ -66,6 +79,10 @@ namespace SoltaLaPala.Dialogue
         public Vector2 tamanoBaseOpciones = new Vector2(490f, 284f);
 
         private readonly List<GameObject> botonesOpciones = new List<GameObject>();
+        private readonly List<Image> barrasOpciones = new List<Image>();
+        private readonly List<Text> textosOpciones = new List<Text>();
+        private int opcionSeleccionada = 0;
+        private Action<int> accionAlElegir;
 
         private Coroutine rutinaEscritura;
         private string lineaActualCompleta = "";
@@ -166,10 +183,23 @@ namespace SoltaLaPala.Dialogue
             Cerrar();
         }
 
-        // Permite ajustar las escalas de la caja de diálogo y panel de opciones
-        // desde el inspector de Unity en tiempo real mientras se prueba.
+        // Permite ajustar las escalas de la caja de diálogo y panel de opciones,
+        // así como el tamaño de las fuentes, y manejar la navegación por teclado (flechas arriba/abajo).
         private void Update()
         {
+            // Ajuste en tiempo real de los tamaños de fuente
+            if (textoNombre != null && textoNombre.fontSize != tamanoFuenteNombre)
+                textoNombre.fontSize = tamanoFuenteNombre;
+
+            if (textoDialogo != null && textoDialogo.fontSize != tamanoFuenteDialogo)
+                textoDialogo.fontSize = tamanoFuenteDialogo;
+
+            for (int i = 0; i < textosOpciones.Count; i++)
+            {
+                if (textosOpciones[i] != null && textosOpciones[i].fontSize != tamanoFuenteOpciones)
+                    textosOpciones[i].fontSize = tamanoFuenteOpciones;
+            }
+
             if (panel != null && panel.activeSelf)
             {
                 RectTransform rectPanel = panel.GetComponent<RectTransform>();
@@ -186,6 +216,27 @@ namespace SoltaLaPala.Dialogue
                 Vector2 tamanoDeseadoOpciones = tamanoBaseOpciones * escalaPanelOpciones;
                 if (contenedorOpciones.sizeDelta != tamanoDeseadoOpciones)
                     contenedorOpciones.sizeDelta = tamanoDeseadoOpciones;
+
+                // Navegación con flechas de arriba y abajo entre las opciones
+                if (botonesOpciones.Count > 0)
+                {
+                    if (Input.GetKeyDown(KeyCode.UpArrow))
+                    {
+                        int nuevo = opcionSeleccionada - 1;
+                        if (nuevo < 0) nuevo = botonesOpciones.Count - 1;
+                        ResaltarOpcion(nuevo);
+                    }
+                    else if (Input.GetKeyDown(KeyCode.DownArrow))
+                    {
+                        int nuevo = opcionSeleccionada + 1;
+                        if (nuevo >= botonesOpciones.Count) nuevo = 0;
+                        ResaltarOpcion(nuevo);
+                    }
+                    else if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter) || Input.GetKeyDown(KeyCode.Space))
+                    {
+                        ElegirOpcion(opcionSeleccionada);
+                    }
+                }
             }
         }
 
@@ -216,24 +267,30 @@ namespace SoltaLaPala.Dialogue
         }
 
         // Muestra un boton por respuesta, numerados desde 1. alElegir recibe el
-        // indice (desde 0) de la que se toco con el mouse; los numeros del
-        // teclado los lee GestorDialogos.
+        // indice (desde 0) de la que se toco con el mouse o se eligio con teclado.
         public void MostrarOpciones(IList<string> textos, Action<int> alElegir)
         {
             OcultarOpciones();
             AsegurarContenedorOpciones();
             ConstructorUI.AsegurarEventSystem();
 
+            accionAlElegir = alElegir;
             int total = Mathf.Min(textos.Count, 4);
             for (int i = 0; i < total; i++)
             {
                 int indice = i;
-                botonesOpciones.Add(CrearBotonOpcion($"{i + 1}. {textos[i]}", () => alElegir?.Invoke(indice)));
+                botonesOpciones.Add(CrearBotonOpcion($"{i + 1}. {textos[i]}", () => ElegirOpcion(indice)));
             }
 
             contenedorOpciones.gameObject.SetActive(true);
 
-            // Mientras hay que elegir, ESPACIO no avanza: no se ofrece.
+            // Resaltar la primera opción por defecto
+            if (botonesOpciones.Count > 0)
+            {
+                ResaltarOpcion(0);
+            }
+
+            // Mientras hay que elegir, ESPACIO no avanza el diálogo regular.
             if (indicadorContinuar != null) indicadorContinuar.SetActive(false);
         }
 
@@ -244,8 +301,34 @@ namespace SoltaLaPala.Dialogue
                 Destroy(boton);
             }
             botonesOpciones.Clear();
+            barrasOpciones.Clear();
+            textosOpciones.Clear();
+            opcionSeleccionada = 0;
+            accionAlElegir = null;
 
             if (contenedorOpciones != null) contenedorOpciones.gameObject.SetActive(false);
+        }
+
+        public void ResaltarOpcion(int indice)
+        {
+            if (indice < 0 || indice >= botonesOpciones.Count) return;
+            opcionSeleccionada = indice;
+
+            for (int i = 0; i < barrasOpciones.Count; i++)
+            {
+                if (barrasOpciones[i] != null)
+                {
+                    barrasOpciones[i].color = (i == indice) ? Color.white : Color.clear;
+                }
+            }
+        }
+
+        public void ElegirOpcion(int indice)
+        {
+            if (indice < 0 || indice >= botonesOpciones.Count) return;
+            Action<int> callback = accionAlElegir;
+            OcultarOpciones();
+            callback?.Invoke(indice);
         }
 
         // Columna centrada encima del cuadro de dialogo con el panel de opciones
@@ -308,19 +391,27 @@ namespace SoltaLaPala.Dialogue
 
         private GameObject CrearBotonOpcion(string texto, Action alPulsar)
         {
+            int miIndice = botonesOpciones.Count;
+
             GameObject objeto = new GameObject("Opcion", typeof(RectTransform));
             objeto.transform.SetParent(contenedorOpciones, false);
 
             float alturaBoton = spriteBarraSeleccionada != null ? 46f : altoOpcion;
             objeto.AddComponent<LayoutElement>().preferredHeight = alturaBoton;
 
+            // Trigger para activar la barra seleccionada cuando se pasa el mouse por encima
+            EventTrigger trigger = objeto.AddComponent<EventTrigger>();
+            EventTrigger.Entry entryHover = new EventTrigger.Entry();
+            entryHover.eventID = EventTriggerType.PointerEnter;
+            entryHover.callback.AddListener((eventData) => { ResaltarOpcion(miIndice); });
+            trigger.triggers.Add(entryHover);
+
             if (spriteBarraSeleccionada != null)
             {
-                // Con sprite: la Image base es transparente (solo sirve de targetGraphic
-                // para el Button); la barra de seleccion es un hijo que se hace visible
-                // al hacer hover/seleccion mediante el ColorBlock.
+                // Con sprite: la Image base es transparente pero recibe clicks y hover
                 Image fondoTransparente = objeto.AddComponent<Image>();
                 fondoTransparente.color = Color.clear;
+                fondoTransparente.raycastTarget = true;
 
                 // Hijo con la barra de seleccion, estirado para cubrir todo el padre.
                 GameObject seleccionadoImg = new GameObject("BarraSeleccion", typeof(RectTransform));
@@ -335,18 +426,14 @@ namespace SoltaLaPala.Dialogue
                 Image imagenBarra = seleccionadoImg.AddComponent<Image>();
                 imagenBarra.sprite = spriteBarraSeleccionada;
                 imagenBarra.type   = Image.Type.Simple;
-                // Empieza invisible; el Button lo muestra al hacer hover.
-                imagenBarra.color = Color.clear;
+                imagenBarra.color  = Color.clear;
+                imagenBarra.raycastTarget = false;
+
+                barrasOpciones.Add(imagenBarra);
 
                 Button boton = objeto.AddComponent<Button>();
-                boton.targetGraphic = imagenBarra;
-                ColorBlock colores = ColorBlock.defaultColorBlock;
-                colores.normalColor      = Color.clear;
-                colores.highlightedColor = Color.white;
-                colores.pressedColor     = new Color(0.8f, 0.8f, 0.8f, 1f);
-                colores.selectedColor    = Color.white;
-                colores.fadeDuration     = 0.1f;
-                boton.colors = colores;
+                boton.targetGraphic = fondoTransparente;
+                boton.transition = Selectable.Transition.None; // El resaltado lo controla ResaltarOpcion
                 boton.onClick.AddListener(() => alPulsar());
             }
             else
@@ -354,9 +441,8 @@ namespace SoltaLaPala.Dialogue
                 // Sin sprite: comportamiento anterior con colores sobre el fondo plano.
                 Image fondo = objeto.AddComponent<Image>();
                 fondo.color = Color.white;
+                barrasOpciones.Add(fondo);
 
-                // Los colores van en el ColorBlock y no en la Image: el tinte multiplica,
-                // asi que con la Image en blanco cada estado se ve con su color exacto.
                 Button boton = objeto.AddComponent<Button>();
                 boton.targetGraphic = fondo;
                 ColorBlock colores = ColorBlock.defaultColorBlock;
@@ -375,16 +461,18 @@ namespace SoltaLaPala.Dialogue
             RectTransform rectTexto = (RectTransform)objetoTexto.transform;
             rectTexto.anchorMin = Vector2.zero;
             rectTexto.anchorMax = Vector2.one;
-            rectTexto.offsetMin = new Vector2(20f, 0f);
-            rectTexto.offsetMax = new Vector2(-20f, 0f);
+            rectTexto.offsetMin = new Vector2(25f, 0f);
+            rectTexto.offsetMax = new Vector2(-25f, 0f);
 
             Text etiqueta = objetoTexto.AddComponent<Text>();
             etiqueta.text          = texto;
             etiqueta.font          = textoDialogo != null ? textoDialogo.font : ConstructorUI.Fuente;
-            etiqueta.fontSize      = spriteBarraSeleccionada != null ? 17 : tamanoFuenteOpciones;
+            etiqueta.fontSize      = tamanoFuenteOpciones;
             etiqueta.alignment     = TextAnchor.MiddleLeft;
             etiqueta.color         = Color.white;
             etiqueta.raycastTarget = false;
+
+            textosOpciones.Add(etiqueta);
 
             return objeto;
         }

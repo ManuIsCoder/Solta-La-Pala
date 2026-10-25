@@ -36,10 +36,21 @@ namespace SoltaLaPala.Tutorial
         [Tooltip("Tamaño base del panel en píxeles de referencia.")]
         public Vector2 tamanoBase = new Vector2(350f, 490f);
 
+        [Header("Ajustes de Texto y Espaciado")]
+        [Tooltip("Tamaño base de la fuente de las tareas (escala automáticamente con el panel).")]
+        [Range(12, 36)]
+        public int tamanoFuente = 20;
+
+        [Tooltip("Espacio vertical entre cada línea de tarea.")]
+        [Range(15f, 70f)]
+        public float espacioEntreLineas = 35f;
+
+        [Tooltip("Margen vertical desde arriba hacia la primera tarea.")]
+        public float offsetVerticalInicial = 130f;
+
         // ── Constantes de layout ───────────────────────────────────────────────
 
-        private const float AltoBase  = 25f;
-        private const float AltoLinea = 35f;
+        private const float MargenIzquierdoBase = 32f;
 
         // ── Estado interno ─────────────────────────────────────────────────────
 
@@ -95,7 +106,7 @@ namespace SoltaLaPala.Tutorial
 
             if (_canvas == null) return;
 
-            // Permite modificar tamaño y posición desde el inspector de Unity en tiempo real
+            // Permite modificar tamaño, posición, fuente y espaciado desde el inspector de Unity en tiempo real
             if (_panelRect != null)
             {
                 Vector2 tamanoDeseado = tamanoBase * escala;
@@ -106,6 +117,27 @@ namespace SoltaLaPala.Tutorial
 
                 if (_panelRect.anchoredPosition != posDeseada)
                     _panelRect.anchoredPosition = posDeseada;
+
+                // Las palabras y el espaciado escalan con el panel y responden a los ajustes del Inspector
+                float margenIzqActual = MargenIzquierdoBase * escala;
+                float anchoTextoActual = _panelRect.sizeDelta.x - (margenIzqActual * 2f);
+                int fuenteEscalada = Mathf.Max(10, Mathf.RoundToInt(tamanoFuente * escala));
+                float espacioActual = espacioEntreLineas * escala;
+                float inicioYActual = offsetVerticalInicial * escala;
+
+                for (int i = 0; i < textosEntradas.Count; i++)
+                {
+                    if (textosEntradas[i] == null) continue;
+
+                    textosEntradas[i].fontSize = fuenteEscalada;
+
+                    RectTransform rt = textosEntradas[i].GetComponent<RectTransform>();
+                    if (rt != null)
+                    {
+                        rt.anchoredPosition = new Vector2(margenIzqActual, -(inicioYActual + i * espacioActual));
+                        rt.sizeDelta = new Vector2(anchoTextoActual, 30f * escala);
+                    }
+                }
             }
 
             bool jugando = _estadoSuscrito != null
@@ -228,9 +260,9 @@ namespace SoltaLaPala.Tutorial
 
             // — Textos de tareas —
             textosEntradas.Clear();
-            float margenIzquierdo = 32f;
+            float margenIzquierdo = MargenIzquierdoBase * escala;
             float anchoTexto = _panelRect.sizeDelta.x - (margenIzquierdo * 2f);
-            float inicioY = 130f; // Debajo del encabezado del cartel, sobre la hoja crema
+            float inicioY = offsetVerticalInicial * escala;
 
             for (int i = 0; i < tareas.Length; i++)
             {
@@ -241,12 +273,12 @@ namespace SoltaLaPala.Tutorial
                 rt.anchorMin        = new Vector2(0f, 1f);
                 rt.anchorMax        = new Vector2(0f, 1f);
                 rt.pivot            = new Vector2(0f, 1f);
-                rt.anchoredPosition = new Vector2(margenIzquierdo, -(inicioY + i * AltoLinea));
-                rt.sizeDelta        = new Vector2(anchoTexto, 30f);
+                rt.anchoredPosition = new Vector2(margenIzquierdo, -(inicioY + i * espacioEntreLineas * escala));
+                rt.sizeDelta        = new Vector2(anchoTexto, 30f * escala);
 
                 Text texto = goTexto.AddComponent<Text>();
                 texto.font               = ConstructorUI.Fuente;
-                texto.fontSize           = 20;
+                texto.fontSize           = Mathf.Max(10, Mathf.RoundToInt(tamanoFuente * escala));
                 texto.color              = new Color(0.12f, 0.12f, 0.18f); // Oscuro sobre la hoja crema
                 texto.horizontalOverflow = HorizontalWrapMode.Wrap;
                 texto.verticalOverflow   = VerticalWrapMode.Overflow;

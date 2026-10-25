@@ -34,6 +34,15 @@ namespace SoltaLaPala.Tutorial
         [Tooltip("Tamaño base del panel en píxeles de referencia.")]
         public Vector2 tamanoBase = new Vector2(400f, 230f);
 
+        [Header("Ajustes de Texto")]
+        [Tooltip("Tamaño base de la fuente del contenido del tutorial.")]
+        [Range(12, 32)]
+        public int tamanoFuente = 18;
+
+        [Tooltip("Tamaño de la fuente del indicador de páginas (← 1/4 →).")]
+        [Range(10, 24)]
+        public int tamanoFuenteIndicador = 15;
+
         // ──────────────────────────────────────────────
         //  Referencias internas de UI
         // ──────────────────────────────────────────────
@@ -114,6 +123,14 @@ namespace SoltaLaPala.Tutorial
 
                 if (_panelRect.anchoredPosition != posDeseada)
                     _panelRect.anchoredPosition = posDeseada;
+
+                int fuenteEscalada = Mathf.Max(10, Mathf.RoundToInt(tamanoFuente * escala));
+                if (_textoContenido != null && _textoContenido.fontSize != fuenteEscalada)
+                    _textoContenido.fontSize = fuenteEscalada;
+
+                int indicadorEscalado = Mathf.Max(8, Mathf.RoundToInt(tamanoFuenteIndicador * escala));
+                if (_textoIndicador != null && _textoIndicador.fontSize != indicadorEscalado)
+                    _textoIndicador.fontSize = indicadorEscalado;
             }
 
             // Guardia: sin datos no hay nada que hacer
