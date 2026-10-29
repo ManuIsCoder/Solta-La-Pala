@@ -27,7 +27,8 @@ namespace SoltaLaPala.Minijuegos
         {
             BorrarDatos,
             EntregarDocumentos,
-            Discurso
+            Discurso,
+            Fotocopiar
         }
 
         [Header("Interruptores de la computadora")]
@@ -47,6 +48,9 @@ namespace SoltaLaPala.Minijuegos
         [Tooltip("Minijuego de discurso (opcional para cuando se implemente)")]
         public MinijuegoBase minijuegoDiscurso;
 
+        [Tooltip("Minijuego de fotocopiar imagen / informes")]
+        public MinijuegoFotocopiar minijuegoFotocopiar;
+
         public Transform Transform => transform;
 
         public string ObtenerTextoInteraccion()
@@ -62,6 +66,8 @@ namespace SoltaLaPala.Minijuegos
                     return "[E] Usar computadora (Entregar documentos)";
                 case ModoJuegoComputadora.Discurso:
                     return "[E] Usar computadora (Discurso)";
+                case ModoJuegoComputadora.Fotocopiar:
+                    return "[E] Usar computadora (Fotocopiar)";
                 default:
                     return "[E] Usar computadora";
             }
@@ -105,6 +111,12 @@ namespace SoltaLaPala.Minijuegos
                     return minijuegoEntregarDocumentos;
                 case ModoJuegoComputadora.Discurso:
                     return minijuegoDiscurso;
+                case ModoJuegoComputadora.Fotocopiar:
+                    if (minijuegoFotocopiar == null)
+                    {
+                        minijuegoFotocopiar = FindFirstObjectByType<MinijuegoFotocopiar>(FindObjectsInactive.Include);
+                    }
+                    return minijuegoFotocopiar;
                 default:
                     return null;
             }
