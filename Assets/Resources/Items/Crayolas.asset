@@ -15,6 +15,6 @@ MonoBehaviour:
   id: Crayolas
   nombre: Crayolas
   icono: {fileID: 21300000, guid: b8a5c75585e3b66449ad59944a3f3752, type: 3}
-  prefabEnMano: {fileID: 100100001, guid: 33cce8377177e040a315f41d2b2c72e1, type: 3}
+  prefabEnMano: {fileID: 100000001, guid: bb22222222222222222222222222222b, type: 3}
   descripcion: Caja de crayolas infantiles. Ideales para garabatear o sabotear papeles.
   esSospechoso: 1

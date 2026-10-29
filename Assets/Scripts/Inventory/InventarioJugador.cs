@@ -206,7 +206,6 @@ namespace SoltaLaPala.Inventory
             if (itemASoltar.prefabEnMano != null)
             {
                 objetoSuelo = Instantiate(itemASoltar.prefabEnMano, posicionAparicion, Quaternion.identity);
-                objetoSuelo.transform.localScale = Vector3.one;
             }
             else
             {
@@ -394,7 +393,7 @@ namespace SoltaLaPala.Inventory
             instanciaEnMano = Instantiate(item.prefabEnMano, anclaMano);
             instanciaEnMano.transform.localPosition = Vector3.zero;
             instanciaEnMano.transform.localRotation = Quaternion.identity;
-            instanciaEnMano.transform.localScale = Vector3.one * escalaEnMano;
+            instanciaEnMano.transform.localScale = instanciaEnMano.transform.localScale * escalaEnMano;
 
             DesactivarFisica(instanciaEnMano);
         }

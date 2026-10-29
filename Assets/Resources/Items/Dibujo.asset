@@ -15,6 +15,6 @@ MonoBehaviour:
   id: Dibujo
   nombre: Dibujo infantil
   icono: {fileID: 21300000, guid: 79845842e9f471c4b8e9991806851601, type: 3}
-  prefabEnMano: {fileID: 4152152737272641505, guid: 489172e12dc019448a4def3a15d3b137, type: 3}
+  prefabEnMano: {fileID: 100000001, guid: bb44444444444444444444444444444b, type: 3}
   descripcion: Una hoja oficial arruinada con el dibujo de una casita.
   esSospechoso: 1
