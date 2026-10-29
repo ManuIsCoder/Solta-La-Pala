@@ -32,6 +32,14 @@ namespace SoltaLaPala.Minijuegos
 
         public Transform Transform => transform;
 
+        private void Awake()
+        {
+            if (minijuego == null)
+            {
+                minijuego = FindFirstObjectByType<MinijuegoRedactarDocumento>(FindObjectsInactive.Include);
+            }
+        }
+
         private bool JugadorTieneItemNecesario(GameObject quien)
         {
             if (minijuego != null && minijuego.modoPrueba) return true;
@@ -63,7 +71,7 @@ namespace SoltaLaPala.Minijuegos
             if (estado != EstadoSwitch.Activado) return false;
             if (GestorMinijuego.Instancia == null || GestorMinijuego.Instancia.MinijuegoActivo) return false;
 
-            return JugadorTieneItemNecesario(null);
+            return true;
         }
 
         public void Interactuar(GameObject quienInteractua)
@@ -72,7 +80,7 @@ namespace SoltaLaPala.Minijuegos
 
             if (!JugadorTieneItemNecesario(quienInteractua))
             {
-                Debug.LogWarning("[HojaInteractuable] No tienes Birome ni Crayolas en el inventario.");
+                Debug.Log("[HojaInteractuable] No tienes Birome ni Crayolas en el inventario.");
                 return;
             }
 
