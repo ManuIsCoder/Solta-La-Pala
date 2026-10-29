@@ -3,21 +3,8 @@ using UnityEngine.UI;
 
 namespace SoltaLaPala.Menus
 {
-    // Barra de sospecha centrada arriba. Se divide en tres tramos fijos:
-    //
-    //   verde    50%  -> vas tranquilo
-    //   amarillo 30%  -> estan sospechando
-    //   rojo     20%  -> a punto de que te pillen
-    //
-    // Los tramos son siempre del mismo ancho: lo que se mueve es el marcador, que
-    // avanza segun la sospecha acumulada. Al llegar al extremo derecho se pierde
-    // el nivel (lo decide EstadoPartida, esta barra solo lo pinta).
-    //
-    // PROTOTIPO: generada por codigo, como el resto de la UI. Cuando haya arte se
-    // sustituye por un prefab.
     public class BarraSospecha : MonoBehaviour
     {
-        // Proporcion de cada tramo. Suman 1.
         private const float ProporcionVerde = 0.5f;
         private const float ProporcionAmarillo = 0.3f;
         private const float ProporcionRojo = 0.2f;
@@ -35,7 +22,6 @@ namespace SoltaLaPala.Menus
         [Tooltip("Color de los tramos que el marcador todavia no alcanzo.")]
         public Color colorApagado = new Color(1f, 1f, 1f, 0.22f);
 
-        // Debajo de los menus (100+) y a la par del reloj.
         private const int OrdenCanvas = 50;
 
         private RectTransform marcador;
@@ -46,7 +32,6 @@ namespace SoltaLaPala.Menus
 
         private EstadoPartida estadoSuscrito;
 
-        // Ultima fraccion pintada, para no recolocar el marcador cada frame.
         private float ultimaFraccion = -1f;
 
         private void Awake()
@@ -66,7 +51,6 @@ namespace SoltaLaPala.Menus
 
         private void Update()
         {
-            // EstadoPartida se recrea entre partidas: hay que reengancharse.
             if (estadoSuscrito != EstadoPartida.Instancia)
             {
                 Desuscribir();
@@ -100,13 +84,11 @@ namespace SoltaLaPala.Menus
             }
         }
 
-        // El evento trae impacto y sospecha; aqui solo interesa la segunda.
         private void AlCambiarContadores(int impacto, int sospecha)
         {
             Pintar(sospecha, estadoSuscrito != null ? estadoSuscrito.SospechaMaxima : 100);
         }
 
-        // Coloca el marcador y apaga los tramos que todavia no se alcanzaron.
         private void Pintar(int sospecha, int maxima)
         {
             if (marcador == null)
@@ -123,18 +105,13 @@ namespace SoltaLaPala.Menus
 
             ultimaFraccion = fraccion;
 
-            // El marcador se mueve sobre el ancho total: anclado a la izquierda,
-            // avanza hasta el borde derecho cuando la sospecha llega al maximo.
             marcador.anchoredPosition = new Vector2(fraccion * tamano.x, 0f);
 
-            // Un tramo se enciende cuando el marcador entro en el: asi se lee de un
-            // vistazo en que zona estas, no solo donde cae la aguja.
             tramoVerde.color = Aplicar(colorVerde, fraccion > 0f);
             tramoAmarillo.color = Aplicar(colorAmarillo, fraccion > ProporcionVerde);
             tramoRojo.color = Aplicar(colorRojo, fraccion > ProporcionVerde + ProporcionAmarillo);
         }
 
-        // Devuelve el color vivo si el tramo esta alcanzado, o apagado si no.
         private Color Aplicar(Color color, bool alcanzado)
         {
             if (alcanzado)
@@ -142,13 +119,9 @@ namespace SoltaLaPala.Menus
                 return color;
             }
 
-            // Se conserva el tono para que se siga leyendo cual es cada tramo,
-            // solo baja la opacidad.
             return new Color(color.r, color.g, color.b, colorApagado.a);
         }
 
-        // La barra solo se ve jugando: en el menu principal no hay nivel, y en la
-        // pausa taparia el panel.
         private void ActualizarVisibilidad()
         {
             if (grupo == null)
@@ -168,20 +141,16 @@ namespace SoltaLaPala.Menus
             }
         }
 
-        // Arma el canvas, los tres tramos y el marcador.
         private void Construir()
         {
             Canvas canvas = ConstructorUI.CrearCanvas("CanvasBarraSospecha", transform, OrdenCanvas);
 
-            // El HUD no recibe clicks: su raycaster solo robaria eventos a los menus.
             Destroy(canvas.GetComponent<GraphicRaycaster>());
 
             grupo = canvas.gameObject.AddComponent<CanvasGroup>();
             grupo.interactable = false;
             grupo.blocksRaycasts = false;
 
-            // Contenedor centrado arriba. Los tramos se anclan a su izquierda,
-            // asi las posiciones se calculan en un solo sentido.
             GameObject contenedor = new GameObject("Barra");
             contenedor.transform.SetParent(canvas.transform, false);
 
@@ -192,8 +161,6 @@ namespace SoltaLaPala.Menus
             rect.anchoredPosition = new Vector2(0f, -margenSuperior);
             rect.sizeDelta = tamano;
 
-            // Fondo oscuro detras de los tramos, para que la barra se despegue
-            // del escenario cuando el fondo es claro.
             GameObject fondo = ConstructorUI.CrearImagen("Fondo", contenedor.transform,
                 new Color(0.05f, 0.05f, 0.08f, 0.85f));
             EstirarConMargen(fondo.GetComponent<RectTransform>(), -3f);
@@ -208,7 +175,6 @@ namespace SoltaLaPala.Menus
             marcador = CrearMarcador(contenedor.transform);
         }
 
-        // Un tramo de color, colocado por fraccion del ancho total.
         private Image CrearTramo(string nombre, Transform padre, float inicio, float ancho, Color color)
         {
             GameObject objeto = ConstructorUI.CrearImagen(nombre, padre, color);
@@ -218,13 +184,11 @@ namespace SoltaLaPala.Menus
             rect.anchorMax = new Vector2(0f, 1f);
             rect.pivot = new Vector2(0f, 0.5f);
             rect.anchoredPosition = new Vector2(inicio * tamano.x, 0f);
-            // sizeDelta.y a 0 con los anclajes estirados = alto completo del padre.
             rect.sizeDelta = new Vector2(ancho * tamano.x, 0f);
 
             return objeto.GetComponent<Image>();
         }
 
-        // Linea vertical que marca cuanta sospecha llevas.
         private RectTransform CrearMarcador(Transform padre)
         {
             GameObject objeto = ConstructorUI.CrearImagen("Marcador", padre, colorMarcador);
@@ -234,14 +198,11 @@ namespace SoltaLaPala.Menus
             rect.anchorMax = new Vector2(0f, 1f);
             rect.pivot = new Vector2(0.5f, 0.5f);
             rect.anchoredPosition = Vector2.zero;
-            // Sobresale un poco por arriba y por abajo para que se vea sobre
-            // cualquiera de los tres colores.
             rect.sizeDelta = new Vector2(5f, 10f);
 
             return rect;
         }
 
-        // Estira un rect sobre todo el padre, con un margen (negativo lo agranda).
         private static void EstirarConMargen(RectTransform rect, float margen)
         {
             rect.anchorMin = Vector2.zero;

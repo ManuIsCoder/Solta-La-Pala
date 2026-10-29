@@ -4,8 +4,6 @@ using UnityEngine.Rendering;
 
 namespace SoltaLaPala.NPC
 {
-    // Hace que el NPC gire su cabeza hacia el jugador cuando este se encuentra
-    // cerca y dentro de su angulo frontal (~60 grados), sin rotar el cuerpo.
     [RequireComponent(typeof(DetectorVisionNPC))]
     public class MiradaNPC : MonoBehaviour
     {
@@ -49,7 +47,6 @@ namespace SoltaLaPala.NPC
         private bool estaSiguiendo = false;
         private Renderer renderIndicador;
 
-        // Ultimo color pintado, para no tocar el material cada frame.
         private bool? indicadorRojo;
 
         private void Awake()
@@ -60,8 +57,6 @@ namespace SoltaLaPala.NPC
             CrearIndicador();
         }
 
-        // Crea la pelota como hija de la cabeza. Sin collider ni sombra: es solo una
-        // marca visual, no debe empujar al jugador ni ser apuntable.
         private void CrearIndicador()
         {
             if (!mostrarIndicador || cabeza == null)
@@ -78,8 +73,6 @@ namespace SoltaLaPala.NPC
                 Destroy(colisionador);
             }
 
-            // El tamano es en metros: se compensa la escala del NPC para que
-            // no salga gigante o diminuta segun el modelo.
             esfera.transform.SetParent(cabeza, false);
             Vector3 escalaPadre = cabeza.lossyScale;
             esfera.transform.localScale = new Vector3(
@@ -98,9 +91,6 @@ namespace SoltaLaPala.NPC
             PintarIndicador(false);
         }
 
-        // Pinta la pelota solo cuando cambia el estado. El material por defecto de
-        // la esfera ya es el del pipeline del proyecto, asi que no hace falta
-        // buscar un shader a mano.
         private void PintarIndicador(bool siguiendo)
         {
             if (renderIndicador == null || indicadorRojo == siguiendo)
@@ -121,7 +111,6 @@ namespace SoltaLaPala.NPC
             }
         }
 
-        // Si no hay cabeza asignada, busca 'Cabeza', o crea el pivote y le emparenta 'Frente'
         private void AsegurarCabeza()
         {
             if (cabeza != null)
@@ -138,14 +127,12 @@ namespace SoltaLaPala.NPC
                 return;
             }
 
-            // Crear pivote en la parte superior del NPC
             GameObject pivote = new GameObject("Cabeza");
             pivote.transform.SetParent(transform, false);
             pivote.transform.localPosition = new Vector3(0f, 0.5f, 0f);
             pivote.transform.localRotation = Quaternion.identity;
             cabeza = pivote.transform;
 
-            // Si el NPC tiene el cubo 'Frente', emparentarlo a la Cabeza para que gire con ella
             Transform hijoFrente = transform.Find("Frente");
             if (hijoFrente != null)
             {
@@ -167,7 +154,6 @@ namespace SoltaLaPala.NPC
                 return;
             }
 
-            // Distancia de activación: por defecto, la misma distancia del ojo rojo
             float distanciaEfectiva = distanciaMirada > 0f
                 ? distanciaMirada
                 : (detector != null ? detector.distanciaVision * detector.fraccionDistanciaCercana : 4f);
@@ -177,21 +163,17 @@ namespace SoltaLaPala.NPC
             Vector3 direccionHaciaJugador = destino - origen;
             float distancia = direccionHaciaJugador.magnitude;
 
-            // Si el jugador esta hablando con ESTE NPC, lo mira siempre, sin importar
-            // desde donde le hable ni a que distancia: es su interlocutor.
             bool hablandoConmigo = EstaHablandoConElJugador();
 
             estaSiguiendo = hablandoConmigo;
 
             if (!hablandoConmigo && distancia <= distanciaEfectiva)
             {
-                // Comprobar ángulo frontal horizontal
                 Vector3 direccionPlana = new Vector3(direccionHaciaJugador.x, 0f, direccionHaciaJugador.z);
                 float angulo = Vector3.Angle(transform.forward, direccionPlana);
 
                 if (angulo <= anguloMirada / 2f)
                 {
-                    // Comprobar que no haya un muro tapando
                     if (detector == null || detector.PuedeVerJugador())
                     {
                         estaSiguiendo = true;
@@ -205,23 +187,18 @@ namespace SoltaLaPala.NPC
 
             if (estaSiguiendo)
             {
-                // Rotación relativa al cuerpo del NPC
                 Quaternion rotacionMundo = Quaternion.LookRotation(direccionHaciaJugador, Vector3.up);
                 rotacionObjetivo = Quaternion.Inverse(transform.rotation) * rotacionMundo;
             }
             else
             {
-                // Mirar al frente
                 rotacionObjetivo = rotacionLocalInicial;
             }
 
-            // Giro suave. Durante un dialogo el juego esta congelado (timeScale 0) y
-            // Time.deltaTime vale 0: la cabeza no giraria hacia el jugador.
             float dt = hablandoConmigo ? Time.unscaledDeltaTime : Time.deltaTime;
             cabeza.localRotation = Quaternion.RotateTowards(cabeza.localRotation, rotacionObjetivo, velocidadGiro * dt);
         }
 
-        // True si hay un dialogo en marcha y es con este NPC.
         private bool EstaHablandoConElJugador()
         {
             GestorDialogos gestor = GestorDialogos.Instancia;

@@ -5,23 +5,13 @@ using SoltaLaPala.Menus;
 
 namespace SoltaLaPala.Tutorial
 {
-    /// <summary>
-    /// Panel HUD del tutorial. Se sitúa arriba a la derecha con orden de canvas 55.
-    /// Muestra los pasos del DatosTutorial y permite navegar con ← →.
-    /// Los pasos con CondicionPaso.AlCompletarMision se completan automáticamente
-    /// cuando la MisionEntrega del NPC indicado reporta Completada == true.
-    /// </summary>
     public class PanelTutorialHUD : MonoBehaviour
     {
-        // ──────────────────────────────────────────────
-        //  Inspector
-        // ──────────────────────────────────────────────
-
         [Header("Datos")]
-        public DatosTutorial datos;                     // Arrastrar el ScriptableObject desde el inspector
+        public DatosTutorial datos;
 
         [Header("Visibilidad")]
-        public bool ocultarConMenusAbiertos = true;     // Ocultar el panel si hay algún menú abierto
+        public bool ocultarConMenusAbiertos = true;
 
         [Header("Ajustes de Tamaño y Posición")]
         [Tooltip("Escala del panel tutorial. Modifícalo en el inspector para agrandar o achicar.")]
@@ -48,34 +38,20 @@ namespace SoltaLaPala.Tutorial
         [Range(0f, 80f)]
         public float offsetVerticalIndicador = 28f;
 
-        // ──────────────────────────────────────────────
-        //  Referencias internas de UI
-        // ──────────────────────────────────────────────
-
-        Canvas        _canvas;          // Canvas propio del HUD de tutorial
-        RectTransform _panelRect;       // RectTransform del panel de fondo
-        Text          _textoContenido;  // Texto principal del paso actual
-        Text          _textoIndicador;  // Indicador "← N/T →"
-        RectTransform _lineaTachadoTutorial; // Línea de tachado si se completa un paso
-
-        // ──────────────────────────────────────────────
-        //  Estado
-        // ──────────────────────────────────────────────
+        Canvas        _canvas;
+        RectTransform _panelRect;
+        Text          _textoContenido;
+        Text          _textoIndicador;
+        RectTransform _lineaTachadoTutorial;
 
         int    _pasoActual  = 0;
-        bool[] _completados;            // Un bool por cada paso en datos.pasos
-        bool   _panelCerrado = false;   // True cuando el jugador o el avance cierra el panel
+        bool[] _completados;
+        bool   _panelCerrado = false;
 
-        bool _warningMostrado = false;  // Evitar spam de warnings en consola
-
-        // ──────────────────────────────────────────────
-        //  Ciclo de vida
-        // ──────────────────────────────────────────────
+        bool _warningMostrado = false;
 
         void Start()
         {
-            // Si no se asignó un ScriptableObject en el inspector, buscar uno en Resources
-            // o crear datos por defecto para que la UI funcione de inmediato.
             if (datos == null)
             {
                 datos = Resources.Load<DatosTutorial>("Tutorial/DatosTutorial");
@@ -84,7 +60,7 @@ namespace SoltaLaPala.Tutorial
                     datos = ScriptableObject.CreateInstance<DatosTutorial>();
                     datos.pasos = new PasoTutorial[]
                     {
-                        new PasoTutorial { texto = "Usa WASD para moverte y el ratón para mirar. Mantén Shift para correr.", condicion = CondicionPaso.SoloManual },
+                        new PasoTutorial { texto = "Usa WASD para moverte y el mouse para mirar. Mantén Shift para correr.", condicion = CondicionPaso.SoloManual },
                         new PasoTutorial { texto = "Habla con la Recepcionista [E] para recibir tu encargo.", condicion = CondicionPaso.SoloManual },
                         new PasoTutorial { texto = "Consigue la Pala o Palita y entrégasela a la Recepcionista.", condicion = CondicionPaso.AlCompletarMision, idMisionAsociada = "Recepcionista" },
                         new PasoTutorial { texto = "Sabotea las tazas de café sin que los compañeros te descubran.", condicion = CondicionPaso.SoloManual }
@@ -94,16 +70,12 @@ namespace SoltaLaPala.Tutorial
 
             ConstruirUI();
 
-            // El panel empieza oculto; se muestra cuando empieza el nivel
             if (_canvas != null)
                 _canvas.gameObject.SetActive(false);
 
-            // Inicializar el array de completados
             if (datos != null && datos.pasos != null)
                 _completados = new bool[datos.pasos.Length];
 
-            // Suscribirse al evento de instancia de EstadoPartida.
-            // Si aún no existe se reintenta en Update cuando aparezca.
             SuscribirseAlNivel();
         }
 
@@ -115,10 +87,8 @@ namespace SoltaLaPala.Tutorial
 
         void Update()
         {
-            // EstadoPartida puede crearse después que este HUD: reengancharse al nuevo.
             SuscribirseAlNivel();
 
-            // Permite modificar tamaño y posición desde el inspector de Unity en tiempo real
             if (_panelRect != null)
             {
                 Vector2 tamanoDeseado = tamanoBase * escala;
@@ -146,7 +116,6 @@ namespace SoltaLaPala.Tutorial
                 }
             }
 
-            // Guardia: sin datos no hay nada que hacer
             if (datos == null || datos.pasos == null || datos.pasos.Length == 0)
             {
                 if (!_warningMostrado)
@@ -161,7 +130,6 @@ namespace SoltaLaPala.Tutorial
                 && _estadoSuscrito.PartidaEnCurso
                 && (!ocultarConMenusAbiertos || GestorMenus.Instancia == null || !GestorMenus.Instancia.HayMenuAbierto);
 
-            // Si no estamos jugando o el panel fue cerrado, mantener oculto
             if (!jugando || _panelCerrado)
             {
                 if (_canvas != null && _canvas.gameObject.activeSelf)
@@ -172,7 +140,6 @@ namespace SoltaLaPala.Tutorial
             if (_canvas != null && !_canvas.gameObject.activeSelf)
                 _canvas.gameObject.SetActive(true);
 
-            // ── Navegación con teclado ──
             if (Input.GetKeyDown(KeyCode.LeftArrow) && _pasoActual > 0)
                 _pasoActual--;
 
@@ -184,28 +151,17 @@ namespace SoltaLaPala.Tutorial
                 }
                 else
                 {
-                    // Al tocar la flecha derecha en el último paso, desaparece el panel
                     _panelCerrado = true;
                     if (_canvas != null) _canvas.gameObject.SetActive(false);
                     return;
                 }
             }
 
-            // ── Comprobar misiones completadas automáticamente ──
             ComprobarMisiones();
 
-            // ── Refrescar la UI ──
             ActualizarUI();
         }
 
-        // ──────────────────────────────────────────────
-        //  API pública
-        // ──────────────────────────────────────────────
-
-        /// <summary>
-        /// Permite que otros sistemas fuercen la completación de un paso concreto.
-        /// Al completarse el paso actual, avanza al siguiente paso o desaparece si era el último.
-        /// </summary>
         public void CompletarPaso(int indice)
         {
             if (_completados == null || indice < 0 || indice >= _completados.Length)
@@ -215,7 +171,6 @@ namespace SoltaLaPala.Tutorial
 
             _completados[indice] = true;
 
-            // Al completar el objetivo actual: cambia al siguiente paso, o desaparece si era el último
             if (indice == _pasoActual)
             {
                 if (_pasoActual < datos.pasos.Length - 1)
@@ -231,13 +186,6 @@ namespace SoltaLaPala.Tutorial
             }
         }
 
-        // ──────────────────────────────────────────────
-        //  Lógica interna
-        // ──────────────────────────────────────────────
-
-        /// <summary>
-        /// Muestra el panel (llamado desde el evento AlEmpezarNivel).
-        /// </summary>
         void MostrarPanel()
         {
             _panelCerrado = false;
@@ -245,10 +193,6 @@ namespace SoltaLaPala.Tutorial
                 _canvas.gameObject.SetActive(true);
         }
 
-        /// <summary>
-        /// Recorre los pasos con CondicionPaso.AlCompletarMision y comprueba
-        /// si la MisionEntrega del NPC indicado ya está completada.
-        /// </summary>
         void ComprobarMisiones()
         {
             if (_completados == null) return;
@@ -259,9 +203,8 @@ namespace SoltaLaPala.Tutorial
 
                 if (paso.condicion != CondicionPaso.AlCompletarMision) continue;
                 if (string.IsNullOrEmpty(paso.idMisionAsociada))        continue;
-                if (_completados[i])                                     continue; // ya completado
+                if (_completados[i])                                     continue;
 
-                // Buscar el GameObject del NPC en la escena por nombre
                 GameObject npcObj = GameObject.Find(paso.idMisionAsociada);
                 if (npcObj == null) continue;
 
@@ -271,9 +214,6 @@ namespace SoltaLaPala.Tutorial
             }
         }
 
-        /// <summary>
-        /// Actualiza los textos del panel con el estado del paso actual.
-        /// </summary>
         void ActualizarUI()
         {
             if (_textoContenido == null || _textoIndicador == null) return;
@@ -281,7 +221,6 @@ namespace SoltaLaPala.Tutorial
 
             PasoTutorial paso = datos.pasos[_pasoActual];
 
-            // Texto con tachado si el paso está completado
             _textoContenido.text = paso.texto;
             if (_completados[_pasoActual])
             {
@@ -300,29 +239,18 @@ namespace SoltaLaPala.Tutorial
                     _lineaTachadoTutorial.gameObject.SetActive(false);
             }
 
-            // Indicador de navegación: "← N/T →"
             int total = datos.pasos.Length;
             _textoIndicador.text = "← " + (_pasoActual + 1) + "/" + total + " →";
         }
 
-        // ──────────────────────────────────────────────
-        //  Construcción de UI
-        // ──────────────────────────────────────────────
-
-        /// <summary>
-        /// Crea en tiempo de ejecución el canvas y todos los elementos visuales del panel.
-        /// </summary>
         void ConstruirUI()
         {
-            // ── Canvas ──
             _canvas = ConstructorUI.CrearCanvas("CanvasTutorialHUD", transform, 55);
 
-            // Quitar GraphicRaycaster (igual que HudTiempo; el panel no necesita recibir clicks)
             GraphicRaycaster raycaster = _canvas.GetComponent<GraphicRaycaster>();
             if (raycaster != null)
                 Destroy(raycaster);
 
-            // ── Panel imagen ──
             GameObject panelObj = new GameObject("PanelTutorial");
             panelObj.transform.SetParent(_canvas.transform, false);
 
@@ -339,7 +267,6 @@ namespace SoltaLaPala.Tutorial
                 Debug.LogWarning("[PanelTutorialHUD] No se encontró el sprite 'Sprites/UI/paneles/Panel tutorial'.", this);
             }
 
-            // RectTransform del panel: arriba-derecha, 400×230 (proporción 800×460 del sprite)
             RectTransform rtPanel = panelObj.GetComponent<RectTransform>();
             rtPanel.anchorMin        = new Vector2(1f, 1f);
             rtPanel.anchorMax        = new Vector2(1f, 1f);
@@ -351,7 +278,6 @@ namespace SoltaLaPala.Tutorial
 
             image.preserveAspect = true;
 
-            // ── Texto de contenido ──
             GameObject textoObj = new GameObject("TextoContenido");
             textoObj.transform.SetParent(panelObj.transform, false);
 
@@ -364,14 +290,12 @@ namespace SoltaLaPala.Tutorial
             _textoContenido.horizontalOverflow = HorizontalWrapMode.Wrap;
             _textoContenido.verticalOverflow   = VerticalWrapMode.Overflow;
 
-            // Situado en el área azul del diseño (el encabezado mide ~75px a esta escala)
             RectTransform rtTexto = textoObj.GetComponent<RectTransform>();
             rtTexto.anchorMin        = new Vector2(0f, 0f);
             rtTexto.anchorMax        = new Vector2(1f, 1f);
             rtTexto.offsetMin        = new Vector2(25f, 35f);
             rtTexto.offsetMax        = new Vector2(-25f, -75f);
 
-            // Línea de tachado opcional para tutorial
             GameObject goTachado = new GameObject("LineaTachado", typeof(RectTransform));
             goTachado.transform.SetParent(textoObj.transform, false);
             _lineaTachadoTutorial = (RectTransform)goTachado.transform;
@@ -384,7 +308,6 @@ namespace SoltaLaPala.Tutorial
             imgTach.raycastTarget = false;
             goTachado.SetActive(false);
 
-            // ── Texto indicador de navegación ──
             GameObject indicadorObj = new GameObject("TextoIndicador");
             indicadorObj.transform.SetParent(panelObj.transform, false);
 
@@ -396,7 +319,6 @@ namespace SoltaLaPala.Tutorial
             _textoIndicador.supportRichText    = false;
             _textoIndicador.horizontalOverflow = HorizontalWrapMode.Overflow;
 
-            // Anclado en la parte inferior, centrado entre las flechas
             RectTransform rtIndicador = indicadorObj.GetComponent<RectTransform>();
             rtIndicador.anchorMin        = new Vector2(0.5f, 0f);
             rtIndicador.anchorMax        = new Vector2(0.5f, 0f);
@@ -405,10 +327,6 @@ namespace SoltaLaPala.Tutorial
             rtIndicador.sizeDelta        = new Vector2(200f, 22f);
         }
 
-        // ── Suscripción al evento de instancia ────────────────────────────────
-
-        // EstadoPartida puede crearse después que este HUD: si no existe aún,
-        // Update lo reintenta en cuanto aparezca (igual que HudTiempo).
         EstadoPartida _estadoSuscrito;
 
         void SuscribirseAlNivel()

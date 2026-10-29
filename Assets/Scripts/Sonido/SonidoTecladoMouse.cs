@@ -2,11 +2,6 @@ using UnityEngine;
 
 namespace SoltaLaPala.Sonido
 {
-    // Sonidos de un escritorio con teclado y mouse: el teclado suena cada 10-15
-    // segundos y el mouse cada 20-30.
-    //
-    // Los dos usan la misma fuente de audio, asi que nunca suenan a la vez: si le
-    // toca a uno mientras el otro esta sonando, espera a que termine.
     [DisallowMultipleComponent]
     public class SonidoTecladoMouse : MonoBehaviour
     {
@@ -44,7 +39,6 @@ namespace SoltaLaPala.Sonido
             ProgramarMouse();
         }
 
-        // Time.time no avanza con el juego congelado: en pausa no suena nada.
         private void Update()
         {
             if (fuente.isPlaying)

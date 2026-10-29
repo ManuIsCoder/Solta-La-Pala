@@ -4,8 +4,6 @@ using UnityEngine;
 
 namespace SoltaLaPala.NPC
 {
-    // Sistema de vision para NPCs vigilantes.
-    // Si el jugador entra en su cono de vision y no hay muros tapandolo, dispara el dialogo Detectado.
     [RequireComponent(typeof(DialogoNPC))]
     public class DetectorVisionNPC : MonoBehaviour
     {
@@ -25,21 +23,16 @@ namespace SoltaLaPala.NPC
         [Range(0.05f, 1f)]
         public float fraccionDistanciaCercana = 0.4f;
 
-        [Tooltip("Sospecha que suma cada vez que te pilla de lejos. 0 lo desactiva.")]
+        [Tooltip("Sospecha que suma cada vez que te ve de lejos. 0 lo desactiva.")]
         public int sospechaAlVerteLejos = 3;
 
-        [Tooltip("Sospecha que suma cada vez que te pilla de cerca.")]
+        [Tooltip("Sospecha que suma cada vez que te ve de cerca.")]
         public int sospechaAlVerteCerca = 8;
 
-        // En que situacion esta el jugador respecto a este NPC. Lo lee el ojo
-        // que flota sobre su cabeza.
         public enum EstadoVision
         {
-            // No lo ve: fuera del cono, tapado por un muro o demasiado lejos.
             SinVer,
-            // Lo ve, pero a distancia.
             VeLejos,
-            // Lo ve y lo tiene encima.
             VeCerca
         }
 
@@ -47,8 +40,6 @@ namespace SoltaLaPala.NPC
         private Transform transformJugador;
         private float ultimoTiempoDeteccion = -10f;
 
-        // Se recalcula una vez por frame en Update y lo consultan los indicadores,
-        // para no repetir el raycast por cada uno que pregunte.
         public EstadoVision Estado { get; private set; } = EstadoVision.SinVer;
 
         private void Awake()
@@ -82,8 +73,6 @@ namespace SoltaLaPala.NPC
             Estado = CalcularEstado();
         }
 
-        // Te pilla mirando donde no debes: sube la sospecha segun lo cerca que
-        // estes. El cooldown de tiempoEntreDetecciones evita que suba cada frame.
         private void SumarSospechaPorDeteccion()
         {
             int cantidad = Estado == EstadoVision.VeCerca
@@ -95,11 +84,9 @@ namespace SoltaLaPala.NPC
                 return;
             }
 
-            // Impacto 0: que te vean no sabotea nada, solo levanta sospechas.
             EstadoPartida.Instancia.RegistrarSabotaje(0, cantidad);
         }
 
-        // Decide si ve al jugador y, si lo ve, si lo tiene cerca o lejos.
         private EstadoVision CalcularEstado()
         {
             if (!PuedeVerJugador())
@@ -131,7 +118,6 @@ namespace SoltaLaPala.NPC
             if (angulo > anguloVision / 2f)
                 return false;
 
-            // Linecast / Raycast: si choca con un muro antes de llegar al jugador, no lo ve
             if (Physics.Linecast(origen, destino, out RaycastHit hit, capasObstaculos))
             {
                 if (hit.collider.CompareTag("Player") || hit.transform == transformJugador)

@@ -3,11 +3,6 @@ using UnityEngine;
 
 namespace SoltaLaPala.Interaction
 {
-    // Exige llevar cierto item para poder usar este interactuable.
-    //
-    // Va en el mismo objeto que el IInteractuable (una taza que solo se sabotea
-    // con detergente, un NPC al que hay que entregarle algo). Los interactuables
-    // lo consultan antes de dejarse usar, y el prompt dice que falta.
     public class RequisitoItem : MonoBehaviour
     {
         [Header("Requisito")]
@@ -25,10 +20,8 @@ namespace SoltaLaPala.Interaction
         [Tooltip("Que mostrar cuando falta el item. {item} se sustituye por su nombre.")]
         public string textoSinItem = "Necesitas {item}";
 
-        // True si el jugador cumple el requisito ahora mismo.
         public bool SeCumple()
         {
-            // Sin item configurado no hay nada que exigir: el interactuable es libre.
             if (itemRequerido == null)
             {
                 return true;
@@ -37,7 +30,6 @@ namespace SoltaLaPala.Interaction
             return BuscarSlot() != -1;
         }
 
-        // Texto del prompt cuando falta el item.
         public string ObtenerTextoBloqueado()
         {
             string nombre = itemRequerido != null && !string.IsNullOrEmpty(itemRequerido.nombre)
@@ -47,8 +39,6 @@ namespace SoltaLaPala.Interaction
             return textoSinItem.Replace("{item}", nombre);
         }
 
-        // Gasta el item si asi esta configurado. Se llama al completar la accion,
-        // no al empezarla: un sabotaje que se cancela no debe costar el objeto.
         public void ConsumirSiHaceFalta()
         {
             if (!consumirAlUsar || itemRequerido == null)
@@ -71,7 +61,6 @@ namespace SoltaLaPala.Interaction
             }
         }
 
-        // Indice del slot donde esta el item requerido, o -1 si no lo lleva.
         private int BuscarSlot()
         {
             InventarioJugador inventario = InventarioJugador.DelJugador();

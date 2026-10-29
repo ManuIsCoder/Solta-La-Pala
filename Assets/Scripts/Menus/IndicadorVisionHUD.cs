@@ -3,12 +3,8 @@ using UnityEngine.UI;
 using SoltaLaPala.NPC;
 
 namespace SoltaLaPala.Menus{
-
-
-
     public class IndicadorVisionHUD : MonoBehaviour
     {
-
         public static IndicadorVisionHUD Instancia { get; private set; }
         public DetectorVisionNPC.EstadoVision EstadoActual { get; private set; } = DetectorVisionNPC.EstadoVision.SinVer;
         [Header("Sprites")]
@@ -50,7 +46,6 @@ namespace SoltaLaPala.Menus{
             ConstruirUI();
         }
 
-        // Si no se asignaron en el inspector, toma los sprites configurados en los NPCs de la escena
         private void ObtenerSpritesFallback()
         {
             if (spriteSinVer != null && spriteVeLejos != null && spriteVeCerca != null) return;
@@ -61,7 +56,7 @@ namespace SoltaLaPala.Menus{
                 if (spriteSinVer == null) spriteSinVer = indicador.spriteSinVer;
                 if (spriteVeCerca == null) spriteVeCerca = indicador.spriteVeCerca;
                 if (spriteVeLejos == null) spriteVeLejos = indicador.spriteVeLejos;
-            } 
+            }
         }
 
         private void Update()
@@ -118,7 +113,7 @@ namespace SoltaLaPala.Menus{
                     imagenOjo.color = colorNormal;
                     imagenOjo.enabled = true;
                     break;
-                default: // SinVer
+                default:
                     if (ocultarSiNoTeVe)
                     {
                         imagenOjo.enabled = false;

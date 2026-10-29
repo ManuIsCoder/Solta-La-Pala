@@ -13,8 +13,8 @@ namespace SoltaLaPala.Minijuegos
         public string idSalero = "Salero";
 
         [Header("UI - Botones")]
-        public Button botonCafe;   
-        public Button botonSal;       
+        public Button botonCafe;
+        public Button botonSal;
         public Button botonSalir;
 
         [Header("UI - Barra de llenado")]

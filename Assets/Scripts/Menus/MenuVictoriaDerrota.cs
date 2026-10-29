@@ -5,9 +5,6 @@ using UnityEngine.UI;
 
 namespace SoltaLaPala.Menus
 {
-    // Pantalla de final de partida. Victoria y derrota comparten el mismo panel
-    // y solo cambian titulo, color y el boton de "siguiente nivel", que en la
-    // derrota no tiene sentido.
     public class MenuVictoriaDerrota : MenuBase
     {
         protected override int OrdenPantalla => 160;
@@ -17,7 +14,6 @@ namespace SoltaLaPala.Menus
         private Text textoMarcador;
         private Button botonSiguiente;
 
-        // Se guarda el ultimo final configurado para poder redibujarlo al mostrarse.
         private bool fueVictoria;
         private string detalleActual;
 
@@ -56,8 +52,6 @@ namespace SoltaLaPala.Menus
                 new Vector2(0f, y), tamanoBoton, () => AbrirDesdeFinal(PantallaMenu.Principal));
         }
 
-        // La llama el GestorMenus antes de mostrar la pantalla, para saber si
-        // toca pintar victoria o derrota.
         public void Configurar(bool victoria, string detalle)
         {
             AsegurarConstruida();
@@ -77,7 +71,7 @@ namespace SoltaLaPala.Menus
         {
             if (titulo != null)
             {
-                titulo.text = fueVictoria ? "SABOTAJE COMPLETADO" : "TE PILLARON";
+                titulo.text = fueVictoria ? "SABOTAJE COMPLETADO" : "TE DESCUBRIERON";
                 titulo.fontSize = 40;
                 titulo.color = fueVictoria ? ConstructorUI.ColorExito : ConstructorUI.ColorFallo;
             }
@@ -94,7 +88,6 @@ namespace SoltaLaPala.Menus
                 textoMarcador.text = ArmarMarcador();
             }
 
-            // Solo se ofrece el siguiente nivel si se gano y de verdad existe uno mas.
             if (botonSiguiente != null)
             {
                 bool hayMas = ProgresoNiveles.NivelActual < ProgresoNiveles.CantidadNiveles;
@@ -122,7 +115,6 @@ namespace SoltaLaPala.Menus
             return sb.ToString();
         }
 
-        // Pasa al nivel siguiente y devuelve el control al juego.
         private void IrAlSiguienteNivel()
         {
             int siguiente = Mathf.Min(ProgresoNiveles.NivelActual + 1, ProgresoNiveles.CantidadNiveles);
@@ -132,15 +124,12 @@ namespace SoltaLaPala.Menus
             Gestor?.ReiniciarYJugar();
         }
 
-        // Vuelve a empezar el mismo nivel con los contadores a cero.
         private void ReintentarNivel()
         {
             Debug.Log($"[Menus] Reintentando nivel {ProgresoNiveles.NivelActual}.");
             Gestor?.ReiniciarYJugar();
         }
 
-        // Desde el final de partida se limpia el historial: no tiene sentido
-        // que "Volver" devuelva a la pantalla de derrota.
         private void AbrirDesdeFinal(PantallaMenu pantalla)
         {
             if (Gestor == null)

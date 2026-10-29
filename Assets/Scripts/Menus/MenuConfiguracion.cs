@@ -4,15 +4,10 @@ using UnityEngine.UI;
 
 namespace SoltaLaPala.Menus
 {
-    // Configuracion: audio, raton, pantalla y reasignacion de teclas.
-    //
-    // La reasignacion funciona asi: pulsas el boton de una accion, el menu entra en
-    // modo escucha y la siguiente tecla que pulses queda asignada. ESC cancela.
     public class MenuConfiguracion : MenuBase
     {
         protected override int OrdenPantalla => 140;
 
-        // Fila de la lista de controles: la etiqueta de la accion y el boton con su tecla.
         [System.Serializable]
         public class FilaControl
         {
@@ -82,14 +77,11 @@ namespace SoltaLaPala.Menus
 
             foreach (FilaControl fila in filas)
             {
-                // Copia local: sin esto todos los botones compartirian la ultima fila.
                 AccionJuego accionFila = fila.accion;
                 Enganchar(fila.boton, () => EmpezarEscucha(accionFila));
             }
         }
 
-        // El slider unico mueve los dos ejes manteniendo la proporcion de fabrica
-        // (200 horizontal, 150 vertical): el eje Y siempre va un poco mas lento.
         private const float ProporcionSensibilidadY = 0.75f;
 
         private static void EngancharSlider(Slider slider, UnityEngine.Events.UnityAction<float> alCambiar)
@@ -100,10 +92,8 @@ namespace SoltaLaPala.Menus
             }
         }
 
-        // Accion que se esta reasignando ahora mismo, o null si no hay ninguna.
         private AccionJuego? accionEscuchando;
 
-        // Mientras se escucha una tecla se ignoran las demas pulsaciones del menu.
         private bool EstaEscuchando => accionEscuchando.HasValue;
 
         protected override void Construir(Transform raiz)
@@ -113,7 +103,6 @@ namespace SoltaLaPala.Menus
 
             CrearTitulo(padre, "CONFIGURACION", 1000f);
 
-            // Dos columnas: ajustes a la izquierda, controles a la derecha.
             ConstruirColumnaAjustes(padre, -250f);
             ConstruirColumnaControles(padre, 260f);
 
@@ -128,7 +117,6 @@ namespace SoltaLaPala.Menus
                 new Vector2(150f, -770f), new Vector2(280f, 54f), IntentarVolver);
         }
 
-        // Columna izquierda: volumen, raton y pantalla.
         private void ConstruirColumnaAjustes(Transform padre, float x)
         {
             float y = -110f;
@@ -146,7 +134,7 @@ namespace SoltaLaPala.Menus
                 AjustesJuego.VolumenEfectos, 0f, 1f, valor => AjustesJuego.VolumenEfectos = valor);
 
             y -= 24f;
-            CrearSubtitulo(padre, "RATON", x, y);
+            CrearSubtitulo(padre, "MOUSE", x, y);
             y -= 50f;
 
             sliderSensibilidadX = CrearFilaSlider(padre, "Sensibilidad X", x, ref y,
@@ -172,7 +160,6 @@ namespace SoltaLaPala.Menus
             textoPantallaCompleta = botonPantalla.GetComponentInChildren<Text>();
         }
 
-        // Columna derecha: una fila por accion reasignable.
         private void ConstruirColumnaControles(Transform padre, float x)
         {
             float y = -110f;
@@ -181,7 +168,7 @@ namespace SoltaLaPala.Menus
             y -= 46f;
 
             ConstructorUI.CrearTexto("AyudaControles", padre,
-                "Pulsa una accion y despues la tecla nueva.",
+                "Elige una accion y luego presiona la tecla nueva.",
                 16, TextAnchor.MiddleCenter, new Vector2(x, y), new Vector2(420f, 24f))
                 .color = ConstructorUI.ColorTextoApagado;
             y -= 34f;
@@ -191,8 +178,6 @@ namespace SoltaLaPala.Menus
                 ConstructorUI.CrearTexto($"Etiqueta{accion}", padre, ControlesJuego.ObtenerNombre(accion),
                     20, TextAnchor.MiddleLeft, new Vector2(x - 110f, y), new Vector2(200f, 34f));
 
-                // La accion se captura en una variable local: sin esto todos los
-                // botones compartirian la ultima del bucle.
                 AccionJuego accionFila = accion;
 
                 Button boton = ConstructorUI.CrearBoton($"Tecla{accion}", padre, "",
@@ -216,7 +201,6 @@ namespace SoltaLaPala.Menus
                 .color = ConstructorUI.ColorAcento;
         }
 
-        // Etiqueta + slider. Avanza la 'y' para la fila siguiente.
         private Slider CrearFilaSlider(Transform padre, string etiqueta, float x, ref float y,
             float valor, float minimo, float maximo, System.Action<float> alCambiar)
         {
@@ -230,7 +214,6 @@ namespace SoltaLaPala.Menus
             return slider;
         }
 
-        // Al abrirse refresca todo por si los valores cambiaron desde otra pantalla.
         protected override void AlMostrar()
         {
             CancelarEscucha();
@@ -238,11 +221,8 @@ namespace SoltaLaPala.Menus
             RefrescarTeclas();
         }
 
-        // Vuelca los valores guardados en los sliders y botones.
         private void RefrescarValores()
         {
-            // SetValueWithoutNotify evita que poner el valor dispare el onValueChanged
-            // y vuelva a guardar en bucle.
             sliderGeneral?.SetValueWithoutNotify(AjustesJuego.VolumenGeneral);
             sliderMusica?.SetValueWithoutNotify(AjustesJuego.VolumenMusica);
             sliderEfectos?.SetValueWithoutNotify(AjustesJuego.VolumenEfectos);
@@ -268,10 +248,8 @@ namespace SoltaLaPala.Menus
             }
         }
 
-        // Los botones de SI/NO cambian de sprite en vez de texto cuando hay arte.
         private static void PonerSprite(Button boton, Sprite sprite)
         {
-            // GetComponent y no boton.image: en BotonMenu el targetGraphic es el Brillo.
             Image imagen = boton != null ? boton.GetComponent<Image>() : null;
             if (imagen != null && sprite != null)
             {
@@ -279,7 +257,6 @@ namespace SoltaLaPala.Menus
             }
         }
 
-        // Nombre corto para que entre en la cajita de la tecla.
         private static string NombreTeclaCorto(KeyCode tecla)
         {
             switch (tecla)
@@ -294,7 +271,6 @@ namespace SoltaLaPala.Menus
             }
         }
 
-        // Pone en cada boton la tecla que tiene asignada su accion.
         private void RefrescarTeclas()
         {
             foreach (FilaControl fila in filas)
@@ -304,10 +280,8 @@ namespace SoltaLaPala.Menus
                     continue;
                 }
 
-                // La fila que se esta reasignando muestra un aviso en vez de la tecla.
                 if (EstaEscuchando && accionEscuchando.Value == fila.accion)
                 {
-                    // Corto para que entre en la cajita; el detalle lo da textoEstado.
                     fila.textoTecla.text = "...";
                     fila.textoTecla.color = ConstructorUI.ColorAcento;
                     continue;
@@ -321,14 +295,13 @@ namespace SoltaLaPala.Menus
             }
         }
 
-        // Entra en modo escucha para reasignar una accion.
         private void EmpezarEscucha(AccionJuego accion)
         {
             accionEscuchando = accion;
 
             if (textoEstado != null)
             {
-                textoEstado.text = $"Pulsa la tecla nueva para '{ControlesJuego.ObtenerNombre(accion)}'. ESC cancela.";
+                textoEstado.text = $"Presiona la tecla nueva para '{ControlesJuego.ObtenerNombre(accion)}'. ESC cancela.";
             }
 
             RefrescarTeclas();
@@ -344,7 +317,6 @@ namespace SoltaLaPala.Menus
             }
         }
 
-        // Mientras se escucha, captura la primera tecla pulsada y la asigna.
         private void Update()
         {
             if (!EstaEscuchando)
@@ -352,7 +324,6 @@ namespace SoltaLaPala.Menus
                 return;
             }
 
-            // ESC cancela en vez de asignarse: si no, seria facil perder la tecla de pausa.
             if (Input.GetKeyDown(KeyCode.Escape))
             {
                 CancelarEscucha();
@@ -378,8 +349,6 @@ namespace SoltaLaPala.Menus
             RefrescarTeclas();
         }
 
-        // Recorre los KeyCode y devuelve el primero que se pulso este frame.
-        // Se ignoran los clicks del raton porque se usan para navegar el propio menu.
         private static KeyCode LeerTeclaPulsada()
         {
             foreach (KeyCode tecla in System.Enum.GetValues(typeof(KeyCode)))
@@ -398,7 +367,6 @@ namespace SoltaLaPala.Menus
             return KeyCode.None;
         }
 
-        // Vuelve a los valores de fabrica, tanto ajustes como teclas.
         private void RestaurarTodo()
         {
             if (EstaEscuchando)
@@ -418,7 +386,6 @@ namespace SoltaLaPala.Menus
             }
         }
 
-        // No dejar salir a media reasignacion: seria facil dejar una accion sin tecla.
         private void IntentarVolver()
         {
             if (EstaEscuchando)

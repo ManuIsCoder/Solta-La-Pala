@@ -4,7 +4,6 @@ using UnityEngine.UI;
 
 namespace SoltaLaPala.Menus
 {
-    // Resumen de la partida en curso y del progreso guardado en cada nivel.
     public class MenuResultados : MenuBase
     {
         protected override int OrdenPantalla => 150;
@@ -39,8 +38,6 @@ namespace SoltaLaPala.Menus
                 new Vector2(0f, -600f), new Vector2(260f, 56f), () => Gestor?.Volver());
         }
 
-        // Los datos se leen al abrir, no al construir: mientras el menu esta cerrado
-        // el jugador sigue sumando impacto y sospecha.
         protected override void AlMostrar()
         {
             RefrescarPartidaActual();
@@ -93,8 +90,6 @@ namespace SoltaLaPala.Menus
                 int impacto = ProgresoNiveles.ObtenerImpacto(nivel);
                 int sospecha = ProgresoNiveles.ObtenerSospecha(nivel);
 
-                // Un nivel desbloqueado pero sin impacto guardado es uno al que
-                // todavia no se jugo (se desbloqueo al ganar el anterior).
                 if (impacto == 0 && sospecha == 0)
                 {
                     sb.AppendLine($"Nivel {nivel}:  sin jugar");

@@ -4,24 +4,17 @@ using UnityEngine.UI;
 
 namespace SoltaLaPala.Menus
 {
-    // Pantalla de inicio: titulo del juego y las opciones principales.
     public class MenuPrincipal : MenuBase
     {
         protected override int OrdenPantalla => 100;
 
-        // El primer boton es "Jugar" o "Continuar" segun haya partida guardada.
-        // Se guardan las referencias para poder reetiquetarlo en AlMostrar.
         [Header("Arte")]
         public Sprite spriteTitulo;
 
-        // Con prefab el menu tiene dos pasos sobre el mismo fondo:
-        //   inicio:  Jugar, Opciones, Salir
-        //   partida: Nueva partida, Continuar partida (al pulsar Jugar)
-        // No se elige nivel: Continuar retoma el ultimo guardado.
         [Header("Prefab (Resources/Menus)")]
         [Tooltip("Contiene Jugar, Opciones y Salir.")]
         public GameObject grupoInicio;
-        [Tooltip("Contiene Nueva partida y Continuar partida. Se muestra al pulsar Jugar.")]
+        [Tooltip("Contiene Nueva partida y Continuar partida. Se muestra al presionar Jugar.")]
         public GameObject grupoPartida;
         [Tooltip("Jugar. Sin prefab es el boton Jugar/Continuar del menu generado por codigo.")]
         public Button botonPrincipal;
@@ -53,21 +46,16 @@ namespace SoltaLaPala.Menus
 
             if (partida && botonContinuarPartida != null)
             {
-                // Sin guardado se ve apagado en vez de esconderse, para que el
-                // diseno no cambie segun haya partida o no.
                 botonContinuarPartida.interactable = GuardadoPartida.Existe();
             }
         }
 
-        // Borra el guardado y el progreso de niveles y arranca desde el nivel 1.
         private void EmpezarNuevaPartida()
         {
             ProgresoNiveles.Reiniciar();
             Gestor?.ReiniciarYJugar();
         }
 
-        // ESC en el segundo paso vuelve a Jugar/Opciones/Salir. El gestor no
-        // cierra el menu principal con ESC, asi que no hay doble lectura.
         private void Update()
         {
             if (UsaPasos && grupoPartida.activeSelf && ControlesJuego.Pulsada(AccionJuego.Pausa))
@@ -107,7 +95,7 @@ namespace SoltaLaPala.Menus
                 titulo.fontSize = 52;
             }
 
-            ConstructorUI.CrearTexto("Subtitulo", padre, "Sabotea sin que te pillen",
+            ConstructorUI.CrearTexto("Subtitulo", padre, "Sabotea sin que te descubran",
                 20, TextAnchor.MiddleCenter, new Vector2(0f, -125f), new Vector2(480f, 30f))
                 .color = ConstructorUI.ColorTextoApagado;
 
@@ -115,8 +103,6 @@ namespace SoltaLaPala.Menus
             float y = -170f;
             const float salto = 78f;
 
-            // Se crea sin accion: el texto y el onClick los pone AlMostrar, que es
-            // el unico que sabe si hay partida guardada en este momento.
             botonPrincipal = ConstructorUI.CrearBoton("BotonPrincipal", padre, "Jugar",
                 new Vector2(0f, y), tamanoBoton, null);
             etiquetaPrincipal = botonPrincipal.GetComponentInChildren<Text>();
@@ -138,11 +124,6 @@ namespace SoltaLaPala.Menus
                 new Vector2(0f, y), tamanoBoton, () => Gestor?.SalirDelJuego());
         }
 
-        // Con prefab siempre se abre en el primer paso.
-        //
-        // Sin prefab (menu generado por codigo): un solo boton que cambia de
-        // nombre en vez de dos botones, uno de ellos apagado. La unica forma de
-        // pisar una partida guardada es elegir un nivel a mano.
         protected override void AlMostrar()
         {
             if (UsaPasos)
@@ -163,8 +144,6 @@ namespace SoltaLaPala.Menus
                 etiquetaPrincipal.text = hayGuardado ? "Continuar" : "Jugar";
             }
 
-            // AlMostrar corre cada vez que se abre la pantalla, asi que hay que
-            // limpiar antes de asignar o los listeners se acumulan.
             botonPrincipal.onClick.RemoveAllListeners();
 
             if (hayGuardado)

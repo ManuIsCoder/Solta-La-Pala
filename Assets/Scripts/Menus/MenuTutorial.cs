@@ -4,9 +4,6 @@ using UnityEngine.UI;
 
 namespace SoltaLaPala.Menus
 {
-    // Pantalla que explica las mecanicas. El texto se arma leyendo las teclas reales
-    // de ControlesJuego, asi que si el jugador reasigna una tecla el tutorial
-    // se actualiza solo en vez de mentir.
     public class MenuTutorial : MenuBase
     {
         protected override int OrdenPantalla => 130;
@@ -28,7 +25,6 @@ namespace SoltaLaPala.Menus
                 new Vector2(0f, -640f), new Vector2(260f, 56f), () => Gestor?.Volver());
         }
 
-        // Cada vez que se abre se regenera el texto, por si cambiaron los controles.
         protected override void AlMostrar()
         {
             if (textoContenido != null)
@@ -37,22 +33,21 @@ namespace SoltaLaPala.Menus
             }
         }
 
-        // Explicacion de las mecanicas con las teclas actuales incrustadas.
         private static string ArmarTexto()
         {
             StringBuilder sb = new StringBuilder();
 
             sb.AppendLine("OBJETIVO");
-            sb.AppendLine("Sabotea el trabajo de la oficina sin levantar sospechas. Cada sabotaje suma Impacto, pero tambien Sospecha: si la Sospecha se dispara, te pillan.");
+            sb.AppendLine("Sabotea el trabajo de la oficina sin levantar sospechas. Cada sabotaje suma Impacto, pero tambien Sospecha: si la Sospecha se dispara, te descubren.");
             sb.AppendLine();
 
             sb.AppendLine("MOVIMIENTO");
-            sb.AppendLine($"Muevete con {Tecla(AccionJuego.Adelante)} {Tecla(AccionJuego.Izquierda)} {Tecla(AccionJuego.Atras)} {Tecla(AccionJuego.Derecha)} y mira con el raton.");
+            sb.AppendLine($"Muevete con {Tecla(AccionJuego.Adelante)} {Tecla(AccionJuego.Izquierda)} {Tecla(AccionJuego.Atras)} {Tecla(AccionJuego.Derecha)} y mira con el mouse.");
             sb.AppendLine($"Manten {Tecla(AccionJuego.Correr)} para correr. Cuidado: correr delante de un companero llama la atencion.");
             sb.AppendLine();
 
             sb.AppendLine("INTERACCION");
-            sb.AppendLine($"Los objetos con los que puedes interactuar se marcan con un borde blanco. Acercate y pulsa {Tecla(AccionJuego.Interactuar)}.");
+            sb.AppendLine($"Los objetos con los que puedes interactuar se marcan con un borde blanco. Acercate y presiona {Tecla(AccionJuego.Interactuar)}.");
             sb.AppendLine();
 
             sb.AppendLine("INVENTARIO");
@@ -60,7 +55,7 @@ namespace SoltaLaPala.Menus
             sb.AppendLine();
 
             sb.AppendLine("DIALOGOS");
-            sb.AppendLine($"Habla con los NPC para sacar informacion. Pulsa {Tecla(AccionJuego.AvanzarDialogo)} para pasar de linea o completar la frase de golpe.");
+            sb.AppendLine($"Habla con los NPC para sacar informacion. Presiona {Tecla(AccionJuego.AvanzarDialogo)} para pasar de linea o completar la frase de golpe.");
             sb.AppendLine();
 
             sb.AppendLine("SABOTAJE");
@@ -71,19 +66,17 @@ namespace SoltaLaPala.Menus
             sb.AppendLine("Los NPC tienen un cono de vision. No sabotees mientras te miran.");
             sb.AppendLine();
 
-            sb.AppendLine($"Pulsa {Tecla(AccionJuego.Pausa)} en cualquier momento para pausar.");
+            sb.AppendLine($"Presiona {Tecla(AccionJuego.Pausa)} en cualquier momento para pausar.");
 
             return sb.ToString();
         }
 
-        // Nombre de la tecla asignada a una accion, entre corchetes.
         private static string Tecla(AccionJuego accion)
         {
             KeyCode tecla = ControlesJuego.ObtenerTecla(accion);
             return tecla == KeyCode.None ? "[sin asignar]" : $"[{NombreTecla(tecla)}]";
         }
 
-        // Pasa el KeyCode a algo legible: Alpha1 -> 1, LeftShift -> Shift izq.
         public static string NombreTecla(KeyCode tecla)
         {
             switch (tecla)

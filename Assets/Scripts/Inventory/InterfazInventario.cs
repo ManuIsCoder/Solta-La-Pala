@@ -3,12 +3,6 @@ using UnityEngine.UI;
 
 namespace SoltaLaPala.Inventory
 {
-    // Dibuja los 3 slots del inventario como cuadrados abajo a la derecha de la pantalla
-    // y resalta el que esta seleccionado.
-    //
-    // PROTOTIPO: si no se asignan los slots a mano, el script se construye solo el Canvas
-    // y los cuadrados al arrancar. Cuando haya arte de verdad, se arman los slots en la
-    // escena, se arrastran al array y la generacion automatica se desactiva sola.
     public class InterfazInventario : MonoBehaviour
     {
         [Header("Referencias")]
@@ -47,7 +41,6 @@ namespace SoltaLaPala.Inventory
 
         private RectTransform rectBarra;
 
-        // Construye la UI si hace falta y engancha el inventario.
         private void Awake()
         {
             if (inventario == null)
@@ -61,7 +54,6 @@ namespace SoltaLaPala.Inventory
             }
         }
 
-        // Se suscribe a los eventos del inventario para refrescar la UI solo cuando algo cambia.
         private void OnEnable()
         {
             if (inventario == null)
@@ -72,7 +64,6 @@ namespace SoltaLaPala.Inventory
             inventario.AlCambiarSlot += RefrescarSlot;
             inventario.AlCambiarSeleccion += RefrescarSeleccion;
 
-            // Dibujar el estado inicial: los eventos solo avisan de cambios futuros.
             for (int i = 0; i < InventarioJugador.CantidadSlots; i++)
             {
                 RefrescarSlot(i);
@@ -81,7 +72,6 @@ namespace SoltaLaPala.Inventory
             RefrescarSeleccion(inventario.SlotSeleccionado);
         }
 
-        // Se desuscribe de los eventos del inventario.
         private void OnDisable()
         {
             if (inventario == null)
@@ -93,7 +83,6 @@ namespace SoltaLaPala.Inventory
             inventario.AlCambiarSeleccion -= RefrescarSeleccion;
         }
 
-        // Redibuja un slot concreto: pone el icono del item o, si esta vacio, esconde el icono.
         private void RefrescarSlot(int indiceSlot)
         {
             if (!EsSlotUsable(indiceSlot))
@@ -106,12 +95,9 @@ namespace SoltaLaPala.Inventory
 
             icono.sprite = item != null ? item.icono : null;
 
-            // Sin sprite el Image pintaria un cuadrado blanco solido, por eso se apaga.
             icono.enabled = item != null && item.icono != null;
         }
 
-        // Marca visualmente que slot esta seleccionado y apaga el resto.
-        // El slot seleccionado se resalta aunque este vacio.
         private void RefrescarSeleccion(int indiceSeleccionado)
         {
             for (int i = 0; i < slots.Length; i++)
@@ -123,7 +109,6 @@ namespace SoltaLaPala.Inventory
             }
         }
 
-        // True si el slot existe y tiene el icono enchufado.
         private bool EsSlotUsable(int indiceSlot)
         {
             return inventario != null
@@ -133,7 +118,6 @@ namespace SoltaLaPala.Inventory
                 && slots[indiceSlot].icono != null;
         }
 
-        // True si ya hay slots configurados a mano en el inspector.
         private bool SlotsAsignados()
         {
             if (slots == null || slots.Length == 0)
@@ -152,7 +136,6 @@ namespace SoltaLaPala.Inventory
             return true;
         }
 
-        // Crea por codigo el Canvas y los 3 slots anclados abajo a la derecha.
         private void GenerarInterfaz()
         {
             if (spriteFondoInventario == null)
@@ -195,7 +178,6 @@ namespace SoltaLaPala.Inventory
             }
         }
 
-        // Crea la barra de 3 slots estilizada con el sprite oficial
         private void GenerarInterfazConSprite(Transform padre)
         {
             Vector2 tamanoBarra = tamanoBase * escalaBarra;
@@ -219,8 +201,6 @@ namespace SoltaLaPala.Inventory
                 GameObject slotObj = new GameObject($"Slot{i + 1}");
                 slotObj.transform.SetParent(barra.transform, false);
 
-                // Anclas relativas al sprite: el slot sigue al recuadro dibujado
-                // aunque cambie la escala de la barra.
                 Rect recuadro = recuadrosSlotEnSprite[i];
                 RectTransform rectSlot = slotObj.AddComponent<RectTransform>();
                 rectSlot.anchorMin = new Vector2(recuadro.xMin / tamanoBase.x, recuadro.yMin / tamanoBase.y);
@@ -228,13 +208,11 @@ namespace SoltaLaPala.Inventory
                 rectSlot.offsetMin = Vector2.zero;
                 rectSlot.offsetMax = Vector2.zero;
 
-                // Marco de seleccion
                 GameObject marco = CrearImagen("Marco", slotObj.transform, new Color(1f, 1f, 1f, 0.45f));
                 EstirarSobrePadre(marco.GetComponent<RectTransform>(), 0f);
                 marco.transform.SetAsFirstSibling();
                 marco.SetActive(false);
 
-                // Icono
                 GameObject icono = CrearImagen("Icono", slotObj.transform, Color.white);
                 EstirarSobrePadre(icono.GetComponent<RectTransform>(), 8f);
 
@@ -246,7 +224,6 @@ namespace SoltaLaPala.Inventory
             }
         }
 
-        // Canvas a pantalla completa que escala con la resolucion.
         private Canvas CrearCanvas()
         {
             GameObject objetoCanvas = new GameObject("CanvasInventario");
@@ -264,10 +241,8 @@ namespace SoltaLaPala.Inventory
             return canvas;
         }
 
-        // Un cuadrado: fondo + marco de seleccion + icono del item.
         private SlotInterfaz CrearSlot(Transform padre, int indice)
         {
-            // Los slots se cuentan desde la derecha, asi el slot 1 queda mas a la izquierda.
             int posicionDesdeDerecha = InventarioJugador.CantidadSlots - 1 - indice;
             float x = -margen.x - posicionDesdeDerecha * (tamanoSlot + separacion) - tamanoSlot * 0.5f;
             float y = margen.y + tamanoSlot * 0.5f;
@@ -275,7 +250,6 @@ namespace SoltaLaPala.Inventory
             GameObject fondo = CrearImagen($"Slot{indice + 1}", padre, colorFondo);
             AnclarAbajoDerecha(fondo.GetComponent<RectTransform>(), new Vector2(x, y), tamanoSlot);
 
-            // El marco vive debajo del icono y se enciende/apaga segun la seleccion.
             GameObject marco = CrearImagen("Marco", fondo.transform, colorSeleccion);
             EstirarSobrePadre(marco.GetComponent<RectTransform>(), -4f);
             marco.transform.SetAsFirstSibling();
@@ -291,7 +265,6 @@ namespace SoltaLaPala.Inventory
             return new SlotInterfaz { icono = imagenIcono, marcoSeleccion = marco };
         }
 
-        // GameObject con un Image del color indicado.
         private static GameObject CrearImagen(string nombre, Transform padre, Color color)
         {
             GameObject objeto = new GameObject(nombre);
@@ -300,7 +273,6 @@ namespace SoltaLaPala.Inventory
             return objeto;
         }
 
-        // Ancla el rect a la esquina inferior derecha de la pantalla.
         private static void AnclarAbajoDerecha(RectTransform rect, Vector2 posicion, float lado)
         {
             rect.anchorMin = new Vector2(1f, 0f);
@@ -310,8 +282,6 @@ namespace SoltaLaPala.Inventory
             rect.sizeDelta = new Vector2(lado, lado);
         }
 
-        // Hace que el rect ocupe todo el padre, con un margen interior.
-        // Un margen negativo lo hace mas grande que el padre (para el marco de seleccion).
         private static void EstirarSobrePadre(RectTransform rect, float margenInterior)
         {
             rect.anchorMin = Vector2.zero;
@@ -321,7 +291,6 @@ namespace SoltaLaPala.Inventory
         }
     }
 
-    // Un cuadrado individual del inventario: el icono del item y el marco de seleccion.
     [System.Serializable]
     public class SlotInterfaz
     {

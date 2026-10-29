@@ -7,13 +7,6 @@ using UnityEngine;
 
 namespace SoltaLaPala.Dialogue
 {
-    // Controla la conversacion activa: carga las lineas, las va pasando
-    // y bloquea al jugador mientras dura el dialogo.
-    // Con ESPACIO se completa la linea que se esta escribiendo o se pasa a la siguiente.
-    //
-    // Es tambien el que guarda el progreso de dialogo de todos los NPC: el estado
-    // vive repartido en cada DialogoNPC, pero si cada uno escribiera en el DTO por
-    // su cuenta se pisarian el mismo array.
     public class GestorDialogos : MonoBehaviour, IGuardable
     {
         public static GestorDialogos Instancia { get; private set; }
@@ -27,27 +20,19 @@ namespace SoltaLaPala.Dialogue
         private DialogoNPC npcActual;
         private TipoDialogo tipoActual;
 
-        // True si lo que se esta mostrando es una frase suelta y no un dialogo
-        // de archivo: al cerrarse no avisa al NPC ni avanza su estado.
         private bool fraseSuelta;
         private List<LineaDialogo> lineasActuales = new List<LineaDialogo>();
         private int indiceLinea;
 
-        // True mientras se esperan las respuestas de la linea actual: ESPACIO no
-        // avanza, hay que elegir una con el mouse o con los numeros.
         private bool esperandoRespuesta;
 
         private LineaDialogo LineaActual =>
             indiceLinea >= 0 && indiceLinea < lineasActuales.Count ? lineasActuales[indiceLinea] : null;
 
-        // True mientras hay una conversacion en marcha.
         public bool DialogoActivo { get; private set; }
 
-        // NPC con el que se esta hablando, o null si no hay dialogo. Lo consultan
-        // los NPC para saber si la conversacion es suya: los demas siguen a lo suyo.
         public DialogoNPC NpcActual => npcActual;
 
-        // Registra el singleton y busca referencias si no fueron asignadas.
         private void Awake()
         {
             if (Instancia != null && Instancia != this)
@@ -67,13 +52,10 @@ namespace SoltaLaPala.Dialogue
                 interactorJugador = FindFirstObjectByType<InteractorJugador>();
         }
 
-        // Si hay dialogo activo, lee la tecla de avance para saltar/avanzar.
         private void Update()
         {
             if (!DialogoActivo) return;
 
-            // Con un menu abierto (pausa, configuracion) no se avanza el dialogo:
-            // la misma tecla podria estar usandose para navegar la UI.
             if (GestorMenus.Instancia != null && GestorMenus.Instancia.HayMenuAbierto) return;
 
             if (esperandoRespuesta)
@@ -82,8 +64,6 @@ namespace SoltaLaPala.Dialogue
                 return;
             }
 
-            // Las respuestas aparecen recien cuando la frase termino de escribirse,
-            // para que el jugador lea antes de contestar.
             LineaDialogo linea = LineaActual;
             if (linea != null && linea.TieneOpciones && interfaz != null && !interfaz.Escribiendo)
             {
@@ -110,8 +90,6 @@ namespace SoltaLaPala.Dialogue
             interfaz.MostrarOpciones(textos, ElegirRespuesta);
         }
 
-        // 1..9 de la fila de numeros o del teclado numerico. Se leen fijas y no
-        // por ControlesJuego: son "elegir la opcion N", no una accion reasignable.
         private void LeerRespuestaPorTeclado()
         {
             LineaDialogo linea = LineaActual;
@@ -131,8 +109,6 @@ namespace SoltaLaPala.Dialogue
             }
         }
 
-        // Aplica la sospecha de la respuesta y sigue: con la reaccion del NPC si
-        // la tiene, o con la frase siguiente del archivo.
         private void ElegirRespuesta(int indice)
         {
             LineaDialogo linea = LineaActual;
@@ -145,8 +121,6 @@ namespace SoltaLaPala.Dialogue
             esperandoRespuesta = false;
             interfaz?.OcultarOpciones();
 
-            // La reaccion se mete como una frase mas, justo despues de esta, asi
-            // se escribe y se avanza con ESPACIO igual que el resto.
             if (!string.IsNullOrWhiteSpace(opcion.reaccion))
             {
                 lineasActuales.Insert(indiceLinea + 1, new LineaDialogo(opcion.reaccion));
@@ -154,13 +128,9 @@ namespace SoltaLaPala.Dialogue
 
             PasarALineaSiguiente();
 
-            // Al final: si la sospecha llega al tope, la pantalla de derrota tiene
-            // que quedar encima del dialogo y no al reves.
             EstadoPartida.Instancia?.CambiarSospecha(opcion.sospecha);
         }
 
-        // Empieza una conversacion: carga las lineas del NPC para ese tipo,
-        // bloquea movimiento e interaccion, abre el cuadro y muestra la primera linea.
         public void EmpezarDialogo(DialogoNPC npc, TipoDialogo tipo)
         {
             if (DialogoActivo || npc == null) return;
@@ -172,7 +142,6 @@ namespace SoltaLaPala.Dialogue
             lineasActuales = CargadorDialogos.CargarLineas(npc.id, tipo);
             if (lineasActuales == null || lineasActuales.Count == 0)
             {
-                // Si no hay líneas para ese tipo, intentar caer a Perpetuo si no es Perpetuo
                 if (tipo != TipoDialogo.Perpetuo)
                 {
                     tipoActual = TipoDialogo.Perpetuo;
@@ -201,14 +170,6 @@ namespace SoltaLaPala.Dialogue
             MostrarLinea(indiceLinea);
         }
 
-        // Suelta una frase concreta, sin leerla de un .txt.
-        //
-        // Lo usan las respuestas puntuales que dependen de lo que acaba de pasar
-        // (que le entregaste, por ejemplo) y que por eso no pueden vivir en un
-        // archivo de dialogo fijo.
-        //
-        // No toca el tipoActual del NPC: es un comentario, no un paso de la
-        // conversacion.
         public void MostrarFraseSuelta(DialogoNPC npc, string frase)
         {
             if (DialogoActivo || npc == null || string.IsNullOrWhiteSpace(frase))
@@ -219,9 +180,6 @@ namespace SoltaLaPala.Dialogue
             npcActual = npc;
             tipoActual = TipoDialogo.Perpetuo;
 
-            // Al cerrarse no se avisa al NPC: una frase suelta no debe mover su
-            // estado. Sin esto, el Perpetuo de arriba pisaria el tipo al que el
-            // NPC acaba de pasar (Charla, tras completar el encargo).
             fraseSuelta = true;
 
             lineasActuales = new List<LineaDialogo> { new LineaDialogo(frase) };
@@ -240,8 +198,6 @@ namespace SoltaLaPala.Dialogue
             MostrarLinea(indiceLinea);
         }
 
-        // Avanza a la siguiente linea. Si la linea actual todavia se esta escribiendo,
-        // la completa de golpe en vez de pasar. Si no quedan lineas, termina la conversacion.
         private void AvanzarDialogo()
         {
             if (interfaz != null && interfaz.Escribiendo)
@@ -250,7 +206,6 @@ namespace SoltaLaPala.Dialogue
                 return;
             }
 
-            // Con respuestas pendientes no se puede saltar: hay que elegir una.
             if (esperandoRespuesta)
             {
                 return;
@@ -272,7 +227,6 @@ namespace SoltaLaPala.Dialogue
             }
         }
 
-        // Manda la linea indicada a la interfaz para que la escriba.
         private void MostrarLinea(int indice)
         {
             if (indice >= 0 && indice < lineasActuales.Count && interfaz != null)
@@ -281,12 +235,6 @@ namespace SoltaLaPala.Dialogue
             }
         }
 
-        // Corta el dialogo en marcha sin avisar al NPC, como si fuera una frase
-        // suelta: ni avanza su estado ni lo marca como escuchado.
-        //
-        // Lo usa el reinicio de nivel: un dialogo de captura puede quedar abierto
-        // detras de la pantalla de derrota, y con el tiempo congelado por el
-        // dialogo el nivel nuevo arrancaria parado.
         public void CancelarDialogo()
         {
             if (!DialogoActivo)
@@ -298,8 +246,6 @@ namespace SoltaLaPala.Dialogue
             TerminarDialogo();
         }
 
-        // Cierra el cuadro, devuelve el control al jugador y avisa al NPC
-        // para que aplique la transicion de tipo de dialogo.
         private void TerminarDialogo()
         {
             DialogoActivo = false;
@@ -326,8 +272,6 @@ namespace SoltaLaPala.Dialogue
             fraseSuelta = false;
         }
 
-        // Bloquea o desbloquea movimiento, camara e interaccion del jugador,
-        // y libera el cursor del raton mientras dura el dialogo.
         private void BloquearJugador(bool bloqueado)
         {
             if (movimientoJugador != null)
@@ -340,21 +284,14 @@ namespace SoltaLaPala.Dialogue
                 interactorJugador.BloquearInteraccion(bloqueado);
             }
 
-            // La camara tiene que congelarse ademas del movimiento: si no, el raton
-            // que usas para elegir opciones del dialogo sigue girando la camara.
-            // BloquearCamara ya se encarga de liberar y recapturar el cursor.
             if (camaraJugador != null)
             {
                 camaraJugador.BloquearCamara(bloqueado);
             }
 
-            // Ademas del bloqueo directo se avisa por el contador estatico, que es
-            // lo que consulta la camara aunque este dialogo no tenga referencia a
-            // ella (o aparezca una camara nueva a mitad de conversacion).
             CamaraTerceraPersona.RegistrarUiAbierta(bloqueado);
         }
 
-        // Guarda el tipo de dialogo en el que quedo cada NPC, como "id:tipo".
         public void Capturar(DatosPartidaGuardada datos)
         {
             List<string> progreso = new List<string>();
@@ -372,8 +309,6 @@ namespace SoltaLaPala.Dialogue
 
         public void Restaurar(DatosPartidaGuardada datos)
         {
-            // Si habia un dialogo abierto al guardar, cargar no debe dejar al
-            // jugador bloqueado hablando con nadie.
             if (DialogoActivo)
             {
                 TerminarDialogo();
@@ -384,8 +319,6 @@ namespace SoltaLaPala.Dialogue
                 return;
             }
 
-            // Se indexa el guardado y no los NPC: hay pocos de cada, pero asi un
-            // id que ya no exista en la escena simplemente se ignora.
             Dictionary<string, TipoDialogo> porId = new Dictionary<string, TipoDialogo>();
 
             foreach (string entrada in datos.progresoDialogos)
@@ -399,8 +332,6 @@ namespace SoltaLaPala.Dialogue
                 string id = entrada.Substring(0, separador);
                 string tipoTexto = entrada.Substring(separador + 1);
 
-                // Un tipo que ya no existe en el enum no tumba la carga: ese NPC
-                // se queda con el que tenga puesto en la escena.
                 if (System.Enum.TryParse(tipoTexto, out TipoDialogo tipo))
                 {
                     porId[id] = tipo;
@@ -416,8 +347,6 @@ namespace SoltaLaPala.Dialogue
 
                 npc.tipoActual = tipo;
 
-                // Un NPC con encargo que ya no esta en Mision es uno al que ya le
-                // entregaste: sin esto podrias volver a cobrar la recompensa.
                 if (tipo != TipoDialogo.Mision)
                 {
                     npc.GetComponent<MisionEntrega>()?.MarcarComoCompletada();
@@ -425,8 +354,6 @@ namespace SoltaLaPala.Dialogue
             }
         }
 
-        // Incluye los inactivos: un NPC puede estar desactivado al guardar y su
-        // progreso sigue importando.
         private static DialogoNPC[] BuscarNPCs()
         {
             return FindObjectsByType<DialogoNPC>(FindObjectsInactive.Include, FindObjectsSortMode.None);

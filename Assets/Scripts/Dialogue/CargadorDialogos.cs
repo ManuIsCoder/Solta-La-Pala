@@ -3,17 +3,13 @@ using UnityEngine;
 
 namespace SoltaLaPala.Dialogue
 {
-    // Una opcion de respuesta del jugador.
     public class OpcionDialogo
     {
         public string texto;
-        // Cuanto cambia la sospecha al elegirla: positivo sube, negativo baja.
         public int sospecha;
-        // Lo que contesta el NPC a esta opcion. Vacio = sigue con la frase siguiente.
         public string reaccion;
     }
 
-    // Una frase del NPC y, si las tiene, las respuestas que puede elegir el jugador.
     public class LineaDialogo
     {
         public string texto;
@@ -27,45 +23,25 @@ namespace SoltaLaPala.Dialogue
         }
     }
 
-    // Carga los .txt de dialogo desde Resources siguiendo la ruta
-    // Nivel/Dialogos/{PJ}/{Tipo}.txt (ej: Nivel/Dialogos/Compañero/Charla.txt).
-    //
-    // Formato:
-    //   - Cada linea no vacia es una frase del NPC.
-    //   - Las que empiezan por # son comentarios.
-    //   - Las que empiezan por > son respuestas del jugador a la frase de arriba:
-    //       > Texto de la respuesta | sospecha | reaccion del NPC
-    //     La sospecha es un entero (+10 sube, -5 baja, 0 no cambia) y la reaccion
-    //     es opcional. Ejemplo:
-    //       ¿Viste la maquina de cafe? Sabe horrible hoy.
-    //       > Si, un asco. | 0
-    //       > Capaz alguien le echo algo... | +10 | ¿Y vos como sabes eso?
     public static class CargadorDialogos
     {
-        // Carpeta raiz dentro de Resources donde viven todos los dialogos.
         public const string CarpetaRaiz = "Nivel/Dialogos";
 
         private const string PrefijoComentario = "#";
         private const string PrefijoOpcion = ">";
         private const char SeparadorOpcion = '|';
 
-        // Construye la ruta de Resources para un NPC y un tipo de dialogo.
-        // Ojo: sin extension, porque Resources.Load no la lleva
         public static string ConstruirRuta(string idNpc, TipoDialogo tipo)
         {
             return $"{CarpetaRaiz}/{idNpc}/{tipo}";
         }
 
-        // True si ese NPC tiene archivo para ese tipo de dialogo.
-        // Sirve para decidir a que tipo se pasa cuando se acaba el actual.
         public static bool TieneDialogo(string idNpc, TipoDialogo tipo)
         {
             string ruta = ConstruirRuta(idNpc, tipo);
             return Resources.Load<TextAsset>(ruta) != null;
         }
 
-        // Lee el .txt del tipo indicado para ese NPC y devuelve sus frases con
-        // sus respuestas. Devuelve una lista vacia si el archivo no existe.
         public static List<LineaDialogo> CargarLineas(string idNpc, TipoDialogo tipo)
         {
             string ruta = ConstruirRuta(idNpc, tipo);
@@ -114,8 +90,6 @@ namespace SoltaLaPala.Dialogue
             return lineas;
         }
 
-        // "Texto | +10 | Reaccion" -> OpcionDialogo. La sospecha y la reaccion
-        // son opcionales; una sospecha mal escrita cuenta como 0 y se avisa.
         private static OpcionDialogo InterpretarOpcion(string contenido, string ruta)
         {
             string[] partes = contenido.Split(SeparadorOpcion);

@@ -1,25 +1,16 @@
 using SoltaLaPala.Dialogue;
 using SoltaLaPala.Guardado;
 using SoltaLaPala.Inventory;
+using SoltaLaPala.Personajes;
 using UnityEngine;
 
 namespace SoltaLaPala.Menus
 {
-    // Crea el GestorMenus, el EstadoPartida y los objetos del guardado al arrancar
-    // el juego, sin tener que acordarse de ponerlos a mano en cada escena.
-    //
-    // Si ya hay uno puesto en la escena (con ajustes propios en el inspector),
-    // este arranque lo respeta y no crea nada.
     public static class ArranqueMenus
     {
-        // AfterSceneLoad corre cuando los objetos de la escena ya existen (asi se
-        // puede comprobar si el gestor ya estaba puesto a mano) pero antes del
-        // primer Start, que es cuando el gestor abre el menu principal.
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void Arrancar()
         {
-            // Antes que GestorMenus: tiene que estar escuchando cuando el gestor
-            // abra el menu principal.
             if (Object.FindAnyObjectByType<GestorMusica>() == null)
             {
                 GameObject objeto = new GameObject("GestorMusica");
@@ -38,8 +29,6 @@ namespace SoltaLaPala.Menus
                 objeto.AddComponent<EstadoPartida>();
             }
 
-            // Los dos van juntos y antes de cualquier Start: el menu principal
-            // consulta el guardado en cuanto se abre.
             if (Object.FindAnyObjectByType<GestorGuardado>() == null)
             {
                 GameObject objeto = new GameObject("GestorGuardado");
@@ -100,11 +89,25 @@ namespace SoltaLaPala.Menus
                 objeto.AddComponent<SoltaLaPala.Sabotaje.MenuSabotajeTaza>();
             }
 
+            AsegurarModeloJugador();
             AsegurarInventario();
         }
 
-        // El inventario vive en el jugador, no en un objeto suelto: necesita su
-        // transform para colgar el ancla de la mano.
+        private static void AsegurarModeloJugador()
+        {
+            GameObject jugador = GameObject.FindGameObjectWithTag("Player");
+            if (jugador == null || jugador.GetComponent<ModeloPersonaje>() != null)
+            {
+                return;
+            }
+
+            GameObject prefab = Resources.Load<GameObject>("Personajes/Jugador");
+            if (prefab != null)
+            {
+                jugador.AddComponent<ModeloPersonaje>().Asignar(prefab);
+            }
+        }
+
         private static void AsegurarInventario()
         {
             if (Object.FindAnyObjectByType<InventarioJugador>() == null)
@@ -122,7 +125,6 @@ namespace SoltaLaPala.Menus
                 }
             }
 
-            // La UI si es independiente: se busca sola el inventario de la escena.
             if (Object.FindAnyObjectByType<InterfazInventario>() == null)
             {
                 GameObject objeto = new GameObject("InterfazInventario");
