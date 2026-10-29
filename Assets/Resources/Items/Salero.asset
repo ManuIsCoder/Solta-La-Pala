@@ -15,6 +15,6 @@ MonoBehaviour:
   id: Salero
   nombre: Salero
   icono: {fileID: 21300000, guid: 541515a7a630471a848dc38659151fc8, type: 3}
-  prefabEnMano: {fileID: 0}
+  prefabEnMano: {fileID: 919132149155446097, guid: 160f450f41b9ffe42abbd8cde3d290f0, type: 3}
   descripcion: Salero de mesa. Para arruinarle el cafe a tus companeros.
   esSospechoso: 1
