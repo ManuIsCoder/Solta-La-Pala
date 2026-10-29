@@ -2105,6 +2105,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 880000002}
+  - {fileID: 960000002}
   - {fileID: 301223265}
   - {fileID: 1752432441}
   - {fileID: 1826029343}
@@ -11473,6 +11474,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 770000002}
+  - {fileID: 950000002}
   - {fileID: 1544636727}
   - {fileID: 1539975875}
   m_Father: {fileID: 0}
@@ -12404,3 +12406,273 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "✕ Salir"
+--- !u!1 &950000001
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 950000002}
+  - component: {fileID: 950000003}
+  - component: {fileID: 950000004}
+  - component: {fileID: 950000005}
+  m_Layer: 5
+  m_Name: PanelMinijuegoRedactarDocumento
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!224 &950000002
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 950000001}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2141772953}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 1150, y: 748}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &950000003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 950000001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a12b34c5d6e7f8a9b0c1d2e3f4a5b6c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SoltaLaPala.Minijuegos.MinijuegoRedactarDocumento
+  panelRaiz: {fileID: 950000001}
+  herramientaActual: 0
+  spriteFondoEscritorio: {fileID: 21300000, guid: 990665278254f134f873d4384c39fcee, type: 3}
+  spritePapelBlanco: {fileID: 21300000, guid: ddb8251b0c625564eb8a7c78c824d636, type: 3}
+  texturaReporte: {fileID: 2800000, guid: 3a3f9661e83a6e54ea27d073bffd8a99, type: 3}
+  texturaDibujo: {fileID: 2800000, guid: c18604dd104b47945ac08908906e95ff, type: 3}
+  imagenFondoEscritorio: {fileID: 0}
+  imagenPapelFondo: {fileID: 0}
+  rawImageRevelado: {fileID: 0}
+  rectTransformPapel: {fileID: 0}
+  spriteBirome: {fileID: 21300000, guid: 4c4f6031c18aaa24c98803923e2bfa84, type: 3}
+  spriteCrayola: {fileID: 21300000, guid: b8a5c75585e3b66449ad59944a3f3752, type: 3}
+  spriteIconoDocumento: {fileID: 21300000, guid: d05e106648aff724b8bd13e8259007cb, type: 3}
+  spriteIconoDibujo: {fileID: 21300000, guid: 79845842e9f471c4b8e9991806851601, type: 3}
+  botonBirome: {fileID: 0}
+  botonCrayola: {fileID: 0}
+  marcoSeleccionBirome: {fileID: 0}
+  marcoSeleccionCrayola: {fileID: 0}
+  textoHerramientaActiva: {fileID: 0}
+  cursorHerramienta: {fileID: 0}
+  rectCursor: {fileID: 0}
+  barraProgreso: {fileID: 0}
+  textoProgreso: {fileID: 0}
+  textoInstrucciones: {fileID: 0}
+  botonSalir: {fileID: 0}
+  ventanaPopup: {fileID: 0}
+  textoTituloVentana: {fileID: 0}
+  textoMensajeVentana: {fileID: 0}
+  botonAceptarVentana: {fileID: 0}
+  fondoBarraTituloVentana: {fileID: 0}
+  iconoVentanaResultado: {fileID: 0}
+  idBirome: Birome
+  idCrayolas: Crayolas
+  idDocumento: Documento
+  idDibujo: Dibujo
+  modoPrueba: 1
+  porcentajeParaCompletar: 0.6
+  radioBirome: 22
+  radioCrayola: 32
+--- !u!222 &950000004
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 950000001}
+  m_CullTransparentMesh: 1
+--- !u!114 &950000005
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 950000001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: 990665278254f134f873d4384c39fcee, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!1 &960000001
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 960000002}
+  - component: {fileID: 960000003}
+  - component: {fileID: 960000004}
+  - component: {fileID: 960000005}
+  - component: {fileID: 960000006}
+  - component: {fileID: 960000007}
+  m_Layer: 0
+  m_Name: HojaInteractuable
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &960000002
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 960000001}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.65, y: 1.05, z: -6.5}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 365783570}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!33 &960000003
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 960000001}
+  m_Mesh: {fileID: 4300000, guid: ff4ed0b91eb4ad14d99c7d35b549b81b, type: 3}
+--- !u!23 &960000004
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 960000001}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: c82c79de228ee2c40b22d20ec3c459a3, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_MaskInteraction: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!65 &960000005
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 960000001}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.25, y: 0.02, z: 0.35}
+  m_Center: {x: 0, y: 0.01, z: 0}
+--- !u!114 &960000006
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 960000001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e32406c235fd1e4c81c9ab3ba4cd9ae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SoltaLaPala.Interaction.ResaltadoInteractuable
+  colorSilueta: {r: 1, g: 1, b: 1, a: 1}
+  grosor: 0.025
+  renderers: []
+--- !u!114 &960000007
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 960000001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b23c45d6e7f8a9b0c1d2e3f4a5b6c7d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SoltaLaPala.Minijuegos.HojaInteractuable
+  estado: 0
+  minijuego: {fileID: 950000003}
