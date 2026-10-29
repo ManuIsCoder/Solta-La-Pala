@@ -109,6 +109,16 @@ namespace SoltaLaPala.Menus
             ReiniciarDialogos();
             ReiniciarNpcs();
             ReiniciarJugador();
+            ReiniciarMinijuegos();
+        }
+
+        private static void ReiniciarMinijuegos()
+        {
+            foreach (MinijuegoBase minijuego in
+                     FindObjectsByType<MinijuegoBase>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+            {
+                minijuego.Reiniciar();
+            }
         }
 
         // Los NPC vuelven a su sitio, sin vigilar y con la ruta desde el principio.

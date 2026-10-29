@@ -135,6 +135,56 @@ namespace SoltaLaPala.Minijuegos
             ActualizarTextos();
         }
 
+        private void OnEnable()
+        {
+            if (EstadoPartida.Instancia != null)
+            {
+                EstadoPartida.Instancia.AlEmpezarNivel += Reiniciar;
+            }
+        }
+
+        private void OnDisable()
+        {
+            if (EstadoPartida.Instancia != null)
+            {
+                EstadoPartida.Instancia.AlEmpezarNivel -= Reiniciar;
+            }
+        }
+
+        // Reinicia por completo la computadora al reiniciar el nivel.
+        public override void Reiniciar()
+        {
+            minijuegoTerminado = false;
+            yaInicializado = false;
+            sabotajeCometido = false;
+            archivosIndebidosBorrados = 0;
+            mensajeVentanaFinal = "";
+            resultadoExito = false;
+
+            StopAllCoroutines();
+            corrutinaPapelera = null;
+
+            if (zonaPapelera != null)
+            {
+                zonaPapelera.localScale = escalaOriginalPapelera;
+                zonaPapelera.localEulerAngles = Vector3.zero;
+            }
+
+            if (ventanaPopup != null)
+            {
+                ventanaPopup.SetActive(false);
+            }
+
+            if (panelRaiz != null)
+            {
+                panelRaiz.SetActive(false);
+            }
+
+            LimpiarInstanciasArchivos();
+            GenerarArchivosEnEscritorio();
+            ActualizarTextos();
+        }
+
         private void Update()
         {
             if (Input.GetKeyDown(KeyCode.Escape))
