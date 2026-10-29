@@ -445,12 +445,12 @@ namespace SoltaLaPala.Editor
             txtSalir.color = Color.white;
             txtSalir.text = "✕ Salir (Esc)";
 
-            // 4. Cursor flotante
+            // 4. Cursor flotante (centrado exactamente en el puntero del ratón)
             GameObject objCursor = new GameObject("CursorHerramienta", typeof(RectTransform), typeof(Image));
             objCursor.transform.SetParent(panelRaiz.transform, false);
             RectTransform rtCursor = objCursor.GetComponent<RectTransform>();
             rtCursor.sizeDelta = new Vector2(40, 40);
-            rtCursor.pivot = new Vector2(0f, 1f);
+            rtCursor.pivot = new Vector2(0.5f, 0.5f);
             Image imgCursor = objCursor.GetComponent<Image>();
             imgCursor.sprite = spBirome;
             imgCursor.raycastTarget = false;

@@ -7,6 +7,7 @@ namespace SoltaLaPala.Minijuegos
     /// <summary>
     /// Interactuable para la hoja de papel donde se redactan documentos (Nivel 3).
     /// Posee un switch de estado ("Activado" / "Desactivado") editable desde el Inspector.
+    /// Requiere que el jugador tenga la Birome o las Crayolas en el inventario para poder interactuar.
     /// </summary>
     [RequireComponent(typeof(ResaltadoInteractuable))]
     public class HojaInteractuable : MonoBehaviour, IInteractuable
@@ -25,28 +26,57 @@ namespace SoltaLaPala.Minijuegos
         [Tooltip("Minijuego de redactar documento")]
         public MinijuegoRedactarDocumento minijuego;
 
+        [Header("IDs de ítems necesarios")]
+        public string idBirome = "Birome";
+        public string idCrayolas = "Crayolas";
+
         public Transform Transform => transform;
+
+        private bool JugadorTieneItemNecesario(GameObject quien)
+        {
+            if (minijuego != null && minijuego.modoPrueba) return true;
+
+            var jugador = quien != null ? quien : GameObject.FindGameObjectWithTag("Player");
+            if (jugador == null) return false;
+
+            var inv = jugador.GetComponent<InventarioJugador>();
+            if (inv == null) return false;
+
+            return inv.TieneItem(idBirome) || inv.TieneItem(idCrayolas);
+        }
 
         public string ObtenerTextoInteraccion()
         {
             if (estado == EstadoSwitch.Desactivado)
                 return string.Empty;
 
+            if (!JugadorTieneItemNecesario(null))
+            {
+                return "[E] Redactar documento (Requiere Birome o Crayolas)";
+            }
+
             return "[E] Redactar documento";
         }
 
         public bool PuedeInteractuar()
         {
-            return estado == EstadoSwitch.Activado
-                && GestorMinijuego.Instancia != null
-                && !GestorMinijuego.Instancia.MinijuegoActivo;
+            if (estado != EstadoSwitch.Activado) return false;
+            if (GestorMinijuego.Instancia == null || GestorMinijuego.Instancia.MinijuegoActivo) return false;
+
+            return JugadorTieneItemNecesario(null);
         }
 
         public void Interactuar(GameObject quienInteractua)
         {
             if (estado == EstadoSwitch.Desactivado) return;
 
-            var inv = quienInteractua.GetComponent<InventarioJugador>();
+            if (!JugadorTieneItemNecesario(quienInteractua))
+            {
+                Debug.LogWarning("[HojaInteractuable] No tienes Birome ni Crayolas en el inventario.");
+                return;
+            }
+
+            var inv = quienInteractua != null ? quienInteractua.GetComponent<InventarioJugador>() : null;
 
             if (minijuego == null)
             {

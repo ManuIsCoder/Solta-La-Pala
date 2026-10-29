@@ -79,12 +79,10 @@ namespace SoltaLaPala.Minijuegos
         public string idDibujo = "Dibujo";
 
         [Header("Ajustes")]
-        [Tooltip("Permite probar el minijuego sin requerir tener birome o crayolas en el inventario")]
+        [Tooltip("Si es true, permite probar el minijuego sin requerir tener birome o crayolas en el inventario")]
         public bool modoPrueba = false;
-        [Range(0.3f, 0.95f)]
-        public float porcentajeParaCompletar = 0.60f;
-        public int radioBirome = 22;
-        public int radioCrayola = 32;
+        public int radioBirome = 24;
+        public int radioCrayola = 34;
 
         // Textura dinámica y mapa de revelado
         private const int AnchoTex = 400;
@@ -133,14 +131,17 @@ namespace SoltaLaPala.Minijuegos
                 return;
             }
 
-            // Seleccionar por defecto birome si está disponible, o ninguna
+            // Seleccionar automáticamente la herramienta disponible
+            bool puedeBirome = PuedeUsarHerramienta(HerramientaEscritura.Birome);
+            bool puedeCrayola = PuedeUsarHerramienta(HerramientaEscritura.Crayola);
+
             if (herramientaActual == HerramientaEscritura.Ninguna)
             {
-                if (PuedeUsarHerramienta(HerramientaEscritura.Birome))
+                if (puedeBirome)
                 {
                     SeleccionarHerramienta(HerramientaEscritura.Birome);
                 }
-                else if (PuedeUsarHerramienta(HerramientaEscritura.Crayola))
+                else if (puedeCrayola)
                 {
                     SeleccionarHerramienta(HerramientaEscritura.Crayola);
                 }
@@ -209,7 +210,7 @@ namespace SoltaLaPala.Minijuegos
         private bool PuedeUsarHerramienta(HerramientaEscritura herramienta)
         {
             if (modoPrueba) return true;
-            if (Inventario == null) return true;
+            if (Inventario == null) return false;
 
             switch (herramienta)
             {
@@ -232,6 +233,12 @@ namespace SoltaLaPala.Minijuegos
                 botonBirome.interactable = !minijuegoTerminado && puedeBirome;
                 botonBirome.onClick.RemoveAllListeners();
                 botonBirome.onClick.AddListener(() => SeleccionarHerramienta(HerramientaEscritura.Birome));
+
+                Text txt = botonBirome.GetComponentInChildren<Text>();
+                if (txt != null)
+                {
+                    txt.text = puedeBirome ? "Escribir con Birome" : "Birome (Falta en inventario)";
+                }
             }
 
             if (botonCrayola != null)
@@ -239,6 +246,12 @@ namespace SoltaLaPala.Minijuegos
                 botonCrayola.interactable = !minijuegoTerminado && puedeCrayola;
                 botonCrayola.onClick.RemoveAllListeners();
                 botonCrayola.onClick.AddListener(() => SeleccionarHerramienta(HerramientaEscritura.Crayola));
+
+                Text txt = botonCrayola.GetComponentInChildren<Text>();
+                if (txt != null)
+                {
+                    txt.text = puedeCrayola ? "Dibujar con Crayolas" : "Crayolas (Falta en inventario)";
+                }
             }
 
             ActualizarMarcosSeleccion();
@@ -247,6 +260,7 @@ namespace SoltaLaPala.Minijuegos
         public void SeleccionarHerramienta(HerramientaEscritura herramienta)
         {
             if (minijuegoTerminado) return;
+            if (!PuedeUsarHerramienta(herramienta)) return;
 
             herramientaActual = herramienta;
             ActualizarMarcosSeleccion();
@@ -385,7 +399,7 @@ namespace SoltaLaPala.Minijuegos
                 // Interpolar puntos para trazo continuo suave
                 Vector2 anterior = ultimaPosicionPixel.Value;
                 float dist = Vector2.Distance(anterior, posActual);
-                int pasos = Mathf.Max(1, Mathf.CeilToInt(dist / (radio * 0.4f)));
+                int pasos = Mathf.Max(1, Mathf.CeilToInt(dist / (radio * 0.35f)));
                 for (int i = 1; i <= pasos; i++)
                 {
                     Vector2 interp = Vector2.Lerp(anterior, posActual, (float)i / pasos);
@@ -403,16 +417,44 @@ namespace SoltaLaPala.Minijuegos
             VerificarProgreso();
         }
 
+        private Color ObtenerColorFuente(int x, int y, bool esCrayola)
+        {
+            if (esCrayola)
+            {
+                if (texturaDibujo == null) return Color.clear;
+
+                // El dibujo se escala a 0.60f y se centra en la hoja para que sea más pequeño
+                const float escala = 0.60f;
+                float normX = (float)x / AnchoTex;
+                float normY = (float)y / AltoTex;
+                float u = (normX - 0.5f) / escala + 0.5f;
+                float v = (normY - 0.5f) / escala + 0.5f;
+
+                if (u >= 0f && u <= 1f && v >= 0f && v <= 1f)
+                {
+                    return texturaDibujo.GetPixelBilinear(u, v);
+                }
+
+                return Color.clear;
+            }
+            else
+            {
+                if (texturaReporte == null) return Color.clear;
+
+                float u = (float)x / AnchoTex;
+                float v = (float)y / AltoTex;
+                return texturaReporte.GetPixelBilinear(u, v);
+            }
+        }
+
         private void EstamparRevelado(int centroX, int centroY, int radio)
         {
-            Texture2D texFuente = (herramientaActual == HerramientaEscritura.Crayola) ? texturaDibujo : texturaReporte;
-            if (texFuente == null) return;
-
             int radioSqr = radio * radio;
             int minX = Mathf.Max(0, centroX - radio);
             int maxX = Mathf.Min(AnchoTex - 1, centroX + radio);
             int minY = Mathf.Max(0, centroY - radio);
             int maxY = Mathf.Min(AltoTex - 1, centroY + radio);
+            bool esCrayola = (herramientaActual == HerramientaEscritura.Crayola);
 
             for (int y = minY; y <= maxY; y++)
             {
@@ -422,29 +464,27 @@ namespace SoltaLaPala.Minijuegos
                     int dx = x - centroX;
                     if (dx * dx + dy * dy <= radioSqr)
                     {
-                        float u = (float)x / AnchoTex;
-                        float v = (float)y / AltoTex;
-                        Color colFuente = texFuente.GetPixelBilinear(u, v);
+                        // Registrar píxel raspado/revelado
+                        if (!mapaRevelado[x, y])
+                        {
+                            mapaRevelado[x, y] = true;
+                            pixelesReveladosTotal++;
 
-                        // Si el píxel de origen tiene información visible
+                            if (esCrayola)
+                            {
+                                pixelesReveladosCrayola++;
+                            }
+                            else
+                            {
+                                pixelesReveladosBirome++;
+                            }
+                        }
+
+                        // Estampar color si hay información visual
+                        Color colFuente = ObtenerColorFuente(x, y, esCrayola);
                         if (colFuente.a > 0.05f)
                         {
                             texturaDinamica.SetPixel(x, y, colFuente);
-
-                            if (!mapaRevelado[x, y])
-                            {
-                                mapaRevelado[x, y] = true;
-                                pixelesReveladosTotal++;
-
-                                if (herramientaActual == HerramientaEscritura.Crayola)
-                                {
-                                    pixelesReveladosCrayola++;
-                                }
-                                else
-                                {
-                                    pixelesReveladosBirome++;
-                                }
-                            }
                         }
                     }
                 }
@@ -453,7 +493,9 @@ namespace SoltaLaPala.Minijuegos
 
         private void VerificarProgreso()
         {
-            float progreso = totalPixelesRelevantes > 0 ? (float)pixelesReveladosTotal / totalPixelesRelevantes : 0f;
+            // Calibrado: revelar el área principal redactable (~48% de la superficie total) equivale al 100% de la tarea
+            int objetivoPixeles = (int)(totalPixelesRelevantes * 0.48f);
+            float progreso = objetivoPixeles > 0 ? Mathf.Clamp01((float)pixelesReveladosTotal / objetivoPixeles) : 0f;
 
             if (barraProgreso != null)
             {
@@ -465,7 +507,7 @@ namespace SoltaLaPala.Minijuegos
                 textoProgreso.text = $"{Mathf.RoundToInt(progreso * 100f)}%";
             }
 
-            if (progreso >= porcentajeParaCompletar && !minijuegoTerminado)
+            if (progreso >= 1f && !minijuegoTerminado)
             {
                 FinalizarMinijuego();
             }
@@ -475,10 +517,9 @@ namespace SoltaLaPala.Minijuegos
         {
             minijuegoTerminado = true;
 
-            // Revelar completamente el arte correspondiente para un acabado impecable
+            // Revelar completamente el arte correspondiente para un acabado limpio y uniforme
             bool fueSabotaje = pixelesReveladosCrayola > 0;
-            Texture2D texFinal = fueSabotaje ? texturaDibujo : texturaReporte;
-            RevelarCompleto(texFinal);
+            RevelarCompleto(fueSabotaje);
 
             if (barraProgreso != null) barraProgreso.value = 1f;
             if (textoProgreso != null) textoProgreso.text = "100%";
@@ -498,7 +539,6 @@ namespace SoltaLaPala.Minijuegos
 
                 if (Inventario != null)
                 {
-                    // Consumir crayola si correspondiera o dar dibujo
                     Inventario.IntentarAgregarItem(Resources.Load<DatosItem>("Items/" + idDibujo));
                 }
 
@@ -526,17 +566,19 @@ namespace SoltaLaPala.Minijuegos
             ActualizarHUD();
         }
 
-        private void RevelarCompleto(Texture2D texFuente)
+        private void RevelarCompleto(bool fueSabotaje)
         {
-            if (texFuente == null || texturaDinamica == null) return;
+            if (texturaDinamica == null) return;
 
             for (int y = 0; y < AltoTex; y++)
             {
-                float v = (float)y / AltoTex;
                 for (int x = 0; x < AnchoTex; x++)
                 {
-                    float u = (float)x / AnchoTex;
-                    texturaDinamica.SetPixel(x, y, texFuente.GetPixelBilinear(u, v));
+                    Color col = ObtenerColorFuente(x, y, fueSabotaje);
+                    if (col.a > 0.05f)
+                    {
+                        texturaDinamica.SetPixel(x, y, col);
+                    }
                 }
             }
 
@@ -571,9 +613,12 @@ namespace SoltaLaPala.Minijuegos
 
             if (estaSobrePapel)
             {
+                // Centrado exacto del cursor sobre el punto del ratón
+                rectCursor.pivot = new Vector2(0.5f, 0.5f);
+
                 if (RectTransformUtility.ScreenPointToLocalPointInRectangle((RectTransform)cursorHerramienta.transform.parent, mousePos, cam, out Vector2 localPos))
                 {
-                    rectCursor.anchoredPosition = localPos + new Vector2(15f, -15f);
+                    rectCursor.anchoredPosition = localPos;
                 }
 
                 cursorHerramienta.sprite = (herramientaActual == HerramientaEscritura.Crayola) ? spriteCrayola : spriteBirome;
@@ -623,7 +668,8 @@ namespace SoltaLaPala.Minijuegos
                 }
             }
 
-            float progreso = totalPixelesRelevantes > 0 ? (float)pixelesReveladosTotal / totalPixelesRelevantes : 0f;
+            int objetivoPixeles = (int)(totalPixelesRelevantes * 0.48f);
+            float progreso = objetivoPixeles > 0 ? Mathf.Clamp01((float)pixelesReveladosTotal / objetivoPixeles) : 0f;
             if (barraProgreso != null) barraProgreso.value = progreso;
             if (textoProgreso != null) textoProgreso.text = $"{Mathf.RoundToInt(progreso * 100f)}%";
         }
@@ -953,12 +999,12 @@ namespace SoltaLaPala.Minijuegos
             txtSalir.color = Color.white;
             txtSalir.text = "Salir (Esc)";
 
-            // 4. Cursor flotante de herramienta
+            // 4. Cursor flotante de herramienta centrado
             GameObject objCursor = new GameObject("CursorHerramienta", typeof(RectTransform), typeof(Image));
             objCursor.transform.SetParent(contenedor, false);
             rectCursor = objCursor.GetComponent<RectTransform>();
             rectCursor.sizeDelta = new Vector2(36, 36);
-            rectCursor.pivot = new Vector2(0f, 1f);
+            rectCursor.pivot = new Vector2(0.5f, 0.5f);
             cursorHerramienta = objCursor.GetComponent<Image>();
             cursorHerramienta.raycastTarget = false;
             objCursor.SetActive(false);
