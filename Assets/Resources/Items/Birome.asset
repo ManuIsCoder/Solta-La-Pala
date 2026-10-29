@@ -15,6 +15,6 @@ MonoBehaviour:
   id: Birome
   nombre: Birome
   icono: {fileID: 21300000, guid: 4c4f6031c18aaa24c98803923e2bfa84, type: 3}
-  prefabEnMano: {fileID: 100000001, guid: bb11111111111111111111111111111b, type: 3}
+  prefabEnMano: {fileID: 764123300287644923, guid: bda5e56c97e05584896e38bc25cd48ae, type: 3}
   descripcion: Una lapicera estándar de oficina para firmar y redactar informes.
   esSospechoso: 0
