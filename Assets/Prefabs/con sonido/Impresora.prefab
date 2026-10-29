@@ -68,6 +68,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 099099b174811b346a214b478f3d9db7, type: 3}
       insertIndex: -1
       addedObject: {fileID: 8446289087386747389}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 099099b174811b346a214b478f3d9db7, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3661288223055800185}
   m_SourcePrefab: {fileID: 100100000, guid: 099099b174811b346a214b478f3d9db7, type: 3}
 --- !u!1 &1683809117423138758 stripped
 GameObject:
@@ -110,7 +113,7 @@ MonoBehaviour:
   modo: 1
   sonidos:
   - {fileID: 8300000, guid: 8c8b98388a0c03c418a56beed1ab77b0, type: 3}
-  volumen: 1
+  volumen: 0
   distanciaMinima: 2
   distanciaMaxima: 15
 --- !u!114 &3230827310934475379
@@ -141,3 +144,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SoltaLaPala.Sonido.InteractuableConSonido
   textoInteraccion: '[E] Usar impresora'
+--- !u!114 &3661288223055800185
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1683809117423138758}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 80f40a734a315ae4d938ed10eb0e3e83, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SoltaLaPala.Minijuegos.ImpresoraInteractuable
+  estado: 0
+  minijuego: {fileID: 0}
+  idInforme: Informe
+  idInformeAlternativo: Documento
+  idFotoChiqui: FotoChiqui
+  idFotoChiquiAlternativo: fotoChiqui
