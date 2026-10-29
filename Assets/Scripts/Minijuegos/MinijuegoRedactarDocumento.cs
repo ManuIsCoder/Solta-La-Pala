@@ -702,7 +702,7 @@ namespace SoltaLaPala.Minijuegos
             GameObject objTitulo = new GameObject("TextoTitulo", typeof(RectTransform), typeof(Text));
             objTitulo.transform.SetParent(objBarra.transform, false);
             RectTransform rtTitulo = objTitulo.GetComponent<RectTransform>();
-            ConstructorUI.Estirar(rtTitulo, 10, 0, 10, 0);
+            EstirarConMargenes(rtTitulo, 10, 0, 10, 0);
 
             textoTituloVentana = objTitulo.GetComponent<Text>();
             textoTituloVentana.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
@@ -813,7 +813,7 @@ namespace SoltaLaPala.Minijuegos
                 GameObject objRevelado = new GameObject("CapaRevelado", typeof(RectTransform), typeof(RawImage));
                 objRevelado.transform.SetParent(objPapel.transform, false);
                 RectTransform rtRev = objRevelado.GetComponent<RectTransform>();
-                ConstructorUI.Estirar(rtRev, 15, 15, 15, 15);
+                EstirarConMargenes(rtRev, 15, 15, 15, 15);
                 rawImageRevelado = objRevelado.GetComponent<RawImage>();
             }
 
@@ -982,7 +982,7 @@ namespace SoltaLaPala.Minijuegos
             GameObject objMarco = new GameObject("MarcoSeleccion", typeof(RectTransform), typeof(Image));
             objMarco.transform.SetParent(botonObj.transform, false);
             RectTransform rtMarco = objMarco.GetComponent<RectTransform>();
-            ConstructorUI.Estirar(rtMarco, -3, -3, -3, -3);
+            EstirarConMargenes(rtMarco, -3, -3, -3, -3);
             marco = objMarco.GetComponent<Image>();
             marco.color = new Color(0.3f, 0.8f, 1f, 0.6f);
             marco.enabled = false;
@@ -1007,7 +1007,7 @@ namespace SoltaLaPala.Minijuegos
             GameObject objTxt = new GameObject("Texto", typeof(RectTransform), typeof(Text));
             objTxt.transform.SetParent(botonObj.transform, false);
             RectTransform rtTxt = objTxt.GetComponent<RectTransform>();
-            ConstructorUI.Estirar(rtTxt, 48, 4, 8, 4);
+            EstirarConMargenes(rtTxt, 48, 4, 8, 4);
 
             Text txt = objTxt.GetComponent<Text>();
             txt.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
@@ -1018,6 +1018,15 @@ namespace SoltaLaPala.Minijuegos
             txt.text = texto;
 
             return botonObj;
+        }
+
+        private static void EstirarConMargenes(RectTransform rect, float izquierda, float abajo, float derecha, float arriba)
+        {
+            if (rect == null) return;
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            rect.offsetMin = new Vector2(izquierda, abajo);
+            rect.offsetMax = new Vector2(-derecha, -arriba);
         }
 
         #endregion

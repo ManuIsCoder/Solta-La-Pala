@@ -296,7 +296,7 @@ namespace SoltaLaPala.Editor
             GameObject objRev = new GameObject("CapaRevelado", typeof(RectTransform), typeof(RawImage));
             objRev.transform.SetParent(objPapel.transform, false);
             RectTransform rtRev = objRev.GetComponent<RectTransform>();
-            ConstructorUI.Estirar(rtRev, 20, 20, 20, 20);
+            EstirarConMargenes(rtRev, 20, 20, 20, 20);
             RawImage rawRev = objRev.GetComponent<RawImage>();
             script.rawImageRevelado = rawRev;
 
@@ -484,7 +484,7 @@ namespace SoltaLaPala.Editor
             GameObject objMarco = new GameObject("MarcoSeleccion", typeof(RectTransform), typeof(Image));
             objMarco.transform.SetParent(botonObj.transform, false);
             RectTransform rtMarco = objMarco.GetComponent<RectTransform>();
-            ConstructorUI.Estirar(rtMarco, -3, -3, -3, -3);
+            EstirarConMargenes(rtMarco, -3, -3, -3, -3);
             marco = objMarco.GetComponent<Image>();
             marco.color = new Color(0.35f, 0.82f, 1f, 0.75f);
             marco.enabled = false;
@@ -510,7 +510,7 @@ namespace SoltaLaPala.Editor
             GameObject objTxt = new GameObject("Texto", typeof(RectTransform), typeof(Text));
             objTxt.transform.SetParent(botonObj.transform, false);
             RectTransform rtTxt = objTxt.GetComponent<RectTransform>();
-            ConstructorUI.Estirar(rtTxt, 58, 4, 10, 4);
+            EstirarConMargenes(rtTxt, 58, 4, 10, 4);
 
             Text txt = objTxt.GetComponent<Text>();
             txt.font = ConstructorUI.Fuente;
@@ -521,6 +521,15 @@ namespace SoltaLaPala.Editor
             txt.text = texto;
 
             return botonObj;
+        }
+
+        private static void EstirarConMargenes(RectTransform rect, float izquierda, float abajo, float derecha, float arriba)
+        {
+            if (rect == null) return;
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            rect.offsetMin = new Vector2(izquierda, abajo);
+            rect.offsetMax = new Vector2(-derecha, -arriba);
         }
 
         private static void GenerarPrefabInteractuable(GameObject prefabPanelUI)
