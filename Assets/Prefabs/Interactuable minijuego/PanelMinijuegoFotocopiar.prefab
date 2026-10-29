@@ -1,0 +1,83 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &920000001
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 920000002}
+  - component: {fileID: 920000003}
+  m_Layer: 5
+  m_Name: PanelMinijuegoFotocopiar
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!224 &920000002
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 920000001}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 1150, y: 748}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &920000003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 920000001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 17f058131e9048c783f83b33fba4186f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SoltaLaPala.Minijuegos.MinijuegoFotocopiar
+  panelRaiz: {fileID: 920000001}
+  documentoEnBandeja: 0
+  idInforme: Informe
+  idInformeAlternativo: Documento
+  idFotoChiqui: FotoChiqui
+  idFotoChiquiAlternativo: fotoChiqui
+  idCarpetaResultado: Carpeta
+  spriteFondoComputadora: {fileID: 21300000, guid: 6a86ea81f8ff69a499f1caa83d54886a, type: 3}
+  spriteImpresora: {fileID: 21300000, guid: 37b90ef41142e054ba6c3ad404277742, type: 3}
+  spriteIconoInforme: {fileID: 21300000, guid: d05e106648aff724b8bd13e8259007cb, type: 3}
+  spriteIconoChiqui: {fileID: 21300000, guid: 76061a14a44c3034585c1b78e18fed95, type: 3}
+  imagenFondo: {fileID: 0}
+  imagenImpresoraVisual: {fileID: 0}
+  imagenDocumentoEnBandeja: {fileID: 0}
+  textoDocumentoEnBandeja: {fileID: 0}
+  textoInstrucciones: {fileID: 0}
+  textoEstadoProceso: {fileID: 0}
+  barraProgresoImpresion: {fileID: 0}
+  botonFotocopiar: {fileID: 0}
+  botonSalir: {fileID: 0}
+  botonSeleccionarInforme: {fileID: 0}
+  botonSeleccionarChiqui: {fileID: 0}
+  marcoSeleccionInforme: {fileID: 0}
+  marcoSeleccionChiqui: {fileID: 0}
+  audioSource: {fileID: 0}
+  clipImpresora: {fileID: 0}
+  ventanaPopup: {fileID: 0}
+  textoTituloVentana: {fileID: 0}
+  textoMensajeVentana: {fileID: 0}
+  botonAceptarVentana: {fileID: 0}
+  fondoBarraTituloVentana: {fileID: 0}
+  modoPrueba: 0
+  duracionFotocopiado: 2.8
