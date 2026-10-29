@@ -57,6 +57,13 @@ namespace SoltaLaPala.Minijuegos
         public Text textoInstrucciones;
         public Text textoContador;
 
+        [Header("UI - Ventana de Estado Final")]
+        public GameObject ventanaPopup;
+        public Text textoTituloVentana;
+        public Text textoMensajeVentana;
+        public Button botonAceptarVentana;
+        public Image fondoBarraTituloVentana;
+
         [Header("Ajustes")]
         [Tooltip("Permite jugar sin inventario ni restricciones")]
         public bool modoPrueba = false;
@@ -68,17 +75,21 @@ namespace SoltaLaPala.Minijuegos
         private Coroutine corrutinaPapelera;
         private Vector3 escalaOriginalPapelera = Vector3.one;
 
+        // Persistencia de estado
+        private bool yaInicializado = false;
+        private bool minijuegoTerminado = false;
+        private bool resultadoExito = false;
+        private string mensajeVentanaFinal = "";
+
         protected override void AlIniciar()
         {
-            sabotajeCometido = false;
-            archivosIndebidosBorrados = 0;
-
             if (panelRaiz == null)
             {
                 panelRaiz = gameObject;
             }
 
             ConstruirUIAutomaticaSiEsNecesario();
+            CrearVentanaPopupSiNoExiste();
 
             if (zonaPapelera != null)
             {
@@ -97,7 +108,30 @@ namespace SoltaLaPala.Minijuegos
                 botonSalir.onClick.AddListener(Salir);
             }
 
-            GenerarArchivosEnEscritorio();
+            // Si el minijuego ya fue completado o malogrado antes, no se reinicia:
+            // se muestra tal como quedo con su ventana de resultado.
+            if (minijuegoTerminado)
+            {
+                BloquearInteraccionesArchivos();
+                MostrarVentanaFinal(mensajeVentanaFinal, resultadoExito);
+                ActualizarTextos();
+                return;
+            }
+
+            // Si es la primera vez que se interactua, generamos los archivos
+            if (!yaInicializado)
+            {
+                yaInicializado = true;
+                sabotajeCometido = false;
+                archivosIndebidosBorrados = 0;
+                GenerarArchivosEnEscritorio();
+            }
+
+            if (ventanaPopup != null)
+            {
+                ventanaPopup.SetActive(false);
+            }
+
             ActualizarTextos();
         }
 
@@ -111,8 +145,7 @@ namespace SoltaLaPala.Minijuegos
 
         protected override void AlSalir()
         {
-            LimpiarInstanciasArchivos();
-
+            // NO destruimos instanciasArchivos para conservar los archivos en el escritorio
             if (corrutinaPapelera != null)
             {
                 StopCoroutine(corrutinaPapelera);
@@ -146,10 +179,10 @@ namespace SoltaLaPala.Minijuegos
             if (contenedorArchivos == null || listaArchivos == null) return;
 
             // Separamos la distribución:
-            // 1. Archivos indebidos (a borrar): Arriba a la izquierda.
-            // 2. Archivos de empresa (no borrar): Abajo a la izquierda.
+            // 1. Archivos indebidos (a borrar): Arriba a la izquierda (desplazados a la derecha).
+            // 2. Archivos de empresa (no borrar): Abajo a la izquierda (desplazados a la derecha).
             float espacioEntreIconos = 185f;
-            float margenIzquierdo = 125f;
+            float margenIzquierdo = 200f;
 
             int contadorBorrar = 0;
             int contadorEmpresa = 0;
@@ -226,6 +259,10 @@ namespace SoltaLaPala.Minijuegos
             if (archivo.Datos.esImportante)
             {
                 sabotajeCometido = true;
+                minijuegoTerminado = true;
+                resultadoExito = false;
+                mensajeVentanaFinal = "Base de datos de empresa perjudicada";
+
                 BloquearInteraccionesArchivos();
 
                 if (textoInstrucciones != null)
@@ -245,7 +282,7 @@ namespace SoltaLaPala.Minijuegos
                 }
 
                 Debug.LogWarning("[MinijuegoBorrarDatos] Minijuego malogrado: se borro un archivo de la empresa. Sospecha aumentada.");
-                StartCoroutine(CerrarConRetraso(1.6f));
+                MostrarVentanaFinal(mensajeVentanaFinal, resultadoExito);
                 return;
             }
 
@@ -256,6 +293,10 @@ namespace SoltaLaPala.Minijuegos
             // Si borra todos los archivos que debia borrar: GANA (reduce la sospecha)
             if (archivosIndebidosBorrados >= archivosIndebidosTotales && !sabotajeCometido)
             {
+                minijuegoTerminado = true;
+                resultadoExito = true;
+                mensajeVentanaFinal = "Limpieza de computadora terminada";
+
                 BloquearInteraccionesArchivos();
 
                 if (textoInstrucciones != null)
@@ -275,8 +316,128 @@ namespace SoltaLaPala.Minijuegos
                 }
 
                 Debug.Log("[MinijuegoBorrarDatos] ¡Minijuego ganado! Se limpio la PC y se redujo la sospecha.");
-                StartCoroutine(CerrarConRetraso(1.6f));
+                MostrarVentanaFinal(mensajeVentanaFinal, resultadoExito);
             }
+        }
+
+        public void MostrarVentanaFinal(string mensaje, bool exito)
+        {
+            CrearVentanaPopupSiNoExiste();
+
+            if (ventanaPopup != null)
+            {
+                ventanaPopup.SetActive(true);
+                ventanaPopup.transform.SetAsLastSibling();
+            }
+
+            if (textoMensajeVentana != null)
+            {
+                textoMensajeVentana.text = mensaje;
+            }
+
+            if (textoTituloVentana != null)
+            {
+                textoTituloVentana.text = exito ? "Aviso del Sistema" : "Alerta de Seguridad";
+            }
+
+            if (fondoBarraTituloVentana != null)
+            {
+                fondoBarraTituloVentana.color = exito
+                    ? new Color(0.12f, 0.45f, 0.24f, 1f)
+                    : new Color(0.65f, 0.15f, 0.15f, 1f);
+            }
+        }
+
+        private void CrearVentanaPopupSiNoExiste()
+        {
+            if (ventanaPopup != null) return;
+
+            Transform padre = panelRaiz != null ? panelRaiz.transform : transform;
+
+            // Ventana Marco Principal
+            ventanaPopup = new GameObject("VentanaResultado", typeof(RectTransform), typeof(Image));
+            ventanaPopup.transform.SetParent(padre, false);
+            RectTransform rtVentana = ventanaPopup.GetComponent<RectTransform>();
+            rtVentana.anchorMin = new Vector2(0.5f, 0.5f);
+            rtVentana.anchorMax = new Vector2(0.5f, 0.5f);
+            rtVentana.pivot = new Vector2(0.5f, 0.5f);
+            rtVentana.anchoredPosition = Vector2.zero;
+            rtVentana.sizeDelta = new Vector2(500f, 220f);
+
+            Image imgFondo = ventanaPopup.GetComponent<Image>();
+            imgFondo.color = new Color(0.13f, 0.15f, 0.20f, 0.98f);
+
+            // Barra de Titulo
+            GameObject objBarra = new GameObject("BarraTitulo", typeof(RectTransform), typeof(Image));
+            objBarra.transform.SetParent(ventanaPopup.transform, false);
+            RectTransform rtBarra = objBarra.GetComponent<RectTransform>();
+            rtBarra.anchorMin = new Vector2(0f, 1f);
+            rtBarra.anchorMax = new Vector2(1f, 1f);
+            rtBarra.pivot = new Vector2(0.5f, 1f);
+            rtBarra.anchoredPosition = Vector2.zero;
+            rtBarra.sizeDelta = new Vector2(0f, 38f);
+            fondoBarraTituloVentana = objBarra.GetComponent<Image>();
+            fondoBarraTituloVentana.color = new Color(0.18f, 0.22f, 0.32f, 1f);
+
+            // Texto Titulo
+            GameObject objTxtTit = new GameObject("Titulo", typeof(RectTransform), typeof(Text));
+            objTxtTit.transform.SetParent(objBarra.transform, false);
+            RectTransform rtTit = objTxtTit.GetComponent<RectTransform>();
+            rtTit.anchorMin = Vector2.zero;
+            rtTit.anchorMax = Vector2.one;
+            rtTit.offsetMin = new Vector2(15f, 0f);
+            rtTit.offsetMax = new Vector2(-15f, 0f);
+            textoTituloVentana = objTxtTit.GetComponent<Text>();
+            textoTituloVentana.font = ConstructorUI.Fuente;
+            textoTituloVentana.fontSize = 15;
+            textoTituloVentana.alignment = TextAnchor.MiddleLeft;
+            textoTituloVentana.color = Color.white;
+            textoTituloVentana.text = "Aviso del Sistema";
+
+            // Texto Mensaje Central
+            GameObject objTxtMsg = new GameObject("Mensaje", typeof(RectTransform), typeof(Text));
+            objTxtMsg.transform.SetParent(ventanaPopup.transform, false);
+            RectTransform rtMsg = objTxtMsg.GetComponent<RectTransform>();
+            rtMsg.anchorMin = new Vector2(0f, 0.3f);
+            rtMsg.anchorMax = new Vector2(1f, 0.85f);
+            rtMsg.offsetMin = new Vector2(20f, 0f);
+            rtMsg.offsetMax = new Vector2(-20f, 0f);
+            textoMensajeVentana = objTxtMsg.GetComponent<Text>();
+            textoMensajeVentana.font = ConstructorUI.Fuente;
+            textoMensajeVentana.fontSize = 18;
+            textoMensajeVentana.fontStyle = FontStyle.Bold;
+            textoMensajeVentana.alignment = TextAnchor.MiddleCenter;
+            textoMensajeVentana.color = Color.white;
+
+            // Boton Aceptar
+            GameObject objBtnAceptar = new GameObject("BotonAceptar", typeof(RectTransform), typeof(Image), typeof(Button));
+            objBtnAceptar.transform.SetParent(ventanaPopup.transform, false);
+            RectTransform rtBtn = objBtnAceptar.GetComponent<RectTransform>();
+            rtBtn.anchorMin = new Vector2(0.5f, 0f);
+            rtBtn.anchorMax = new Vector2(0.5f, 0f);
+            rtBtn.pivot = new Vector2(0.5f, 0f);
+            rtBtn.anchoredPosition = new Vector2(0f, 20f);
+            rtBtn.sizeDelta = new Vector2(140f, 38f);
+
+            Image imgBtn = objBtnAceptar.GetComponent<Image>();
+            imgBtn.color = new Color(0.24f, 0.28f, 0.38f, 1f);
+
+            botonAceptarVentana = objBtnAceptar.GetComponent<Button>();
+            botonAceptarVentana.colors = ConstructorUI.ColoresBoton();
+            botonAceptarVentana.onClick.RemoveAllListeners();
+            botonAceptarVentana.onClick.AddListener(Salir);
+
+            GameObject objTxtBtn = new GameObject("Txt", typeof(RectTransform), typeof(Text));
+            objTxtBtn.transform.SetParent(objBtnAceptar.transform, false);
+            ConstructorUI.Estirar(objTxtBtn.GetComponent<RectTransform>());
+            Text tBtn = objTxtBtn.GetComponent<Text>();
+            tBtn.font = ConstructorUI.Fuente;
+            tBtn.fontSize = 15;
+            tBtn.alignment = TextAnchor.MiddleCenter;
+            tBtn.color = Color.white;
+            tBtn.text = "Aceptar";
+
+            ventanaPopup.SetActive(false);
         }
 
         private void BloquearInteraccionesArchivos()
@@ -289,12 +450,6 @@ namespace SoltaLaPala.Minijuegos
                     if (cg != null) cg.blocksRaycasts = false;
                 }
             }
-        }
-
-        private IEnumerator CerrarConRetraso(float retraso)
-        {
-            yield return new WaitForSeconds(retraso);
-            Salir();
         }
 
         private IEnumerator AnimarSacudidaPapelera()
@@ -431,13 +586,13 @@ namespace SoltaLaPala.Minijuegos
                 }
             }
 
-            // Aseguramos que la papelera este claramente dentro de la pantalla a la derecha y con buen tamaño
+            // Aseguramos que la papelera este claramente dentro de la pantalla y desplazada 1.5 veces su ancho a la izquierda
             if (zonaPapelera != null)
             {
                 zonaPapelera.anchorMin = new Vector2(1f, 0.5f);
                 zonaPapelera.anchorMax = new Vector2(1f, 0.5f);
                 zonaPapelera.pivot = new Vector2(0.5f, 0.5f);
-                zonaPapelera.anchoredPosition = new Vector2(-150f, 0f);
+                zonaPapelera.anchoredPosition = new Vector2(-365f, 0f);
                 zonaPapelera.sizeDelta = new Vector2(145f, 145f);
             }
 

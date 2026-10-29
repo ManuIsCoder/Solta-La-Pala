@@ -207,8 +207,8 @@ namespace SoltaLaPala.Editor
             rtPapelera.anchorMin = new Vector2(1f, 0.5f);
             rtPapelera.anchorMax = new Vector2(1f, 0.5f);
             rtPapelera.pivot = new Vector2(0.5f, 0.5f);
-            rtPapelera.anchoredPosition = new Vector2(-150f, 0f);
-            rtPapelera.sizeDelta = new Vector2(140f, 140f);
+            rtPapelera.anchoredPosition = new Vector2(-365f, 0f);
+            rtPapelera.sizeDelta = new Vector2(145f, 145f);
 
             Image imgPapelera = objPapelera.GetComponent<Image>();
             Sprite spritePap = AssetDatabase.LoadAssetAtPath<Sprite>(RutaPapelera);
@@ -242,7 +242,7 @@ namespace SoltaLaPala.Editor
             rtTxtCont.anchorMin = new Vector2(1f, 0.5f);
             rtTxtCont.anchorMax = new Vector2(1f, 0.5f);
             rtTxtCont.pivot = new Vector2(0.5f, 0.5f);
-            rtTxtCont.anchoredPosition = new Vector2(-150f, -95f);
+            rtTxtCont.anchoredPosition = new Vector2(-365f, -95f);
             rtTxtCont.sizeDelta = new Vector2(180f, 50f);
             Text txtCont = objTextoContador.GetComponent<Text>();
             txtCont.font = ConstructorUI.Fuente;
