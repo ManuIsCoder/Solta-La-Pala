@@ -65,6 +65,10 @@ PrefabInstance:
       value: NPCMujer2
       objectReference: {fileID: 0}
     - target: {fileID: 5866666021909216657, guid: db8ae089b7283ff43947b8e3a8010c73, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 22100000, guid: e7132dde77919a14aa0bdb31f00d9a7b, type: 2}
+    - target: {fileID: 5866666021909216657, guid: db8ae089b7283ff43947b8e3a8010c73, type: 3}
       propertyPath: m_CullingMode
       value: 0
       objectReference: {fileID: 0}

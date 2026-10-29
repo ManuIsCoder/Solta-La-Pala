@@ -19,12 +19,13 @@ namespace SoltaLaPala.Personajes
         public bool estaSentado;
         [Tooltip("Velocidad (m/s) a la que la caminata se reproduce a ritmo normal.")]
         public float velocidadCaminata = 1.8f;
-        [Tooltip("Segundos que tarda el parametro Velocidad en alcanzar el valor real.")]
-        public float suavizado = 0.1f;
+        [Tooltip("Cuanto cambia por segundo el parametro Velocidad. Mas alto = pasa antes de caminar a reposo.")]
+        public float aceleracion = 8f;
 
         private Animator animator;
         private Transform referencia;
         private Vector3 posicionAnterior;
+        private float velocidadAnimada;
 
         public AnimationClip Clip(string nombre)
         {
@@ -37,6 +38,7 @@ namespace SoltaLaPala.Personajes
         {
             animator = GetComponent<Animator>();
             animator.applyRootMotion = false;
+            animator.updateMode = AnimatorUpdateMode.UnscaledTime;
             ActualizarReferencia();
         }
 
@@ -58,7 +60,7 @@ namespace SoltaLaPala.Personajes
                 ActualizarReferencia();
             }
 
-            float delta = Time.deltaTime;
+            float delta = Time.unscaledDeltaTime;
             if (delta <= 0f)
             {
                 return;
@@ -69,9 +71,11 @@ namespace SoltaLaPala.Personajes
             posicionAnterior = referencia.position;
             float velocidad = desplazamiento.magnitude / delta;
 
-            animator.SetFloat(ParamVelocidad, velocidad, suavizado, delta);
-            bool caminando = velocidad > 0.1f && velocidadCaminata > 0f;
-            animator.SetFloat(ParamRitmo, caminando ? Mathf.Clamp(velocidad / velocidadCaminata, 0.5f, 1.5f) : 1f);
+            velocidadAnimada = Mathf.MoveTowards(velocidadAnimada, velocidad, aceleracion * delta);
+            animator.SetFloat(ParamVelocidad, velocidadAnimada);
+
+            bool caminando = velocidadAnimada > 0.1f && velocidadCaminata > 0f;
+            animator.SetFloat(ParamRitmo, caminando ? Mathf.Clamp(velocidadAnimada / velocidadCaminata, 0.5f, 1.5f) : 1f);
             animator.SetBool(ParamSentado, estaSentado);
         }
     }
