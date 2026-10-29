@@ -148,8 +148,8 @@ namespace SoltaLaPala.Minijuegos
             // Separamos la distribución:
             // 1. Archivos indebidos (a borrar): Arriba a la izquierda.
             // 2. Archivos de empresa (no borrar): Abajo a la izquierda.
-            float espacioEntreIconos = 175f;
-            float margenIzquierdo = 110f;
+            float espacioEntreIconos = 185f;
+            float margenIzquierdo = 125f;
 
             int contadorBorrar = 0;
             int contadorEmpresa = 0;
@@ -176,7 +176,7 @@ namespace SoltaLaPala.Minijuegos
                     rt.anchorMin = new Vector2(0f, 1f);
                     rt.anchorMax = new Vector2(0f, 1f);
                     rt.pivot = new Vector2(0.5f, 0.5f);
-                    rt.anchoredPosition = new Vector2(margenIzquierdo + (contadorBorrar * espacioEntreIconos), -110f);
+                    rt.anchoredPosition = new Vector2(margenIzquierdo + (contadorBorrar * espacioEntreIconos), -125f);
                     contadorBorrar++;
                 }
                 else
@@ -185,7 +185,7 @@ namespace SoltaLaPala.Minijuegos
                     rt.anchorMin = new Vector2(0f, 0f);
                     rt.anchorMax = new Vector2(0f, 0f);
                     rt.pivot = new Vector2(0.5f, 0.5f);
-                    rt.anchoredPosition = new Vector2(margenIzquierdo + (contadorEmpresa * espacioEntreIconos), 115f);
+                    rt.anchoredPosition = new Vector2(margenIzquierdo + (contadorEmpresa * espacioEntreIconos), 125f);
                     contadorEmpresa++;
                 }
 
@@ -220,34 +220,81 @@ namespace SoltaLaPala.Minijuegos
             if (corrutinaPapelera != null) StopCoroutine(corrutinaPapelera);
             corrutinaPapelera = StartCoroutine(AnimarSacudidaPapelera());
 
+            instanciasArchivos.Remove(archivo);
+
+            // Si borra un solo dato "de la empresa": MALOGRA el minijuego de inmediato
             if (archivo.Datos.esImportante)
             {
                 sabotajeCometido = true;
+                BloquearInteraccionesArchivos();
+
                 if (textoInstrucciones != null)
                 {
-                    textoInstrucciones.text = $"<color=#FF5555>¡Eliminaste '{archivo.Datos.nombreArchivo}'! (Archivo de la empresa)</color>";
+                    textoInstrucciones.text = "<color=#FF4444><b>¡MALOGRASTE LA TAREA!</b> Borraste un archivo de la empresa.</color>";
                 }
-            }
-            else
-            {
-                archivosIndebidosBorrados++;
-                if (textoInstrucciones != null)
+
+                if (textoContador != null)
                 {
-                    textoInstrucciones.text = $"<color=#55FF88>Eliminado: {archivo.Datos.nombreArchivo}</color>";
+                    textoContador.text = "<color=#FF4444>¡TAREA FALLIDA!</color>";
                 }
+
+                // Malograr aumenta la sospecha
+                if (EstadoPartida.Instancia != null)
+                {
+                    EstadoPartida.Instancia.RegistrarSabotaje(0, 15);
+                }
+
+                Debug.LogWarning("[MinijuegoBorrarDatos] Minijuego malogrado: se borro un archivo de la empresa. Sospecha aumentada.");
+                StartCoroutine(CerrarConRetraso(1.6f));
+                return;
             }
 
-            instanciasArchivos.Remove(archivo);
+            // Archivo indebido eliminado
+            archivosIndebidosBorrados++;
             ActualizarTextos();
 
-            // Si se eliminaron todos los indebidos, se puede completar o habilitar cierre
-            if (archivosIndebidosBorrados >= archivosIndebidosTotales)
+            // Si borra todos los archivos que debia borrar: GANA (reduce la sospecha)
+            if (archivosIndebidosBorrados >= archivosIndebidosTotales && !sabotajeCometido)
             {
-                if (botonListo != null)
+                BloquearInteraccionesArchivos();
+
+                if (textoInstrucciones != null)
                 {
-                    botonListo.interactable = true;
+                    textoInstrucciones.text = "<color=#55FF88><b>¡GANASTE!</b> Archivos indebidos eliminados. Sospecha reducida.</color>";
+                }
+
+                if (textoContador != null)
+                {
+                    textoContador.text = "<color=#55FF88>¡COMPLETADO!</color>";
+                }
+
+                // Ganar resta a la barra de sospecha
+                if (EstadoPartida.Instancia != null)
+                {
+                    EstadoPartida.Instancia.ReducirSospecha(15);
+                }
+
+                Debug.Log("[MinijuegoBorrarDatos] ¡Minijuego ganado! Se limpio la PC y se redujo la sospecha.");
+                StartCoroutine(CerrarConRetraso(1.6f));
+            }
+        }
+
+        private void BloquearInteraccionesArchivos()
+        {
+            foreach (var inst in instanciasArchivos)
+            {
+                if (inst != null)
+                {
+                    var cg = inst.GetComponent<CanvasGroup>();
+                    if (cg != null) cg.blocksRaycasts = false;
                 }
             }
+        }
+
+        private IEnumerator CerrarConRetraso(float retraso)
+        {
+            yield return new WaitForSeconds(retraso);
+            Salir();
         }
 
         private IEnumerator AnimarSacudidaPapelera()
@@ -325,38 +372,37 @@ namespace SoltaLaPala.Minijuegos
             GameObject iconoObj = new GameObject("IconoArchivo", typeof(RectTransform), typeof(CanvasGroup));
             iconoObj.transform.SetParent(padre, false);
             RectTransform rt = iconoObj.GetComponent<RectTransform>();
-            rt.sizeDelta = new Vector2(150f, 150f);
+            rt.sizeDelta = new Vector2(130f, 130f);
 
-            // Imagen del icono (mas grande)
+            // Imagen del icono (mas grande y limpia, sin texto)
             GameObject imgObj = new GameObject("Imagen", typeof(RectTransform), typeof(Image));
             imgObj.transform.SetParent(iconoObj.transform, false);
             RectTransform imgRt = imgObj.GetComponent<RectTransform>();
-            imgRt.sizeDelta = new Vector2(110f, 110f);
-            imgRt.anchoredPosition = new Vector2(0f, 18f);
+            imgRt.sizeDelta = new Vector2(120f, 120f);
+            imgRt.anchoredPosition = Vector2.zero;
             Image img = imgObj.GetComponent<Image>();
             img.preserveAspect = true;
 
-            // Texto etiqueta
-            GameObject txtObj = new GameObject("Etiqueta", typeof(RectTransform), typeof(Text));
-            txtObj.transform.SetParent(iconoObj.transform, false);
-            RectTransform txtRt = txtObj.GetComponent<RectTransform>();
-            txtRt.sizeDelta = new Vector2(160f, 36f);
-            txtRt.anchoredPosition = new Vector2(0f, -48f);
-            Text txt = txtObj.GetComponent<Text>();
-            txt.font = ConstructorUI.Fuente;
-            txt.fontSize = 14;
-            txt.alignment = TextAnchor.UpperCenter;
-            txt.color = Color.white;
-
             ArchivoArrastrable arr = iconoObj.AddComponent<ArchivoArrastrable>();
             arr.imagenIcono = img;
-            arr.textoEtiqueta = txt;
+            arr.textoEtiqueta = null;
 
             return iconoObj;
         }
 
         private void ConstruirUIAutomaticaSiEsNecesario()
         {
+            // Agrandar la pantalla / fondo un 15%
+            RectTransform rtPanel = panelRaiz != null ? panelRaiz.GetComponent<RectTransform>() : GetComponent<RectTransform>();
+            if (rtPanel != null)
+            {
+                // Si tiene tamaño fijo (ej. 1000x650), lo escalamos un 15% -> 1150x748
+                if (rtPanel.anchorMin == rtPanel.anchorMax)
+                {
+                    rtPanel.sizeDelta = new Vector2(1150f, 748f);
+                }
+            }
+
             if (imagenFondo == null)
             {
                 Image[] imagenes = GetComponentsInChildren<Image>(true);
@@ -385,14 +431,50 @@ namespace SoltaLaPala.Minijuegos
                 }
             }
 
-            // Aseguramos que la papelera este claramente dentro de la pantalla y con buen tamaño
+            // Aseguramos que la papelera este claramente dentro de la pantalla a la derecha y con buen tamaño
             if (zonaPapelera != null)
             {
                 zonaPapelera.anchorMin = new Vector2(1f, 0.5f);
                 zonaPapelera.anchorMax = new Vector2(1f, 0.5f);
                 zonaPapelera.pivot = new Vector2(0.5f, 0.5f);
-                zonaPapelera.anchoredPosition = new Vector2(-130f, 0f);
-                zonaPapelera.sizeDelta = new Vector2(135f, 135f);
+                zonaPapelera.anchoredPosition = new Vector2(-150f, 0f);
+                zonaPapelera.sizeDelta = new Vector2(145f, 145f);
+            }
+
+            // Mejorar estilo del Boton Salir
+            if (botonSalir != null)
+            {
+                RectTransform rtSalir = botonSalir.GetComponent<RectTransform>();
+                if (rtSalir != null)
+                {
+                    rtSalir.anchorMin = new Vector2(1f, 1f);
+                    rtSalir.anchorMax = new Vector2(1f, 1f);
+                    rtSalir.pivot = new Vector2(1f, 1f);
+                    rtSalir.anchoredPosition = new Vector2(-25f, -25f);
+                    rtSalir.sizeDelta = new Vector2(110f, 40f);
+                }
+
+                Image imgSalir = botonSalir.GetComponent<Image>();
+                if (imgSalir != null)
+                {
+                    imgSalir.color = new Color(0.78f, 0.20f, 0.20f, 0.95f);
+                }
+
+                ColorBlock cb = botonSalir.colors;
+                cb.normalColor = Color.white;
+                cb.highlightedColor = new Color(1.25f, 1.25f, 1.25f, 1f);
+                cb.pressedColor = new Color(0.7f, 0.7f, 0.7f, 1f);
+                botonSalir.colors = cb;
+
+                Text txtSalir = botonSalir.GetComponentInChildren<Text>();
+                if (txtSalir != null)
+                {
+                    txtSalir.text = "✕ Salir";
+                    txtSalir.fontSize = 15;
+                    txtSalir.alignment = TextAnchor.MiddleCenter;
+                    txtSalir.color = Color.white;
+                    txtSalir.font = ConstructorUI.Fuente;
+                }
             }
 
             if (imagenPapelera != null && spritePapelera != null)

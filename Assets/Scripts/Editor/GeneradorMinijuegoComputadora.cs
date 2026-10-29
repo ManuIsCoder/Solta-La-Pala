@@ -251,17 +251,22 @@ namespace SoltaLaPala.Editor
             txtCont.color = new Color(0.9f, 0.9f, 0.9f, 1f);
             scriptMinijuego.textoContador = txtCont;
 
-            // Botón Salir / Cerrar [X]
+            // Botón Salir estilizado
             GameObject objBtnSalir = new GameObject("BotonSalir", typeof(RectTransform), typeof(Image), typeof(Button));
             objBtnSalir.transform.SetParent(panelRaiz.transform, false);
             RectTransform rtSalir = objBtnSalir.GetComponent<RectTransform>();
-            rtSalir.anchorMin = new Vector2(0.97f, 0.96f);
-            rtSalir.anchorMax = new Vector2(0.97f, 0.96f);
-            rtSalir.pivot = new Vector2(0.5f, 0.5f);
-            rtSalir.sizeDelta = new Vector2(40f, 40f);
-            objBtnSalir.GetComponent<Image>().color = new Color(0.85f, 0.25f, 0.25f, 1f);
+            rtSalir.anchorMin = new Vector2(1f, 1f);
+            rtSalir.anchorMax = new Vector2(1f, 1f);
+            rtSalir.pivot = new Vector2(1f, 1f);
+            rtSalir.anchoredPosition = new Vector2(-25f, -25f);
+            rtSalir.sizeDelta = new Vector2(110f, 40f);
+            objBtnSalir.GetComponent<Image>().color = new Color(0.78f, 0.20f, 0.20f, 0.95f);
             Button btnSalir = objBtnSalir.GetComponent<Button>();
-            btnSalir.colors = ConstructorUI.ColoresBoton();
+            ColorBlock cb = ConstructorUI.ColoresBoton();
+            cb.normalColor = Color.white;
+            cb.highlightedColor = new Color(1.25f, 1.25f, 1.25f, 1f);
+            cb.pressedColor = new Color(0.7f, 0.7f, 0.7f, 1f);
+            btnSalir.colors = cb;
             scriptMinijuego.botonSalir = btnSalir;
 
             GameObject objTxtSalir = new GameObject("Txt", typeof(RectTransform), typeof(Text));
@@ -269,9 +274,9 @@ namespace SoltaLaPala.Editor
             ConstructorUI.Estirar(objTxtSalir.GetComponent<RectTransform>());
             Text tSalir = objTxtSalir.GetComponent<Text>();
             tSalir.font = ConstructorUI.Fuente;
-            tSalir.fontSize = 20;
+            tSalir.fontSize = 15;
             tSalir.alignment = TextAnchor.MiddleCenter;
-            tSalir.text = "X";
+            tSalir.text = "✕ Salir";
             tSalir.color = Color.white;
 
             // Botón Listo
