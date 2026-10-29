@@ -873,6 +873,59 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 30e854d943a380c4db2de82fef6df46f, type: 3}
+--- !u!1001 &141258612
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1892210723475836, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_Name
+      value: Ceiling_SuspendedTiles_A (20)
+      objectReference: {fileID: 0}
+    - target: {fileID: 1892210723475836, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_RootOrder
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 337.22
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 2.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -245.17
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.0000000059624403
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
 --- !u!1001 &192627962
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -995,103 +1048,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e69ef27991a88d341b9993d124bf749e, type: 3}
---- !u!1 &202718200
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 202718201}
-  - component: {fileID: 202718202}
-  m_Layer: 0
-  m_Name: SuspLight_PointLight
-  m_TagString: LIGHTSOURCE
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 4294967295
-  m_IsActive: 1
---- !u!4 &202718201
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 202718200}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0.000000021855694, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -1.27, y: -0.233, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1512174269}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!108 &202718202
-Light:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 202718200}
-  m_Enabled: 1
-  serializedVersion: 13
-  m_Type: 2
-  m_Color: {r: 0.6964749, g: 0.8086356, b: 0.8308824, a: 1}
-  m_Intensity: 0.4
-  m_Range: 27.8
-  m_SpotAngle: 30
-  m_InnerSpotAngle: 21.80208
-  m_CookieSize2D: {x: 10, y: 10}
-  m_Shadows:
-    m_Type: 2
-    m_Resolution: 3
-    m_CustomResolution: -1
-    m_Strength: 0.41
-    m_Bias: 0.05
-    m_NormalBias: 0.24
-    m_NearPlane: 0.2
-    m_CullingMatrixOverride:
-      e00: 1
-      e01: 0
-      e02: 0
-      e03: 0
-      e10: 0
-      e11: 1
-      e12: 0
-      e13: 0
-      e20: 0
-      e21: 0
-      e22: 1
-      e23: 0
-      e30: 0
-      e31: 0
-      e32: 0
-      e33: 1
-    m_UseCullingMatrixOverride: 0
-  m_Cookie: {fileID: 0}
-  m_DrawHalo: 0
-  m_Flare: {fileID: 0}
-  m_RenderMode: 1
-  m_CullingMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_RenderingLayerMask: 1
-  m_Lightmapping: 4
-  m_LightShadowCasterMode: 0
-  m_AreaSize: {x: 1, y: 1}
-  m_BounceIntensity: 1
-  m_ColorTemperature: 6570
-  m_UseColorTemperature: 0
-  m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: 0}
-  m_UseBoundingSphereOverride: 0
-  m_UseViewFrustumForShadowCasterCull: 1
-  m_ForceVisible: 0
-  m_ShapeRadius: 0
-  m_ShadowAngle: 0
-  m_LightUnit: 1
-  m_LuxAtDistance: 1
-  m_EnableSpotReflector: 1
 --- !u!1001 &212753090
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1153,6 +1109,59 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7b1d1803697c3564d90193eec7ab0dff, type: 3}
+--- !u!1001 &218817314
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1450217925095700, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_Name
+      value: Ceiling_SuspendedTiles_WithLight_A (12)
+      objectReference: {fileID: 0}
+    - target: {fileID: 1450217925095700, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_RootOrder
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 337.22
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 2.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -254.16998
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.0000000059624403
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
 --- !u!1 &238943605
 GameObject:
   m_ObjectHideFlags: 0
@@ -1301,6 +1310,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -7511558181221131132, guid: 847fca0653caed044861a21151c7d9e4, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: d06cbe6bddb870d438765bf1f774411d, type: 2}
     - target: {fileID: 919132149155446097, guid: 847fca0653caed044861a21151c7d9e4, type: 3}
       propertyPath: m_Name
       value: floor
@@ -1310,6 +1323,59 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 847fca0653caed044861a21151c7d9e4, type: 3}
+--- !u!1001 &278159578
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1450217925095700, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_Name
+      value: Ceiling_SuspendedTiles_WithLight_A (4)
+      objectReference: {fileID: 0}
+    - target: {fileID: 1450217925095700, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_RootOrder
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 325.22
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 2.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -248.17
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.0000000059624403
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
 --- !u!1001 &307283882
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1896,6 +1962,165 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4c2b4033ea200a340bdf5dd2b0145174, type: 3}
+--- !u!1001 &439421728
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1892210723475836, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_Name
+      value: Ceiling_SuspendedTiles_A (24)
+      objectReference: {fileID: 0}
+    - target: {fileID: 1892210723475836, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_RootOrder
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 340.22
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 2.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -245.17
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.0000000059624403
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+--- !u!1001 &471346747
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1450217925095700, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_Name
+      value: Ceiling_SuspendedTiles_WithLight_A (8)
+      objectReference: {fileID: 0}
+    - target: {fileID: 1450217925095700, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_RootOrder
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 325.22
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 2.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -254.16998
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.0000000059624403
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+--- !u!1001 &477218621
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1892210723475836, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_Name
+      value: Ceiling_SuspendedTiles_A (21)
+      objectReference: {fileID: 0}
+    - target: {fileID: 1892210723475836, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 337.22
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 2.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -257.16998
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.0000000059624403
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
 --- !u!1001 &489915089
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2075,103 +2300,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 82027a8d5f69c104e824565dd49d0819, type: 3}
---- !u!1 &526395441
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 526395442}
-  - component: {fileID: 526395443}
-  m_Layer: 0
-  m_Name: SuspLight_PointLight
-  m_TagString: LIGHTSOURCE
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 4294967295
-  m_IsActive: 1
---- !u!4 &526395442
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 526395441}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0.000000021855694, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.233, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1931223156}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!108 &526395443
-Light:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 526395441}
-  m_Enabled: 1
-  serializedVersion: 13
-  m_Type: 2
-  m_Color: {r: 0.6964749, g: 0.8086356, b: 0.8308824, a: 1}
-  m_Intensity: 0.3
-  m_Range: 27.8
-  m_SpotAngle: 30
-  m_InnerSpotAngle: 21.80208
-  m_CookieSize2D: {x: 10, y: 10}
-  m_Shadows:
-    m_Type: 2
-    m_Resolution: 3
-    m_CustomResolution: -1
-    m_Strength: 0.41
-    m_Bias: 0.05
-    m_NormalBias: 0.24
-    m_NearPlane: 0.2
-    m_CullingMatrixOverride:
-      e00: 1
-      e01: 0
-      e02: 0
-      e03: 0
-      e10: 0
-      e11: 1
-      e12: 0
-      e13: 0
-      e20: 0
-      e21: 0
-      e22: 1
-      e23: 0
-      e30: 0
-      e31: 0
-      e32: 0
-      e33: 1
-    m_UseCullingMatrixOverride: 0
-  m_Cookie: {fileID: 0}
-  m_DrawHalo: 0
-  m_Flare: {fileID: 0}
-  m_RenderMode: 1
-  m_CullingMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_RenderingLayerMask: 1
-  m_Lightmapping: 4
-  m_LightShadowCasterMode: 0
-  m_AreaSize: {x: 1, y: 1}
-  m_BounceIntensity: 1
-  m_ColorTemperature: 6570
-  m_UseColorTemperature: 0
-  m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: 0}
-  m_UseBoundingSphereOverride: 0
-  m_UseViewFrustumForShadowCasterCull: 1
-  m_ForceVisible: 0
-  m_ShapeRadius: 0
-  m_ShadowAngle: 0
-  m_LightUnit: 1
-  m_LuxAtDistance: 1
-  m_EnableSpotReflector: 1
 --- !u!1001 &528927274
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2470,6 +2598,59 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.0735794, y: 0.035946865, z: 0.13661118}
   m_Center: {x: 0.00000011920929, y: 0.017973436, z: -0.000000014901161}
+--- !u!1001 &546577248
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1892210723475836, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_Name
+      value: Ceiling_SuspendedTiles_A (6)
+      objectReference: {fileID: 0}
+    - target: {fileID: 1892210723475836, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_RootOrder
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 331.22
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 2.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -245.17
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.0000000059624403
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
 --- !u!1 &547836925
 GameObject:
   m_ObjectHideFlags: 0
@@ -2567,6 +2748,59 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &571714903
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1450217925095700, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_Name
+      value: Ceiling_SuspendedTiles_WithLight_A (10)
+      objectReference: {fileID: 0}
+    - target: {fileID: 1450217925095700, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_RootOrder
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 331.22
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 2.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -254.16998
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.0000000059624403
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
 --- !u!1001 &573900645
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2624,6 +2858,59 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2b7a47e5f0e13b64681b2c67b400d6da, type: 3}
+--- !u!1001 &592343143
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1892210723475836, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_Name
+      value: Ceiling_SuspendedTiles_A (11)
+      objectReference: {fileID: 0}
+    - target: {fileID: 1892210723475836, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 331.22
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 2.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -257.16998
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.0000000059624403
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
 --- !u!1001 &639180850
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3692,7 +3979,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7087414558558558540, guid: a3862a85dc82a1e478bba0d9b5241d73, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -257
+      value: -256.981
       objectReference: {fileID: 0}
     - target: {fileID: 7087414558558558540, guid: a3862a85dc82a1e478bba0d9b5241d73, type: 3}
       propertyPath: m_LocalRotation.w
@@ -3792,6 +4079,59 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ffd84ed5789294d47ac95d8054ac98b5, type: 3}
+--- !u!1001 &846097497
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1892210723475836, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_Name
+      value: Ceiling_SuspendedTiles_A (10)
+      objectReference: {fileID: 0}
+    - target: {fileID: 1892210723475836, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 325.22
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 2.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -245.17
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.0000000059624403
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
 --- !u!1001 &894179344
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3861,6 +4201,59 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a11ad19ba4a6c8340b851cefb45a5d7f, type: 3}
+--- !u!1001 &906347902
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1892210723475836, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_Name
+      value: Ceiling_SuspendedTiles_A (5)
+      objectReference: {fileID: 0}
+    - target: {fileID: 1892210723475836, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_RootOrder
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 331.22
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 2.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -251.17
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.0000000059624403
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
 --- !u!1001 &907231270
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4219,6 +4612,59 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5aa21215e4a85e34382cf6c1da4c9785, type: 3}
+--- !u!1001 &942089096
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1892210723475836, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_Name
+      value: Ceiling_SuspendedTiles_A (14)
+      objectReference: {fileID: 0}
+    - target: {fileID: 1892210723475836, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 325.22
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 2.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -257.16998
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.0000000059624403
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
 --- !u!1001 &977108851
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4427,6 +4873,59 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ff89af52f6b8e9e47b794d082d7c46e4, type: 3}
+--- !u!1001 &997751875
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1892210723475836, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_Name
+      value: Ceiling_SuspendedTiles_A (17)
+      objectReference: {fileID: 0}
+    - target: {fileID: 1892210723475836, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 334.22
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 2.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -257.16998
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.0000000059624403
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
 --- !u!1001 &997936424
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4819,6 +5318,59 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ffd84ed5789294d47ac95d8054ac98b5, type: 3}
+--- !u!1001 &1113800447
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1892210723475836, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_Name
+      value: Ceiling_SuspendedTiles_A (22)
+      objectReference: {fileID: 0}
+    - target: {fileID: 1892210723475836, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_RootOrder
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 337.22
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 2.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -251.17
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.0000000059624403
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
 --- !u!1001 &1131467321
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5962,6 +6514,59 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b124f24a3d3ba8041962b406bfdfe1d3, type: 3}
+--- !u!1001 &1318925942
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1892210723475836, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_Name
+      value: Ceiling_SuspendedTiles_A (8)
+      objectReference: {fileID: 0}
+    - target: {fileID: 1892210723475836, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_RootOrder
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 331.22
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 2.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -248.17
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.0000000059624403
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
 --- !u!1001 &1322985786
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6770,6 +7375,59 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b27df68286aff9645bb16d1942d012bf, type: 3}
+--- !u!1001 &1452159248
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1892210723475836, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_Name
+      value: Ceiling_SuspendedTiles_A (13)
+      objectReference: {fileID: 0}
+    - target: {fileID: 1892210723475836, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 328.22
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 2.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -257.16998
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.0000000059624403
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
 --- !u!1001 &1465571991
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -7091,7 +7749,7 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d436a8e3df58e5a4391298b94206bb9a, type: 3}
---- !u!1001 &1512174268
+--- !u!1001 &1534324545
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -7099,59 +7757,51 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1642002852418864, guid: a12b534d6e16fde4c966e4680b4aaa4a, type: 3}
+    - target: {fileID: 1450217925095700, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
       propertyPath: m_Name
-      value: Light_SuspendedStripLight_A (5)
+      value: Ceiling_SuspendedTiles_WithLight_A (11)
       objectReference: {fileID: 0}
-    - target: {fileID: 1642002852418864, guid: a12b534d6e16fde4c966e4680b4aaa4a, type: 3}
+    - target: {fileID: 1450217925095700, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
       propertyPath: m_StaticEditorFlags
       value: 4294967295
       objectReference: {fileID: 0}
-    - target: {fileID: 4750376110463618, guid: a12b534d6e16fde4c966e4680b4aaa4a, type: 3}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
       propertyPath: m_RootOrder
-      value: 293
+      value: 1
       objectReference: {fileID: 0}
-    - target: {fileID: 4750376110463618, guid: a12b534d6e16fde4c966e4680b4aaa4a, type: 3}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 335.634
+      value: 334.22
       objectReference: {fileID: 0}
-    - target: {fileID: 4750376110463618, guid: a12b534d6e16fde4c966e4680b4aaa4a, type: 3}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 2.7719998
+      value: 2.75
       objectReference: {fileID: 0}
-    - target: {fileID: 4750376110463618, guid: a12b534d6e16fde4c966e4680b4aaa4a, type: 3}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -254.189
+      value: -254.16998
       objectReference: {fileID: 0}
-    - target: {fileID: 4750376110463618, guid: a12b534d6e16fde4c966e4680b4aaa4a, type: 3}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
       propertyPath: m_LocalRotation.w
       value: 1
       objectReference: {fileID: 0}
-    - target: {fileID: 4750376110463618, guid: a12b534d6e16fde4c966e4680b4aaa4a, type: 3}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0.000000021855694
+      value: -0.0000000059624403
       objectReference: {fileID: 0}
-    - target: {fileID: 4750376110463618, guid: a12b534d6e16fde4c966e4680b4aaa4a, type: 3}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
       propertyPath: m_LocalRotation.y
       value: -0
       objectReference: {fileID: 0}
-    - target: {fileID: 4750376110463618, guid: a12b534d6e16fde4c966e4680b4aaa4a, type: 3}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
       propertyPath: m_LocalRotation.z
       value: -0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects:
-    - targetCorrespondingSourceObject: {fileID: 4750376110463618, guid: a12b534d6e16fde4c966e4680b4aaa4a, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 202718201}
+    m_AddedGameObjects: []
     m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: a12b534d6e16fde4c966e4680b4aaa4a, type: 3}
---- !u!4 &1512174269 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 4750376110463618, guid: a12b534d6e16fde4c966e4680b4aaa4a, type: 3}
-  m_PrefabInstance: {fileID: 1512174268}
-  m_PrefabAsset: {fileID: 0}
+  m_SourcePrefab: {fileID: 100100000, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
 --- !u!1001 &1547024775
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -7209,6 +7859,59 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: fd7ee598480aa8749930901dfed5425f, type: 3}
+--- !u!1001 &1562038964
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1450217925095700, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_Name
+      value: Ceiling_SuspendedTiles_WithLight_A (3)
+      objectReference: {fileID: 0}
+    - target: {fileID: 1450217925095700, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_RootOrder
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 328.22
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 2.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -248.17
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.0000000059624403
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
 --- !u!1001 &1564043971
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -7274,6 +7977,59 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e69ef27991a88d341b9993d124bf749e, type: 3}
+--- !u!1001 &1565887852
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1892210723475836, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_Name
+      value: Ceiling_SuspendedTiles_A (7)
+      objectReference: {fileID: 0}
+    - target: {fileID: 1892210723475836, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 328.22
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 2.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -251.17
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.0000000059624403
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
 --- !u!1001 &1571591793
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -7404,6 +8160,59 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ff89af52f6b8e9e47b794d082d7c46e4, type: 3}
+--- !u!1001 &1575779788
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1450217925095700, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_Name
+      value: Ceiling_SuspendedTiles_WithLight_A (13)
+      objectReference: {fileID: 0}
+    - target: {fileID: 1450217925095700, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_RootOrder
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 340.22
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 2.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -254.16998
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.0000000059624403
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
 --- !u!1001 &1581973993
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -7713,6 +8522,59 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d436a8e3df58e5a4391298b94206bb9a, type: 3}
+--- !u!1001 &1630385583
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1450217925095700, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_Name
+      value: Ceiling_SuspendedTiles_WithLight_A (9)
+      objectReference: {fileID: 0}
+    - target: {fileID: 1450217925095700, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_RootOrder
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 328.22
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 2.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -254.16998
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.0000000059624403
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
 --- !u!1001 &1630536030
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -7827,6 +8689,112 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f010cea551424204889b2968898d475f, type: 3}
+--- !u!1001 &1707249938
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1892210723475836, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_Name
+      value: Ceiling_SuspendedTiles_A (18)
+      objectReference: {fileID: 0}
+    - target: {fileID: 1892210723475836, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_RootOrder
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 334.22
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 2.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -251.17
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.0000000059624403
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+--- !u!1001 &1708129321
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1450217925095700, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_Name
+      value: Ceiling_SuspendedTiles_WithLight_A (6)
+      objectReference: {fileID: 0}
+    - target: {fileID: 1450217925095700, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_RootOrder
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 337.22
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 2.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -248.17
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.0000000059624403
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
 --- !u!1001 &1741550648
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -8018,6 +8986,59 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4800f17704dfdad4f9b27e6048d9cff5, type: 3}
+--- !u!1001 &1752302161
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1892210723475836, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_Name
+      value: Ceiling_SuspendedTiles_A (26)
+      objectReference: {fileID: 0}
+    - target: {fileID: 1892210723475836, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_RootOrder
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 340.22
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 2.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -251.17
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.0000000059624403
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
 --- !u!1001 &1774246870
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -8079,6 +9100,59 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ffd84ed5789294d47ac95d8054ac98b5, type: 3}
+--- !u!1001 &1774733187
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1892210723475836, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_Name
+      value: Ceiling_SuspendedTiles_A (9)
+      objectReference: {fileID: 0}
+    - target: {fileID: 1892210723475836, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 328.22
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 2.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -245.17
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.0000000059624403
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
 --- !u!1001 &1790905153
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -8343,6 +9417,59 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &1833603463
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1892210723475836, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_Name
+      value: Ceiling_SuspendedTiles_A (25)
+      objectReference: {fileID: 0}
+    - target: {fileID: 1892210723475836, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 340.22
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 2.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -257.16998
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.0000000059624403
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
 --- !u!1001 &1850286589
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -8684,6 +9811,59 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ff89af52f6b8e9e47b794d082d7c46e4, type: 3}
+--- !u!1001 &1888063582
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1892210723475836, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_Name
+      value: Ceiling_SuspendedTiles_A (16)
+      objectReference: {fileID: 0}
+    - target: {fileID: 1892210723475836, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_RootOrder
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 334.22
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 2.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -245.17
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.0000000059624403
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
 --- !u!1001 &1891101785
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -8814,67 +9994,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 21f864dff92d1094491ef6d062dcf307, type: 3}
---- !u!1001 &1931223155
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 1642002852418864, guid: a12b534d6e16fde4c966e4680b4aaa4a, type: 3}
-      propertyPath: m_Name
-      value: Light_SuspendedStripLight_A (6)
-      objectReference: {fileID: 0}
-    - target: {fileID: 1642002852418864, guid: a12b534d6e16fde4c966e4680b4aaa4a, type: 3}
-      propertyPath: m_StaticEditorFlags
-      value: 4294967295
-      objectReference: {fileID: 0}
-    - target: {fileID: 4750376110463618, guid: a12b534d6e16fde4c966e4680b4aaa4a, type: 3}
-      propertyPath: m_RootOrder
-      value: 294
-      objectReference: {fileID: 0}
-    - target: {fileID: 4750376110463618, guid: a12b534d6e16fde4c966e4680b4aaa4a, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 325.634
-      objectReference: {fileID: 0}
-    - target: {fileID: 4750376110463618, guid: a12b534d6e16fde4c966e4680b4aaa4a, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 2.7719998
-      objectReference: {fileID: 0}
-    - target: {fileID: 4750376110463618, guid: a12b534d6e16fde4c966e4680b4aaa4a, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -254.189
-      objectReference: {fileID: 0}
-    - target: {fileID: 4750376110463618, guid: a12b534d6e16fde4c966e4680b4aaa4a, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4750376110463618, guid: a12b534d6e16fde4c966e4680b4aaa4a, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0.000000021855694
-      objectReference: {fileID: 0}
-    - target: {fileID: 4750376110463618, guid: a12b534d6e16fde4c966e4680b4aaa4a, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4750376110463618, guid: a12b534d6e16fde4c966e4680b4aaa4a, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: -0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects:
-    - targetCorrespondingSourceObject: {fileID: 4750376110463618, guid: a12b534d6e16fde4c966e4680b4aaa4a, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 526395442}
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: a12b534d6e16fde4c966e4680b4aaa4a, type: 3}
---- !u!4 &1931223156 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 4750376110463618, guid: a12b534d6e16fde4c966e4680b4aaa4a, type: 3}
-  m_PrefabInstance: {fileID: 1931223155}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1956336348
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -9070,6 +10189,59 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 15f4b6d486ca1504db4dde7e3c0f61ce, type: 3}
+--- !u!1001 &1978326030
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1450217925095700, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_Name
+      value: Ceiling_SuspendedTiles_WithLight_A (7)
+      objectReference: {fileID: 0}
+    - target: {fileID: 1450217925095700, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_RootOrder
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 340.22
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 2.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -248.17
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.0000000059624403
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
 --- !u!1001 &1978582484
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -9363,6 +10535,112 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 039759a4823ae7447ba506aac87e418d, type: 3}
+--- !u!1001 &2019185293
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1450217925095700, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_Name
+      value: Ceiling_SuspendedTiles_WithLight_A (5)
+      objectReference: {fileID: 0}
+    - target: {fileID: 1450217925095700, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_RootOrder
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 334.22
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 2.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -248.17
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.0000000059624403
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4668887196483936, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 7bcca4b7fefe8a6498d8b62c536a2a6d, type: 3}
+--- !u!1001 &2087377450
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1892210723475836, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_Name
+      value: Ceiling_SuspendedTiles_A (08)
+      objectReference: {fileID: 0}
+    - target: {fileID: 1892210723475836, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 325.22
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 2.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -251.17
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.0000000059624403
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4396042422345872, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 4cfc358c84aedc24d99b9b0f36fd698a, type: 3}
 --- !u!1001 &2135085294
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -9475,7 +10753,6 @@ SceneRoots:
   - {fileID: 1279705002}
   - {fileID: 786970851}
   - {fileID: 1465571991}
-  - {fileID: 1931223155}
   - {fileID: 314449498}
   - {fileID: 1339474876}
   - {fileID: 345378433}
@@ -9519,7 +10796,6 @@ SceneRoots:
   - {fileID: 136481187}
   - {fileID: 1961055046}
   - {fileID: 1296386945}
-  - {fileID: 1512174268}
   - {fileID: 1408624912}
   - {fileID: 1571591793}
   - {fileID: 1140490552}
@@ -9562,3 +10838,33 @@ SceneRoots:
   - {fileID: 982841278}
   - {fileID: 411945008}
   - {fileID: 839497366}
+  - {fileID: 278159578}
+  - {fileID: 471346747}
+  - {fileID: 1565887852}
+  - {fileID: 1562038964}
+  - {fileID: 1630385583}
+  - {fileID: 846097497}
+  - {fileID: 546577248}
+  - {fileID: 1888063582}
+  - {fileID: 141258612}
+  - {fileID: 439421728}
+  - {fileID: 592343143}
+  - {fileID: 997751875}
+  - {fileID: 477218621}
+  - {fileID: 1833603463}
+  - {fileID: 906347902}
+  - {fileID: 1318925942}
+  - {fileID: 1707249938}
+  - {fileID: 1113800447}
+  - {fileID: 1752302161}
+  - {fileID: 1774733187}
+  - {fileID: 1452159248}
+  - {fileID: 2087377450}
+  - {fileID: 942089096}
+  - {fileID: 571714903}
+  - {fileID: 2019185293}
+  - {fileID: 1534324545}
+  - {fileID: 1708129321}
+  - {fileID: 218817314}
+  - {fileID: 1978326030}
+  - {fileID: 1575779788}
