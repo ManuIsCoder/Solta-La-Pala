@@ -229,6 +229,10 @@ namespace SoltaLaPala.Inventory
             {
                 col = objetoSuelo.AddComponent<BoxCollider>();
             }
+            else if (col is MeshCollider mc)
+            {
+                mc.convex = true;
+            }
             col.enabled = true;
 
             // Fisica para que caiga al suelo con un impulso hacia adelante
@@ -392,7 +396,7 @@ namespace SoltaLaPala.Inventory
             // reposicionarlo cada frame.
             instanciaEnMano = Instantiate(item.prefabEnMano, anclaMano);
             instanciaEnMano.transform.localPosition = Vector3.zero;
-            instanciaEnMano.transform.localRotation = Quaternion.identity;
+            instanciaEnMano.transform.localRotation = item.prefabEnMano.transform.localRotation;
             instanciaEnMano.transform.localScale = instanciaEnMano.transform.localScale * escalaEnMano;
 
             DesactivarFisica(instanciaEnMano);
