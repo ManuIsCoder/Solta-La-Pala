@@ -194,21 +194,21 @@ namespace SoltaLaPala.Editor
             GameObject objEscritorio = new GameObject("AreaEscritorio", typeof(RectTransform));
             objEscritorio.transform.SetParent(panelRaiz.transform, false);
             RectTransform rtEscritorio = objEscritorio.GetComponent<RectTransform>();
-            rtEscritorio.anchorMin = new Vector2(0.1f, 0.15f);
-            rtEscritorio.anchorMax = new Vector2(0.85f, 0.88f);
+            rtEscritorio.anchorMin = new Vector2(0.04f, 0.08f);
+            rtEscritorio.anchorMax = new Vector2(0.96f, 0.92f);
             rtEscritorio.offsetMin = Vector2.zero;
             rtEscritorio.offsetMax = Vector2.zero;
             scriptMinijuego.contenedorArchivos = rtEscritorio;
 
-            // Papelera
+            // Papelera (claramente dentro de la pantalla a la derecha y con tamaño grande)
             GameObject objPapelera = new GameObject("ZonaPapelera", typeof(RectTransform), typeof(Image));
             objPapelera.transform.SetParent(panelRaiz.transform, false);
             RectTransform rtPapelera = objPapelera.GetComponent<RectTransform>();
-            rtPapelera.anchorMin = new Vector2(0.92f, 0.25f);
-            rtPapelera.anchorMax = new Vector2(0.92f, 0.25f);
+            rtPapelera.anchorMin = new Vector2(1f, 0.5f);
+            rtPapelera.anchorMax = new Vector2(1f, 0.5f);
             rtPapelera.pivot = new Vector2(0.5f, 0.5f);
-            rtPapelera.anchoredPosition = Vector2.zero;
-            rtPapelera.sizeDelta = new Vector2(110f, 110f);
+            rtPapelera.anchoredPosition = new Vector2(-150f, 0f);
+            rtPapelera.sizeDelta = new Vector2(140f, 140f);
 
             Image imgPapelera = objPapelera.GetComponent<Image>();
             Sprite spritePap = AssetDatabase.LoadAssetAtPath<Sprite>(RutaPapelera);
@@ -239,10 +239,11 @@ namespace SoltaLaPala.Editor
             GameObject objTextoContador = new GameObject("TextoContador", typeof(RectTransform), typeof(Text));
             objTextoContador.transform.SetParent(panelRaiz.transform, false);
             RectTransform rtTxtCont = objTextoContador.GetComponent<RectTransform>();
-            rtTxtCont.anchorMin = new Vector2(0.92f, 0.14f);
-            rtTxtCont.anchorMax = new Vector2(0.92f, 0.14f);
+            rtTxtCont.anchorMin = new Vector2(1f, 0.5f);
+            rtTxtCont.anchorMax = new Vector2(1f, 0.5f);
             rtTxtCont.pivot = new Vector2(0.5f, 0.5f);
-            rtTxtCont.sizeDelta = new Vector2(160f, 60f);
+            rtTxtCont.anchoredPosition = new Vector2(-150f, -95f);
+            rtTxtCont.sizeDelta = new Vector2(180f, 50f);
             Text txtCont = objTextoContador.GetComponent<Text>();
             txtCont.font = ConstructorUI.Fuente;
             txtCont.fontSize = 14;

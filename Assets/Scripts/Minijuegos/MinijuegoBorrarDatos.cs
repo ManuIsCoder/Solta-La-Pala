@@ -145,12 +145,14 @@ namespace SoltaLaPala.Minijuegos
 
             if (contenedorArchivos == null || listaArchivos == null) return;
 
-            // Disposición en cuadrícula sobre el escritorio virtual
-            int columnas = 4;
-            float espaciadoX = 140f;
-            float espaciadoY = 130f;
-            float inicioX = -220f;
-            float inicioY = 110f;
+            // Separamos la distribución:
+            // 1. Archivos indebidos (a borrar): Arriba a la izquierda.
+            // 2. Archivos de empresa (no borrar): Abajo a la izquierda.
+            float espacioEntreIconos = 175f;
+            float margenIzquierdo = 110f;
+
+            int contadorBorrar = 0;
+            int contadorEmpresa = 0;
 
             for (int i = 0; i < listaArchivos.Count; i++)
             {
@@ -167,9 +169,25 @@ namespace SoltaLaPala.Minijuegos
                 }
 
                 RectTransform rt = nuevoObj.GetComponent<RectTransform>();
-                int col = i % columnas;
-                int fila = i / columnas;
-                rt.anchoredPosition = new Vector2(inicioX + (col * espaciadoX), inicioY - (fila * espaciadoY));
+
+                if (!dato.esImportante)
+                {
+                    // Arriba a la izquierda
+                    rt.anchorMin = new Vector2(0f, 1f);
+                    rt.anchorMax = new Vector2(0f, 1f);
+                    rt.pivot = new Vector2(0.5f, 0.5f);
+                    rt.anchoredPosition = new Vector2(margenIzquierdo + (contadorBorrar * espacioEntreIconos), -110f);
+                    contadorBorrar++;
+                }
+                else
+                {
+                    // Abajo a la izquierda
+                    rt.anchorMin = new Vector2(0f, 0f);
+                    rt.anchorMax = new Vector2(0f, 0f);
+                    rt.pivot = new Vector2(0.5f, 0.5f);
+                    rt.anchoredPosition = new Vector2(margenIzquierdo + (contadorEmpresa * espacioEntreIconos), 115f);
+                    contadorEmpresa++;
+                }
 
                 ArchivoArrastrable arrastrable = nuevoObj.GetComponent<ArchivoArrastrable>();
                 if (arrastrable != null)
@@ -307,14 +325,14 @@ namespace SoltaLaPala.Minijuegos
             GameObject iconoObj = new GameObject("IconoArchivo", typeof(RectTransform), typeof(CanvasGroup));
             iconoObj.transform.SetParent(padre, false);
             RectTransform rt = iconoObj.GetComponent<RectTransform>();
-            rt.sizeDelta = new Vector2(100f, 100f);
+            rt.sizeDelta = new Vector2(150f, 150f);
 
-            // Imagen del icono
+            // Imagen del icono (mas grande)
             GameObject imgObj = new GameObject("Imagen", typeof(RectTransform), typeof(Image));
             imgObj.transform.SetParent(iconoObj.transform, false);
             RectTransform imgRt = imgObj.GetComponent<RectTransform>();
-            imgRt.sizeDelta = new Vector2(64f, 64f);
-            imgRt.anchoredPosition = new Vector2(0f, 14f);
+            imgRt.sizeDelta = new Vector2(110f, 110f);
+            imgRt.anchoredPosition = new Vector2(0f, 18f);
             Image img = imgObj.GetComponent<Image>();
             img.preserveAspect = true;
 
@@ -322,11 +340,11 @@ namespace SoltaLaPala.Minijuegos
             GameObject txtObj = new GameObject("Etiqueta", typeof(RectTransform), typeof(Text));
             txtObj.transform.SetParent(iconoObj.transform, false);
             RectTransform txtRt = txtObj.GetComponent<RectTransform>();
-            txtRt.sizeDelta = new Vector2(110f, 32f);
-            txtRt.anchoredPosition = new Vector2(0f, -32f);
+            txtRt.sizeDelta = new Vector2(160f, 36f);
+            txtRt.anchoredPosition = new Vector2(0f, -48f);
             Text txt = txtObj.GetComponent<Text>();
             txt.font = ConstructorUI.Fuente;
-            txt.fontSize = 12;
+            txt.fontSize = 14;
             txt.alignment = TextAnchor.UpperCenter;
             txt.color = Color.white;
 
@@ -365,6 +383,16 @@ namespace SoltaLaPala.Minijuegos
                     zonaPapelera = papeleraTr.GetComponent<RectTransform>();
                     imagenPapelera = papeleraTr.GetComponent<Image>();
                 }
+            }
+
+            // Aseguramos que la papelera este claramente dentro de la pantalla y con buen tamaño
+            if (zonaPapelera != null)
+            {
+                zonaPapelera.anchorMin = new Vector2(1f, 0.5f);
+                zonaPapelera.anchorMax = new Vector2(1f, 0.5f);
+                zonaPapelera.pivot = new Vector2(0.5f, 0.5f);
+                zonaPapelera.anchoredPosition = new Vector2(-130f, 0f);
+                zonaPapelera.sizeDelta = new Vector2(135f, 135f);
             }
 
             if (imagenPapelera != null && spritePapelera != null)
