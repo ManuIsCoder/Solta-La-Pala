@@ -81,7 +81,7 @@ namespace SoltaLaPala.Editor
             foreach (ObjetoRecogible rec in recogibles)
             {
                 DatosItem datosItem = rec.item;
-                if (datosItem == null || datosItem.id != "Salero") continue;
+                if (datosItem == null || datosItem.Id != "Salero") continue;
 
                 GameObject go = rec.gameObject;
 
