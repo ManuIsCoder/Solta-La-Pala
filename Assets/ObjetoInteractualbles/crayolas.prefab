@@ -1,0 +1,138 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &5528777374414343666
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: 450f33ba22edc164d8586100951fa957, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -1.75
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 450f33ba22edc164d8586100951fa957, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.31
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 450f33ba22edc164d8586100951fa957, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -6.88
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 450f33ba22edc164d8586100951fa957, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.90194404
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 450f33ba22edc164d8586100951fa957, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.32367378
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 450f33ba22edc164d8586100951fa957, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0.08178096
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 450f33ba22edc164d8586100951fa957, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0.27394196
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 450f33ba22edc164d8586100951fa957, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: -32.62
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 450f33ba22edc164d8586100951fa957, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: -22.687
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 450f33ba22edc164d8586100951fa957, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 40.508
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 450f33ba22edc164d8586100951fa957, type: 3}
+      propertyPath: m_Name
+      value: crayolas
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 450f33ba22edc164d8586100951fa957, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1176555862248446417}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 450f33ba22edc164d8586100951fa957, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2651722810712133846}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 450f33ba22edc164d8586100951fa957, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4659685244535421087}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 450f33ba22edc164d8586100951fa957, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8635955741443520368}
+  m_SourcePrefab: {fileID: 100100000, guid: 450f33ba22edc164d8586100951fa957, type: 3}
+--- !u!1 &4646378270212894883 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 450f33ba22edc164d8586100951fa957, type: 3}
+  m_PrefabInstance: {fileID: 5528777374414343666}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1176555862248446417
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4646378270212894883}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e32406c235fd1e4c81c9ab3ba4cd9ae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SoltaLaPala.Interaction.ResaltadoInteractuable
+  colorSilueta: {r: 1, g: 1, b: 1, a: 1}
+  grosor: 0.025
+  renderers: []
+--- !u!114 &2651722810712133846
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4646378270212894883}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61f7a9c45dbf7244d8a4a4b2b5dbb1b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SoltaLaPala.Guardado.IdentificadorObjeto
+  id: crayolas_31b8f997
+--- !u!114 &4659685244535421087
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4646378270212894883}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b42f1a5b9596ad4590f60c0f96576bb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SoltaLaPala.Interaction.ObjetoRecogible
+  item: {fileID: 11400000, guid: c2222222222222222222222222222222, type: 2}
+--- !u!65 &8635955741443520368
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4646378270212894883}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.0039619636, y: 0.0014730383, z: 0.0044084922}
+  m_Center: {x: 0.00040049152, y: -0.000436519, z: 0.00026082445}

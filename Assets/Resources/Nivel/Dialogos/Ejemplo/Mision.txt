@@ -1,0 +1,7 @@
+# Dialogo de mision. Al acabar pasa a Charla si existe, si no a Perpetuo.
+Necesito que me traigas la pala del cobertizo.
+Y no tardes, que se hace de noche.
+# Respuestas que bajan la sospecha (la de mas abajo la sube, para comparar).
+> Enseguida, jefe. Cuente conmigo. | -10 | Asi me gusta.
+> Ya mismo voy, no se preocupe. | -5
+> Y por que no va usted? | +5 | Porque te lo pido a ti.

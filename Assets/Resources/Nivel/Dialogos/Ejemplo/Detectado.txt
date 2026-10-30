@@ -1,0 +1,2 @@
+# Salta cuando el NPC descubre al jugador. No cambia el tipo de dialogo actual.
+Eh! Que haces tu ahi!

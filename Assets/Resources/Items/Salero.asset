@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 51c54598b14011241bd1cac36228a298, type: 3}
+  m_Name: Salero
+  m_EditorClassIdentifier: Assembly-CSharp::SoltaLaPala.Inventory.DatosItem
+  id: Salero
+  nombre: Salero
+  icono: {fileID: 21300000, guid: 541515a7a630471a848dc38659151fc8, type: 3}
+  prefabEnMano: {fileID: 919132149155446097, guid: 160f450f41b9ffe42abbd8cde3d290f0, type: 3}
+  descripcion: Salero de mesa. Para arruinarle el cafe a tus companeros.
+  esSospechoso: 1

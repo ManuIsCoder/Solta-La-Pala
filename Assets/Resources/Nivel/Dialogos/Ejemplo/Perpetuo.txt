@@ -1,0 +1,7 @@
+# Cada linea no vacia es una frase. Las lineas que empiezan por # son comentarios.
+# Las que empiezan por > son respuestas del jugador a la frase de arriba:
+#   > Texto de la respuesta | sospecha | reaccion del NPC
+# La sospecha es un entero (+10 sube, -5 baja, 0 nada) y la reaccion es opcional.
+# El jugador elige con el mouse o con los numeros 1-9.
+Ya te lo he contado todo, majo.
+Anda, ve a hacer algo util.
