@@ -1,3 +1,4 @@
+using SoltaLaPala.Guardado;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
@@ -11,6 +12,9 @@ namespace SoltaLaPala.Minijuegos
         [Header("IDs de ítems necesarios")]
         public string idTaza = "TazaCafe";
         public string idSalero = "Salero";
+
+        [Header("Fondo UI")]
+        public Image imagenFondo;
 
         [Header("UI - Botones")]
         public Button botonCafe;   
