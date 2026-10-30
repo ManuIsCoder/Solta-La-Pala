@@ -12440,9 +12440,9 @@ MonoBehaviour:
   estado: 0
   documentoCargado: 0
   idInforme: Informe
-  idInformeAlternativo: Documento
+  idInformeAlternativo: DocumentoEnMano_e3381790
   idFotoChiqui: FotoChiqui
-  idFotoChiquiAlternativo: fotoChiqui
+  idFotoChiquiAlternativo: fotoChiqui Variant_e78d53ae
   idCarpeta: Carpeta
   puntoSalidaCarpeta: {fileID: 0}
   prefabCarpeta: {fileID: 0}

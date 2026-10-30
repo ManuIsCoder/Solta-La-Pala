@@ -119,7 +119,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9b42f1a5b9596ad4590f60c0f96576bb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SoltaLaPala.Interaction.ObjetoRecogible
-  item: {fileID: 11400000, guid: e4444444444444444444444444444444, type: 2}
+  item: {fileID: 11400000, guid: f26e6f9a22fc4deab3ae74cfdc305034, type: 2}
 --- !u!65 &5224692879802920039
 BoxCollider:
   m_ObjectHideFlags: 0
