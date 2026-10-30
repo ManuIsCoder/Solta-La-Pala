@@ -326,10 +326,11 @@ namespace SoltaLaPala.Minijuegos
             }
 
             // Asegurar IdentificadorObjeto
-            if (carpetaInstancia.GetComponent<IdentificadorObjeto>() == null)
+            IdentificadorObjeto idComp = carpetaInstancia.GetComponent<IdentificadorObjeto>();
+            if (idComp == null)
             {
-                var idComp = carpetaInstancia.AddComponent<IdentificadorObjeto>();
-                idComp.id = "Carpeta_Impresa_" + System.Guid.NewGuid().ToString("N").Substring(0, 8);
+                idComp = carpetaInstancia.AddComponent<IdentificadorObjeto>();
+                idComp.AsignarId("Carpeta_Impresa_" + System.Guid.NewGuid().ToString("N").Substring(0, 8));
             }
 
             // Asegurar ObjetoRecogible con DatosItem "Carpeta"
