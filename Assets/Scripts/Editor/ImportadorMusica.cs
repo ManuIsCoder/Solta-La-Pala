@@ -3,11 +3,6 @@ using UnityEngine;
 
 namespace SoltaLaPala.EditorTools
 {
-    // Configura sola la musica al importarla: en streaming y comprimida.
-    //
-    // Por defecto Unity descomprime cada clip entero en memoria al cargarlo,
-    // que para pistas de varios minutos son decenas de MB. En streaming se va
-    // leyendo de a poco mientras suena.
     public class ImportadorMusica : AssetPostprocessor
     {
         private const string Carpeta = "Assets/Resources/Audio/Musica/";

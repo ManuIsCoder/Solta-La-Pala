@@ -5519,6 +5519,7 @@ GameObject:
   - component: {fileID: 815587654}
   - component: {fileID: 815587653}
   - component: {fileID: 815587652}
+  - component: {fileID: 815587660}
   m_Layer: 0
   m_Name: Companero
   m_TagString: Untagged
@@ -5717,6 +5718,23 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 815587650}
   m_Mesh: {fileID: 10208, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &815587660
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 815587650}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3097b23714fb9964697d4b6f25ddf902, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SoltaLaPala.Personajes.ModeloPersonaje
+  prefabModelo: {fileID: 3653748855966290487, guid: 57a7f0e9e6fdbfc429b4ef2a132e9dfc, type: 3}
+  altura: 0
+  sentado: 0
+  ocultarCapsula: 1
+  ocultarEnPrimeraPersona: 1
 --- !u!21 &846909333
 Material:
   serializedVersion: 8
@@ -7641,6 +7659,8 @@ MonoBehaviour:
   escalaEnMano: 1
   amplitudFlotado: 0.04
   velocidadFlotado: 1.5
+  offsetEnHueso: {x: 0.08, y: 0.02, z: 0}
+  rotacionEnHueso: {x: 0, y: 0, z: 0}
 --- !u!114 &1177511523
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9569,6 +9589,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1511954586}
+  - component: {fileID: 1511954588}
+  - component: {fileID: 1511954587}
   m_Layer: 0
   m_Name: NPCs
   m_TagString: Untagged
@@ -9596,6 +9618,40 @@ Transform:
   - {fileID: 863338098}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1511954587
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1511954585}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3097b23714fb9964697d4b6f25ddf902, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SoltaLaPala.Personajes.ModeloPersonaje
+  prefabModelo: {fileID: 0}
+  altura: 0
+  sentado: 0
+  ocultarCapsula: 1
+  ocultarEnPrimeraPersona: 1
+--- !u!114 &1511954588
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1511954585}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3097b23714fb9964697d4b6f25ddf902, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SoltaLaPala.Personajes.ModeloPersonaje
+  prefabModelo: {fileID: 0}
+  altura: 0
+  sentado: 0
+  ocultarCapsula: 1
+  ocultarEnPrimeraPersona: 1
 --- !u!1 &1539975874
 GameObject:
   m_ObjectHideFlags: 0

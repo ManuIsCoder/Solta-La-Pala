@@ -4,13 +4,10 @@ using UnityEngine.UI;
 
 namespace SoltaLaPala.Menus
 {
-    // Selector de los 4 niveles. Los que todavia no se desbloquearon salen
-    // apagados y no se pueden pulsar.
     public class MenuSeleccionNiveles : MenuBase
     {
         protected override int OrdenPantalla => 110;
 
-        // Botones e imagenes de cada nivel, para poder refrescarlos al abrir la pantalla.
         private readonly Button[] botonesNivel = new Button[ProgresoNiveles.CantidadNiveles];
         private readonly Text[] etiquetasNivel = new Text[ProgresoNiveles.CantidadNiveles];
         private Text textoAviso;
@@ -22,7 +19,6 @@ namespace SoltaLaPala.Menus
 
             CrearTitulo(padre, "SELECCIONAR NIVEL", 680f);
 
-            // Los 4 niveles en una fila de cuadrados centrada.
             const float lado = 120f;
             const float separacion = 24f;
             float anchoTotal = ProgresoNiveles.CantidadNiveles * lado
@@ -56,17 +52,12 @@ namespace SoltaLaPala.Menus
                 new Vector2(0f, -400f), new Vector2(240f, 56f), () => Gestor?.Volver());
         }
 
-        // Al abrirse, marca que niveles estan disponibles segun el progreso guardado.
         protected override void AlMostrar()
         {
             RefrescarBloqueos();
             RefrescarAviso();
         }
 
-        // Esta pantalla es la unica forma de pisar una partida guardada, asi que
-        // tiene que decirlo antes de que el jugador pulse. Se reutiliza el texto
-        // que ya estaba al pie en vez de añadir un panel de confirmacion: el juego
-        // es corto y un modal por cada nivel elegido es friccion.
         private void RefrescarAviso()
         {
             if (textoAviso == null)
@@ -108,7 +99,6 @@ namespace SoltaLaPala.Menus
 
                 if (etiquetasNivel[i] != null)
                 {
-                    // Un candado marca de un vistazo cual no se puede jugar todavia.
                     etiquetasNivel[i].text = desbloqueado ? nivel.ToString() : "?";
                     etiquetasNivel[i].color = desbloqueado
                         ? ConstructorUI.ColorTexto
@@ -117,9 +107,6 @@ namespace SoltaLaPala.Menus
             }
         }
 
-        // Arranca el nivel elegido. Por ahora solo lo registra y cierra los menus,
-        // porque todo el juego vive en una sola escena: cuando haya una escena por
-        // nivel, aca va la carga de escena.
         private void JugarNivel(int nivel)
         {
             if (!ProgresoNiveles.EstaDesbloqueado(nivel))
@@ -130,8 +117,6 @@ namespace SoltaLaPala.Menus
             ProgresoNiveles.NivelActual = nivel;
             Debug.Log($"[Menus] Empezando nivel {nivel}.");
 
-            // Descarta la partida guardada y limpia todo lo de la anterior. Se
-            // avisa en RefrescarAviso antes de llegar aqui.
             Gestor?.ReiniciarYJugar();
         }
     }

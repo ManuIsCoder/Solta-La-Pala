@@ -4,15 +4,8 @@ using UnityEngine.UI;
 
 namespace SoltaLaPala.Menus
 {
-    // Fabrica de trozos de UI por codigo (paneles, botones, textos, sliders).
-    // Existe para que los menus no repitan 200 lineas de AddComponent cada uno.
-    //
-    // PROTOTIPO: igual que en InterfazInventario, esto es andamiaje para tener menus
-    // funcionando sin arte. Cuando haya arte de verdad se arman los paneles en la
-    // escena, se arrastran a los campos del inspector y esta generacion no se usa.
     public static class ConstructorUI
     {
-        // Paleta comun para que los 7 menus se vean igual entre si.
         public static readonly Color ColorFondoPantalla = new Color(0.05f, 0.05f, 0.08f, 0.92f);
         public static readonly Color ColorPanel = new Color(0.12f, 0.12f, 0.17f, 0.98f);
         public static readonly Color ColorBoton = new Color(0.22f, 0.22f, 0.30f, 1f);
@@ -25,19 +18,14 @@ namespace SoltaLaPala.Menus
         public static readonly Color ColorExito = new Color(0.45f, 0.85f, 0.45f, 1f);
         public static readonly Color ColorFallo = new Color(0.90f, 0.40f, 0.40f, 1f);
 
-        // Fuente integrada de Unity. Se cachea porque buscarla es relativamente caro
-        // y los menus crean muchos textos de golpe.
         private static Font fuenteCache;
 
-        // Fuente por defecto para todos los textos generados.
         public static Font Fuente
         {
             get
             {
                 if (fuenteCache == null)
                 {
-                    // En Unity 6 la fuente integrada se llama LegacyRuntime.ttf
-                    // (Arial.ttf ya no existe y devuelve null).
                     fuenteCache = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
                 }
 
@@ -45,8 +33,6 @@ namespace SoltaLaPala.Menus
             }
         }
 
-        // Canvas a pantalla completa que escala con la resolucion.
-        // ordenPantalla decide que menu se dibuja encima de cual.
         public static Canvas CrearCanvas(string nombre, Transform padre, int ordenPantalla)
         {
             GameObject objeto = new GameObject(nombre);
@@ -59,8 +45,6 @@ namespace SoltaLaPala.Menus
             CanvasScaler escalador = objeto.AddComponent<CanvasScaler>();
             escalador.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
             escalador.referenceResolution = new Vector2(1920f, 1080f);
-            // 0.5 reparte el escalado entre ancho y alto, asi el menu aguanta
-            // tanto pantallas panoramicas como cuadradas sin recortarse.
             escalador.matchWidthOrHeight = 0.5f;
 
             objeto.AddComponent<GraphicRaycaster>();
@@ -68,8 +52,6 @@ namespace SoltaLaPala.Menus
             return canvas;
         }
 
-        // Fondo que cubre toda la pantalla. Ademas de oscurecer el juego, su Image
-        // bloquea los clicks para que no lleguen a lo que hay detras del menu.
         public static GameObject CrearFondoPantalla(Transform padre, Color color)
         {
             GameObject fondo = CrearImagen("Fondo", padre, color);
@@ -77,7 +59,6 @@ namespace SoltaLaPala.Menus
             return fondo;
         }
 
-        // Panel centrado del tamano indicado, donde van los botones del menu.
         public static GameObject CrearPanel(string nombre, Transform padre, Vector2 tamano)
         {
             GameObject panel = CrearImagen(nombre, padre, ColorPanel);
@@ -92,7 +73,6 @@ namespace SoltaLaPala.Menus
             return panel;
         }
 
-        // GameObject con un Image del color indicado.
         public static GameObject CrearImagen(string nombre, Transform padre, Color color)
         {
             GameObject objeto = new GameObject(nombre);
@@ -101,7 +81,6 @@ namespace SoltaLaPala.Menus
             return objeto;
         }
 
-        // Texto anclado arriba-centro del padre, a la altura indicada desde arriba.
         public static Text CrearTexto(string nombre, Transform padre, string contenido,
             int tamanoFuente, TextAnchor alineacion, Vector2 posicion, Vector2 tamano)
         {
@@ -114,7 +93,6 @@ namespace SoltaLaPala.Menus
             texto.fontSize = tamanoFuente;
             texto.alignment = alineacion;
             texto.color = ColorTexto;
-            // Sin esto un texto largo desaparece del todo en vez de encogerse.
             texto.horizontalOverflow = HorizontalWrapMode.Wrap;
             texto.verticalOverflow = VerticalWrapMode.Overflow;
 
@@ -128,8 +106,6 @@ namespace SoltaLaPala.Menus
             return texto;
         }
 
-        // Boton con su etiqueta, anclado arriba-centro del padre.
-        // alPulsar puede ser null para botones que se enganchan despues.
         public static Button CrearBoton(string nombre, Transform padre, string etiqueta,
             Vector2 posicion, Vector2 tamano, Action alPulsar)
         {
@@ -158,7 +134,6 @@ namespace SoltaLaPala.Menus
             return boton;
         }
 
-        // Slider horizontal con fondo, relleno y manija.
         public static Slider CrearSlider(string nombre, Transform padre, float valorInicial,
             float minimo, float maximo, Vector2 posicion, Vector2 tamano, Action<float> alCambiar)
         {
@@ -175,8 +150,6 @@ namespace SoltaLaPala.Menus
             slider.minValue = minimo;
             slider.maxValue = maximo;
 
-            // El area de relleno se estira de lado a lado; el Slider mueve su borde
-            // derecho segun el valor.
             GameObject areaRelleno = new GameObject("AreaRelleno");
             areaRelleno.transform.SetParent(objeto.transform, false);
             RectTransform rectArea = areaRelleno.AddComponent<RectTransform>();
@@ -202,8 +175,6 @@ namespace SoltaLaPala.Menus
             slider.targetGraphic = manija.GetComponent<Image>();
             slider.direction = Slider.Direction.LeftToRight;
 
-            // El valor se pone despues de enchufar fillRect/handleRect: al reves
-            // el Slider no tiene donde dibujarlo y arranca visualmente en cero.
             slider.value = Mathf.Clamp(valorInicial, minimo, maximo);
 
             if (alCambiar != null)
@@ -214,7 +185,6 @@ namespace SoltaLaPala.Menus
             return slider;
         }
 
-        // Colores de interaccion de los botones (normal, encima, pulsado, apagado).
         public static ColorBlock ColoresBoton()
         {
             ColorBlock colores = ColorBlock.defaultColorBlock;
@@ -227,7 +197,6 @@ namespace SoltaLaPala.Menus
             return colores;
         }
 
-        // Hace que el rect ocupe todo el padre.
         public static void Estirar(RectTransform rect)
         {
             rect.anchorMin = Vector2.zero;

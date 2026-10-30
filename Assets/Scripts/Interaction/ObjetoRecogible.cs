@@ -4,8 +4,6 @@ using UnityEngine;
 
 namespace SoltaLaPala.Interaction
 {
-    // Objeto del mundo que se puede recoger y guardar en el inventario.
-    // Necesita un IdentificadorObjeto para que el guardado recuerde que ya se recogio.
     [RequireComponent(typeof(ResaltadoInteractuable))]
     [RequireComponent(typeof(IdentificadorObjeto))]
     public class ObjetoRecogible : MonoBehaviour, IInteractuable
@@ -19,14 +17,11 @@ namespace SoltaLaPala.Interaction
             ActualizarVisualSiTieneModelo();
         }
 
-        // En Start y no en Awake para que el jugador ya exista al cargar la escena.
         private void Start()
         {
             IgnorarColisionConJugador();
         }
 
-        // El jugador atraviesa el objeto sin chocarlo, pero el objeto sigue apoyandose
-        // en el suelo y el SphereCast del InteractorJugador lo sigue detectando.
         private void IgnorarColisionConJugador()
         {
             var jugador = GameObject.FindGameObjectWithTag("Player");
@@ -91,13 +86,11 @@ namespace SoltaLaPala.Interaction
             }
         }
 
-        // Devuelve "[E] Recoger {nombre del item}".
         public string ObtenerTextoInteraccion()
         {
             return item != null ? $"[E] Recoger {item.nombre}" : "[E] Recoger objeto";
         }
 
-        // Solo se puede recoger si el inventario del jugador tiene algun slot libre.
         public bool PuedeInteractuar()
         {
             var jugador = GameObject.FindGameObjectWithTag("Player");
@@ -109,7 +102,6 @@ namespace SoltaLaPala.Interaction
             return true;
         }
 
-        // Mete el item en el inventario del jugador y destruye este objeto del mundo.
         public void Interactuar(GameObject quienInteractua)
         {
             if (item == null)
@@ -132,8 +124,6 @@ namespace SoltaLaPala.Interaction
             }
             gameObject.SetActive(false);
 
-            // Se anota antes de que el jugador pueda guardar, para que al cargar
-            // el objeto no reaparezca en el suelo.
             if (RegistroObjetosConsumidos.Instancia != null)
             {
                 RegistroObjetosConsumidos.Instancia.Marcar(gameObject);

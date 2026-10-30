@@ -2,12 +2,6 @@ using UnityEngine;
 
 namespace SoltaLaPala.Dialogue
 {
-    // Reproduce los sonidos de un NPC: el balbuceo mientras habla y la tos cuando
-    // nadie le habla.
-    //
-    // Que voz y que tos usa cada NPC se elige en el Inspector de su DialogoNPC
-    // (campos "Voz" y "Sonido toz"), asi se cambia clickeando al NPC sin tocar
-    // codigo. Este componente se anade solo desde DialogoNPC.
     [RequireComponent(typeof(DialogoNPC))]
     public class SonidosNPC : MonoBehaviour
     {
@@ -18,7 +12,6 @@ namespace SoltaLaPala.Dialogue
 
         private float proximaTos;
 
-        // Para no recargar el clip del disco cada vez que se pregunta por el.
         private VozNPC vozCargada = VozNPC.Ninguna;
         private AudioClip clipVoz;
         private TosNPC tosCargada = TosNPC.Ninguna;
@@ -34,7 +27,6 @@ namespace SoltaLaPala.Dialogue
             ProgramarProximaTos(primeraVez: true);
         }
 
-        // Fuente 3D: se oye mas fuerte cuanto mas cerca esta el NPC del jugador.
         private AudioSource CrearFuente(string nombre, bool loop)
         {
             GameObject objeto = new GameObject("Audio" + nombre);
@@ -57,8 +49,6 @@ namespace SoltaLaPala.Dialogue
             if (fuenteVoz != null) fuenteVoz.Stop();
         }
 
-        // Se engancha al cuadro de dialogo cuando exista. No se hace en Awake: el
-        // GestorDialogos puede arrancar despues que el NPC.
         private void Update()
         {
             if (interfaz == null)
@@ -93,7 +83,6 @@ namespace SoltaLaPala.Dialogue
             interfaz = null;
         }
 
-        // True si la conversacion en marcha es con este NPC.
         private bool HablandoConmigo()
         {
             GestorDialogos gestor = GestorDialogos.Instancia;
@@ -101,8 +90,6 @@ namespace SoltaLaPala.Dialogue
             return gestor != null && gestor.DialogoActivo && gestor.NpcActual == npc;
         }
 
-        // El balbuceo suena solo mientras salen las letras: arranca con la linea y
-        // se corta cuando termina de escribirse (o el jugador la completa).
         private void AlEmpezarLinea(float duracion)
         {
             if (!HablandoConmigo())
@@ -127,14 +114,9 @@ namespace SoltaLaPala.Dialogue
                 fuenteVoz.Stop();
             }
 
-            // Despues de hablar no tose enseguida.
             ProgramarProximaTos();
         }
 
-        // Tose una vez cada 30-45 segundos mientras nadie le habla.
-        //
-        // Usa Time.time, que no avanza con el juego congelado: en pausa o durante
-        // un dialogo con otro NPC no tose ni acumula tos pendiente.
         private void ActualizarTos()
         {
             if (Time.timeScale <= 0f || HablandoConmigo())
@@ -168,7 +150,6 @@ namespace SoltaLaPala.Dialogue
             }
         }
 
-        // Cargan el clip segun lo elegido en el Inspector, y recargan si cambia.
         private AudioClip ObtenerVoz()
         {
             if (npc.voz == VozNPC.Ninguna)

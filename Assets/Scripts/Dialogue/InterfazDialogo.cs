@@ -8,9 +8,6 @@ using UnityEngine.UI;
 
 namespace SoltaLaPala.Dialogue
 {
-    // Cuadro de dialogo: rectangulo con el nombre del NPC arriba
-    // y el texto de la frase escribiendose letra a letra, con las letras vibrando
-    // de arriba para abajo al aparecer.
     public class InterfazDialogo : MonoBehaviour
     {
         [Header("Referencias")]
@@ -99,17 +96,10 @@ namespace SoltaLaPala.Dialogue
         private Coroutine rutinaEscritura;
         private string lineaActualCompleta = "";
 
-        // True mientras el texto se esta escribiendo letra a letra.
         public bool Escribiendo { get; private set; }
 
-        // Se dispara al empezar a escribir una linea. Parametro: segundos que va a
-        // tardar en escribirse entera. Es el gancho para el sonido de balbuceo: que
-        // suene lo mismo que dura el texto.
         public event System.Action<float> AlEmpezarLinea;
 
-        // Se dispara cuando la linea deja de escribirse: porque termino sola, porque
-        // el jugador la completo con espacio o porque se cerro el cuadro.
-        // El balbuceo tiene que cortarse aca.
         public event System.Action AlTerminarLinea;
 
         private EfectoVibracionLetras efectoVibracion;
@@ -118,13 +108,10 @@ namespace SoltaLaPala.Dialogue
         {
             if (panel == null) panel = gameObject;
 
-            // Rellenar sprites desde Resources si no se asignaron en el inspector.
             spriteCajaDialogo       = CargarSprite(spriteCajaDialogo,       "Sprites/UI/paneles/Caja de dialogo vacia");
             spritePanelOpciones     = CargarSprite(spritePanelOpciones,     "Sprites/UI/paneles/Panel de seleccionar una opcion");
             spriteBarraSeleccionada = CargarSprite(spriteBarraSeleccionada, "Sprites/UI/paneles/Barra de opcion seleccionada");
 
-            // Aplicar el sprite de fondo a la caja de dialogo si tiene Image
-            // y ajustar sus dimensiones al tamaño oficial (+15% de escala).
             if (spriteCajaDialogo != null)
             {
                 Image imagenPanel = panel.GetComponent<Image>();
@@ -182,8 +169,6 @@ namespace SoltaLaPala.Dialogue
                 }
             }
 
-            // El efecto se anade solo al texto del dialogo: asi no hay que tocar
-            // la escena ni los prefabs para que las letras vibren.
             if (textoDialogo != null)
             {
                 efectoVibracion = textoDialogo.GetComponent<EfectoVibracionLetras>();
@@ -196,11 +181,8 @@ namespace SoltaLaPala.Dialogue
             Cerrar();
         }
 
-        // Permite ajustar las escalas de la caja de diálogo y panel de opciones,
-        // así como el tamaño de las fuentes, y manejar la navegación por teclado (flechas arriba/abajo).
         private void Update()
         {
-            // Ajuste en tiempo real de los tamaños de fuente
             if (textoNombre != null && textoNombre.fontSize != tamanoFuenteNombre)
                 textoNombre.fontSize = tamanoFuenteNombre;
 
@@ -240,7 +222,6 @@ namespace SoltaLaPala.Dialogue
                 if (columna != null && !Mathf.Approximately(columna.spacing, espacioEntreLineasOpciones))
                     columna.spacing = espacioEntreLineasOpciones;
 
-                // Navegación con flechas de arriba y abajo entre las opciones
                 if (botonesOpciones.Count > 0)
                 {
                     if (Input.GetKeyDown(KeyCode.UpArrow))
@@ -263,7 +244,6 @@ namespace SoltaLaPala.Dialogue
             }
         }
 
-        // Abre el cuadro de dialogo y pone el nombre del NPC.
         public void Abrir(string nombreNpc)
         {
             if (panel != null) panel.SetActive(true);
@@ -272,7 +252,6 @@ namespace SoltaLaPala.Dialogue
             if (indicadorContinuar != null) indicadorContinuar.SetActive(false);
         }
 
-        // Cierra el cuadro y limpia el texto.
         public void Cerrar()
         {
             if (rutinaEscritura != null)
@@ -289,8 +268,6 @@ namespace SoltaLaPala.Dialogue
             if (panel != null) panel.SetActive(false);
         }
 
-        // Muestra un boton por respuesta, numerados desde 1. alElegir recibe el
-        // indice (desde 0) de la que se toco con el mouse o se eligio con teclado.
         public void MostrarOpciones(IList<string> textos, Action<int> alElegir)
         {
             OcultarOpciones();
@@ -307,13 +284,11 @@ namespace SoltaLaPala.Dialogue
 
             contenedorOpciones.gameObject.SetActive(true);
 
-            // Resaltar la primera opción por defecto
             if (botonesOpciones.Count > 0)
             {
                 ResaltarOpcion(0);
             }
 
-            // Mientras hay que elegir, ESPACIO no avanza el diálogo regular.
             if (indicadorContinuar != null) indicadorContinuar.SetActive(false);
         }
 
@@ -354,8 +329,6 @@ namespace SoltaLaPala.Dialogue
             callback?.Invoke(indice);
         }
 
-        // Columna centrada encima del cuadro de dialogo con el panel de opciones
-        // con su sprite disenado (1000x580) y 4 slots proporcionados.
         private void AsegurarContenedorOpciones()
         {
             if (contenedorOpciones != null)
@@ -370,7 +343,6 @@ namespace SoltaLaPala.Dialogue
 
             if (spritePanelOpciones != null)
             {
-                // Anclado arriba-centro del diálogo, tamaño proporcional al sprite (1000×580) reducido un 30%
                 contenedorOpciones.anchorMin = new Vector2(0.5f, 1f);
                 contenedorOpciones.anchorMax = new Vector2(0.5f, 1f);
                 contenedorOpciones.pivot     = new Vector2(0.5f, 0f);
@@ -422,7 +394,6 @@ namespace SoltaLaPala.Dialogue
             float alturaBoton = spriteBarraSeleccionada != null ? 46f : altoOpcion;
             objeto.AddComponent<LayoutElement>().preferredHeight = alturaBoton;
 
-            // Trigger para activar la barra seleccionada cuando se pasa el mouse por encima
             EventTrigger trigger = objeto.AddComponent<EventTrigger>();
             EventTrigger.Entry entryHover = new EventTrigger.Entry();
             entryHover.eventID = EventTriggerType.PointerEnter;
@@ -431,12 +402,10 @@ namespace SoltaLaPala.Dialogue
 
             if (spriteBarraSeleccionada != null)
             {
-                // Con sprite: la Image base es transparente pero recibe clicks y hover
                 Image fondoTransparente = objeto.AddComponent<Image>();
                 fondoTransparente.color = Color.clear;
                 fondoTransparente.raycastTarget = true;
 
-                // Hijo con la barra de seleccion, estirado para cubrir todo el padre.
                 GameObject seleccionadoImg = new GameObject("BarraSeleccion", typeof(RectTransform));
                 seleccionadoImg.transform.SetParent(objeto.transform, false);
 
@@ -456,12 +425,11 @@ namespace SoltaLaPala.Dialogue
 
                 Button boton = objeto.AddComponent<Button>();
                 boton.targetGraphic = fondoTransparente;
-                boton.transition = Selectable.Transition.None; // El resaltado lo controla ResaltarOpcion
+                boton.transition = Selectable.Transition.None;
                 boton.onClick.AddListener(() => alPulsar());
             }
             else
             {
-                // Sin sprite: comportamiento anterior con colores sobre el fondo plano.
                 Image fondo = objeto.AddComponent<Image>();
                 fondo.color = Color.white;
                 barrasOpciones.Add(fondo);
@@ -500,7 +468,6 @@ namespace SoltaLaPala.Dialogue
             return objeto;
         }
 
-        // Empieza a escribir una linea letra a letra.
         public void MostrarLinea(string linea)
         {
             if (rutinaEscritura != null)
@@ -510,8 +477,6 @@ namespace SoltaLaPala.Dialogue
             rutinaEscritura = StartCoroutine(EscribirLinea(linea));
         }
 
-        // Corta la animacion de escritura y muestra la linea entera de golpe.
-        // Es lo que pasa al pulsar espacio a media frase.
         public void CompletarLinea()
         {
             if (!Escribiendo) return;
@@ -523,16 +488,11 @@ namespace SoltaLaPala.Dialogue
             }
             Escribiendo = false;
             if (textoDialogo != null) textoDialogo.text = lineaActualCompleta;
-            // La linea aparece entera de golpe: sin vibracion.
             if (efectoVibracion != null) efectoVibracion.Detener();
             if (indicadorContinuar != null) indicadorContinuar.SetActive(true);
             AlTerminarLinea?.Invoke();
         }
 
-        // Corrutina que va anadiendo una letra por vez al texto segun letrasPorSegundo.
-        //
-        // Espera en tiempo real y no en tiempo de juego: mientras dura el dialogo el
-        // juego esta congelado (timeScale 0) y con WaitForSeconds el texto no avanzaria.
         private IEnumerator EscribirLinea(string linea)
         {
             Escribiendo = true;
@@ -567,8 +527,6 @@ namespace SoltaLaPala.Dialogue
             AlTerminarLinea?.Invoke();
         }
 
-        // Carga el sprite del path de Resources si el campo del inspector está vacío.
-        // Así el prefab funciona incluso si alguien olvida asignarlo a mano.
         private static Sprite CargarSprite(Sprite asignado, string rutaResources)
         {
             return asignado != null ? asignado : Resources.Load<Sprite>(rutaResources);

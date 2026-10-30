@@ -8,9 +8,6 @@ using UnityEngine.UI;
 
 namespace SoltaLaPala.Dialogue
 {
-    // Menú para elegir qué le entregas a un NPC que te encargó algo (ej: Pala / Palita).
-    // Utiliza el mismo panel de opciones y sprites que las opciones de diálogo y el sabotaje.
-    // Las opciones que no se tienen aparecen en pantalla pero atenuadas y no se pueden seleccionar.
     public class MenuEntrega : MonoBehaviour
     {
         public static MenuEntrega Instancia { get; private set; }
@@ -41,7 +38,6 @@ namespace SoltaLaPala.Dialogue
         [Tooltip("Tecla que cierra el menú sin entregar nada.")]
         public KeyCode teclaSalir = KeyCode.X;
 
-        // Canvas por encima del diálogo (20) y debajo de pausa (120)
         private const int OrdenCanvas = 40;
 
         private GameObject panel;
@@ -56,7 +52,6 @@ namespace SoltaLaPala.Dialogue
 
         public bool Abierto => panel != null && panel.activeSelf;
 
-        // Congela al jugador mientras el menú está abierto.
         private readonly ControlJugador controlJugador = new ControlJugador();
 
         private void Awake()
@@ -91,7 +86,6 @@ namespace SoltaLaPala.Dialogue
         {
             if (!Abierto) return;
 
-            // Mantener tamaño, posición y espaciado en tiempo real
             if (panel != null)
             {
                 RectTransform rtPanel = panel.GetComponent<RectTransform>();
@@ -115,7 +109,6 @@ namespace SoltaLaPala.Dialogue
                 }
             }
 
-            // Navegación por teclado (flechas arriba/abajo)
             if (opcionesActuales.Count > 0)
             {
                 if (Input.GetKeyDown(KeyCode.UpArrow))
@@ -161,8 +154,6 @@ namespace SoltaLaPala.Dialogue
             }
         }
 
-        // Abre el menú con las opciones de esa misión. Devuelve false si no hay
-        // nada que ofrecer, para que quien llama siga con el diálogo normal.
         public bool Abrir(MisionEntrega mision)
         {
             if (mision == null || mision.Completada)
@@ -182,7 +173,6 @@ namespace SoltaLaPala.Dialogue
             panel.SetActive(true);
             controlJugador.Bloquear(true);
 
-            // Seleccionar por defecto la primera opción disponible
             int primeraValida = -1;
             for (int i = 0; i < opciones.Count; i++)
             {
@@ -228,8 +218,6 @@ namespace SoltaLaPala.Dialogue
             }
         }
 
-        // Crea un botón por opción usando exactamente el diseño de InterfazDialogo.
-        // Las opciones no disponibles aparecen pero no se pueden seleccionar.
         private void RellenarBotones(List<MisionEntrega.Opcion> opciones)
         {
             foreach (GameObject viejo in botones)
@@ -261,7 +249,6 @@ namespace SoltaLaPala.Dialogue
 
                 objeto.AddComponent<LayoutElement>().preferredHeight = 46f;
 
-                // EventTrigger para activar la barra seleccionada al pasar el ratón (solo si está disponible)
                 if (opcion.disponible)
                 {
                     EventTrigger trigger = objeto.AddComponent<EventTrigger>();
@@ -270,12 +257,10 @@ namespace SoltaLaPala.Dialogue
                     trigger.triggers.Add(entryHover);
                 }
 
-                // Imagen base para raycasts
                 Image fondoTransparente = objeto.AddComponent<Image>();
                 fondoTransparente.color = Color.clear;
                 fondoTransparente.raycastTarget = opcion.disponible;
 
-                // Overlay de selección
                 GameObject seleccionadoImg = new GameObject("BarraSeleccion", typeof(RectTransform));
                 seleccionadoImg.transform.SetParent(objeto.transform, false);
 
@@ -307,7 +292,6 @@ namespace SoltaLaPala.Dialogue
                     boton.interactable = false;
                 }
 
-                // Texto de la opción
                 GameObject objetoTexto = new GameObject("Texto", typeof(RectTransform));
                 objetoTexto.transform.SetParent(objeto.transform, false);
 

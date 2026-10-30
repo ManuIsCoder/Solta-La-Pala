@@ -13,10 +13,10 @@ namespace SoltaLaPala.Minijuegos
 
         [Header("UI")]
         public Button botonEncender;
-        public Button botonTenedor;    
+        public Button botonTenedor;
         public Button botonSalir;
         public Slider barraCalentado;
-        public GameObject particulasHumo;  
+        public GameObject particulasHumo;
 
         [Header("Ajustes")]
         public float velocidadCalentado = 0.15f;
@@ -85,7 +85,6 @@ namespace SoltaLaPala.Minijuegos
             if (calentando) return;
             calentando = true;
             if (botonEncender != null) botonEncender.interactable = false;
-            // Si hay tenedor adentro, activa el humo
             if (tenedorAdentro && particulasHumo != null)
                 particulasHumo.SetActive(true);
         }

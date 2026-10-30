@@ -5,11 +5,6 @@ using UnityEngine;
 
 namespace SoltaLaPala.Editor
 {
-    // Arma los prefabs de Assets/Prefabs/con sonido: objetos de oficina que ya
-    // traen su sonido puesto, partiendo de los mismos modelos que usa el nivel 2.
-    //
-    // Uso: menu "Solta La Pala > Generar prefabs con sonido". Se puede volver a
-    // correr: reemplaza los prefabs que ya existan con ese nombre.
     public static class GeneradorPrefabsConSonido
     {
         private const string CarpetaPadre = "Assets/Prefabs";
@@ -17,8 +12,6 @@ namespace SoltaLaPala.Editor
         private const string Carpeta = CarpetaPadre + "/" + NombreCarpeta;
         private const string Audio = "Assets/Resources/Audio/Objetos/";
 
-        // Modelos de origen (los mismos que se ven en el nivel 2, salvo impresora
-        // y telefono, que la tarea pide de otras carpetas).
         private const string ModeloHeladera = "Assets/librerias office/kenney/kenney_furniture-kit/Models/FBX format/kitchenFridge.fbx";
         private const string ModeloLuz = "Assets/librerias office/LowPolyOfficeProps_FULL/Prefabs/Light_SuspendedStripLight_A.prefab";
         private const string ModeloMicroondas = "Assets/librerias office/VNB - Office Set/Prefabs/Office/microwave_new.prefab";
@@ -71,7 +64,6 @@ namespace SoltaLaPala.Editor
             }
         }
 
-        // Arma un prefab con la funcion indicada y lo guarda. Devuelve 1 si salio bien.
         private static int Crear(string nombre, System.Func<GameObject> armar, List<string> avisos)
         {
             GameObject raiz = armar();
@@ -87,7 +79,6 @@ namespace SoltaLaPala.Editor
             return 1;
         }
 
-        // Objeto que suena siempre (heladera, luz): modelo + SonidoObjeto en bucle.
         private static GameObject ArmarConstante(string rutaModelo, string archivoAudio, float distanciaMaxima, List<string> avisos)
         {
             GameObject raiz = InstanciarModelo(rutaModelo, avisos);
@@ -106,7 +97,6 @@ namespace SoltaLaPala.Editor
             return raiz;
         }
 
-        // Objeto que suena solo al usarlo con [E]: modelo + collider + interaccion.
         private static GameObject ArmarInteractuable(string rutaModelo, string texto, string[] archivosAudio, List<string> avisos)
         {
             GameObject raiz = InstanciarModelo(rutaModelo, avisos);
@@ -139,7 +129,6 @@ namespace SoltaLaPala.Editor
             return raiz;
         }
 
-        // Teclado y mouse en un solo objeto, con un unico componente que reparte los sonidos.
         private static GameObject ArmarTecladoConMouse(List<string> avisos)
         {
             GameObject teclado = InstanciarModelo(ModeloTeclado, avisos);
@@ -160,7 +149,6 @@ namespace SoltaLaPala.Editor
             teclado.transform.SetParent(raiz.transform, false);
             mouse.transform.SetParent(raiz.transform, false);
 
-            // El mouse se pone al lado del teclado, apoyado en la misma base.
             Bounds cajaTeclado = CalcularCaja(teclado);
             Bounds cajaMouse = CalcularCaja(mouse);
             const float separacion = 0.05f;
@@ -201,8 +189,6 @@ namespace SoltaLaPala.Editor
             return clip;
         }
 
-        // Si el modelo no trae ningun collider, le pone una caja del tamano del modelo
-        // para que el jugador pueda apuntarlo.
         private static void AsegurarCollider(GameObject raiz)
         {
             if (raiz.GetComponentInChildren<Collider>() != null)
@@ -213,8 +199,6 @@ namespace SoltaLaPala.Editor
             Bounds caja = CalcularCaja(raiz);
             BoxCollider colision = raiz.AddComponent<BoxCollider>();
 
-            // La caja esta en coordenadas del mundo y el objeto esta en el origen sin
-            // rotar ni escalar, asi que coincide con las locales.
             colision.center = raiz.transform.InverseTransformPoint(caja.center);
             colision.size = caja.size;
         }

@@ -11,11 +11,6 @@ using UnityEngine;
 
 namespace SoltaLaPala.Menus
 {
-    // Lleva la cuenta de Impacto y Sospecha de la partida en curso y decide
-    // cuando se gana o se pierde.
-    //
-    // Los sabotajes llaman a RegistrarSabotaje() en vez de hacer solo un Debug.Log,
-    // y esta clase avisa al GestorMenus cuando hay que mostrar victoria o derrota.
     public class EstadoPartida : MonoBehaviour, IGuardable
     {
         public static EstadoPartida Instancia { get; private set; }
@@ -23,7 +18,7 @@ namespace SoltaLaPala.Menus
         [Header("Objetivos del nivel")]
         [Tooltip("Impacto que hay que acumular para ganar el nivel.")]
         public int impactoObjetivo = 10;
-        [Tooltip("Si la sospecha llega a este valor, te pillan y pierdes.")]
+        [Tooltip("Si la sospecha llega a este valor, te descubren y pierdes.")]
         public int sospechaMaxima = 100;
         [Tooltip("Segundos que dura el nivel. Si llega a 0 se pierde.")]
         public float duracionNivel = 300f;
@@ -33,7 +28,6 @@ namespace SoltaLaPala.Menus
         public float velocidadSospechaLejos = 10f;
         [Tooltip("Velocidad de subida de sospecha por segundo cuando te ven de cerca (ojo rojo).")]
         public float velocidadSospechaCerca = 25f;
-        // Permite marcar acciones sospechosas desde otros scripts
         public static bool AccionSospechosaEnCurso { get; set; }
         private float sospechaAcumulada;
 
@@ -42,13 +36,10 @@ namespace SoltaLaPala.Menus
         [SerializeField] private int sospecha;
         [SerializeField] private float tiempoRestante;
 
-        // Avisa cuando cambian los contadores, para que un HUD pueda pintarlos.
         public event Action<int, int> AlCambiarContadores;
 
-        // Avisa cada vez que corre el reloj, con los segundos que quedan.
         public event Action<float> AlCambiarTiempo;
 
-        // Avisa cuando arranca un nivel, nuevo o cargado de un guardado.
         public event Action AlEmpezarNivel;
 
         public int Impacto => impacto;
@@ -56,14 +47,10 @@ namespace SoltaLaPala.Menus
         public int ImpactoObjetivo => impactoObjetivo;
         public int SospechaMaxima => sospechaMaxima;
 
-        // Segundos que quedan para que se acabe el nivel.
         public float TiempoRestante => tiempoRestante;
 
-        // True cuando la partida ya termino, para no disparar el final dos veces.
         public bool PartidaTerminada { get; private set; }
 
-        // True mientras hay un nivel jugandose. El reloj solo corre si esto esta
-        // encendido, para que no se gaste tiempo en el menu principal.
         public bool PartidaEnCurso { get; private set; }
 
         private void Awake()
@@ -78,30 +65,18 @@ namespace SoltaLaPala.Menus
             tiempoRestante = duracionNivel;
         }
 
-        // Arranca el reloj. Lo llama GestorMenus al entrar al juego, tanto en
-        // partida nueva como al cargar una guardada.
         public void EmpezarNivel()
         {
             PartidaEnCurso = true;
             AlEmpezarNivel?.Invoke();
         }
 
-        // Deja el nivel como recien empezado: contadores, reloj, objetos gastados,
-        // misiones, inventario y posicion del jugador.
-        //
-        // Vive aqui y no repartido por los menus porque antes cada sitio que
-        // "reiniciaba" limpiaba solo una parte, y al volver a jugar te encontrabas
-        // las misiones ya hechas o al PJ donde lo habias dejado.
         public void ReiniciarNivel()
         {
             Reiniciar();
 
-            // Lo primero: cerrar lo que pueda estar a medias (minijuego, dialogo),
-            // porque deja bloqueado al jugador y el HUD oculto.
             GestorMinijuego.Instancia?.ForzarCierre();
 
-            // Los objetos soltados se borran antes de reactivar los originales,
-            // para que no quede cada objeto duplicado.
             ObjetoSoltado.DestruirTodos();
             RegistroObjetosConsumidos.Instancia?.Limpiar();
 
@@ -121,7 +96,6 @@ namespace SoltaLaPala.Menus
             }
         }
 
-        // Los NPC vuelven a su sitio, sin vigilar y con la ruta desde el principio.
         private static void ReiniciarNpcs()
         {
             foreach (PatrullaNPC patrulla in
@@ -131,7 +105,6 @@ namespace SoltaLaPala.Menus
             }
         }
 
-        // Las misiones vuelven a estar pendientes y los NPC a su dialogo inicial.
         private static void ReiniciarMisiones()
         {
             foreach (MisionEntrega mision in
@@ -143,8 +116,6 @@ namespace SoltaLaPala.Menus
 
         private static void ReiniciarDialogos()
         {
-            // Primero se cierra el dialogo en marcha (si lo hay), que si no deja el
-            // tiempo congelado y al jugador bloqueado en el nivel nuevo.
             GestorDialogos.Instancia?.CancelarDialogo();
 
             foreach (DialogoNPC npc in
@@ -154,7 +125,6 @@ namespace SoltaLaPala.Menus
             }
         }
 
-        // Vacia el inventario y devuelve al jugador a donde arranco la escena.
         private static void ReiniciarJugador()
         {
             GameObject jugador = GameObject.FindGameObjectWithTag("Player");
@@ -167,16 +137,9 @@ namespace SoltaLaPala.Menus
             jugador.GetComponent<InventarioJugador>()?.Vaciar();
             jugador.GetComponent<MovimientoJugador>()?.VolverAlInicio();
 
-            // Despues del jugador: la camara se coloca respecto de donde quedo el PJ.
-            // Sin esto conserva el angulo viejo y viaja volando hasta el punto de inicio.
             FindFirstObjectByType<CamaraTerceraPersona>()?.VolverAlInicio();
         }
 
-        // Corre el reloj del nivel y pierde la partida al llegar a 0.
-        //
-        // Usa Time.deltaTime y no unscaledDeltaTime a proposito: GestorMenus pone
-        // timeScale a 0 con cualquier menu abierto, asi que el reloj se pausa solo
-        // mientras el jugador esta en la pausa o la configuracion.
         private void Update()
         {
             if (!PartidaEnCurso || PartidaTerminada)
@@ -191,8 +154,6 @@ namespace SoltaLaPala.Menus
                 tiempoRestante = 0f;
                 AlCambiarTiempo?.Invoke(tiempoRestante);
 
-                // El reloj a 0 no es derrota automatica: es el momento en que se
-                // mira si llegaste al impacto objetivo.
                 ResolverFinalPorTiempo();
                 return;
             }
@@ -202,7 +163,6 @@ namespace SoltaLaPala.Menus
             ActualizarSospechaContinua();
         }
 
-        // Sube la sospecha de forma lineal/continua si te ven y estás haciendo algo sospechoso
         private void ActualizarSospechaContinua()
         {
             var visionHud = IndicadorVisionHUD.Instancia;
@@ -210,12 +170,10 @@ namespace SoltaLaPala.Menus
             {
                 return;
             }
-            // Solo sube si estás haciendo algo malo o llevas objeto prohibido
             if (!EsJugadorSospechoso())
             {
                 return;
             }
-            // Ojo rojo sube más rápido que ojo normal
             float velocidad = (visionHud.EstadoActual == DetectorVisionNPC.EstadoVision.VeCerca)
                 ? velocidadSospechaCerca
                 : velocidadSospechaLejos;
@@ -228,7 +186,6 @@ namespace SoltaLaPala.Menus
                 ComprobarFinal();
             }
         }
-        // True si estás en menú de sabotaje, con flag sospechoso o con un item prohibido en la mano
         public bool EsJugadorSospechoso()
         {
             if (AccionSospechosaEnCurso)
@@ -245,7 +202,7 @@ namespace SoltaLaPala.Menus
                 return true;
             }
             return false;
-        }        
+        }
 
         private void OnDestroy()
         {
@@ -255,7 +212,6 @@ namespace SoltaLaPala.Menus
             }
         }
 
-        // Suma el resultado de un sabotaje y comprueba si la partida termino.
         public void RegistrarSabotaje(int impactoGanado, int sospechaGanada)
         {
             if (PartidaTerminada)
@@ -272,8 +228,6 @@ namespace SoltaLaPala.Menus
             ComprobarFinal();
         }
 
-        // Sube o baja la sospecha por una decision del jugador, como las respuestas
-        // de dialogo. Igual que un sabotaje: si llega al maximo te pillan.
         public void CambiarSospecha(int cantidad)
         {
             if (cantidad == 0)
@@ -284,7 +238,6 @@ namespace SoltaLaPala.Menus
             RegistrarSabotaje(0, cantidad);
         }
 
-        // Baja la sospecha (por ejemplo al disimular o esperar).
         public void ReducirSospecha(int cantidad)
         {
             if (PartidaTerminada || cantidad <= 0)
@@ -296,26 +249,16 @@ namespace SoltaLaPala.Menus
             AlCambiarContadores?.Invoke(impacto, sospecha);
         }
 
-        // Pierdes si te pillan; ganas si llegas al impacto objetivo sin que te pillen.
-        // El orden importa: la derrota manda sobre la victoria en el mismo sabotaje.
         private void ComprobarFinal()
         {
             if (sospecha >= sospechaMaxima)
             {
-                // El NPC que te esta viendo dice lo suyo antes de la pantalla de
-                // derrota: te pillo el, no una barra que llego al final.
                 DispararDialogoDeCaptura();
 
-                TerminarPartida(false, "Te pillaron con las manos en la masa.");
+                TerminarPartida(false, "Te atraparon con las manos en la masa.");
             }
-
-            // Llegar al impacto objetivo NO termina el nivel: el nivel dura lo que
-            // dura el reloj, y asi se puede seguir sumando por encima del minimo.
-            // La victoria se resuelve en ResolverFinalPorTiempo.
         }
 
-        // Cierra el nivel cuando se acaba el reloj: se gana si se alcanzo el
-        // impacto objetivo, se pierde si no.
         private void ResolverFinalPorTiempo()
         {
             if (impacto >= impactoObjetivo)
@@ -329,11 +272,6 @@ namespace SoltaLaPala.Menus
                 $"Se acabo el tiempo con {impacto}/{impactoObjetivo} de impacto. No hiciste suficiente.");
         }
 
-        // Hace hablar al NPC que te pillo, si tiene dialogo de Detectado.
-        //
-        // Se elige el que te este viendo ahora mismo; si ninguno te ve (la sospecha
-        // pudo llegar al tope por un sabotaje a solas) se usa el mas cercano, que
-        // es el que el jugador va a asumir que lo descubrio.
         private void DispararDialogoDeCaptura()
         {
             DetectorVisionNPC[] detectores =
@@ -356,7 +294,6 @@ namespace SoltaLaPala.Menus
                 bool teVe = detector.Estado != DetectorVisionNPC.EstadoVision.SinVer;
                 float distancia = Vector3.Distance(detector.transform.position, posicionJugador);
 
-                // Uno que te ve gana siempre a uno que no, aunque este mas lejos.
                 bool mejor = elegido == null
                     || (teVe && !elegidoTeVe)
                     || (teVe == elegidoTeVe && distancia < mejorDistancia);
@@ -372,7 +309,6 @@ namespace SoltaLaPala.Menus
             elegido?.GetComponent<DialogoNPC>()?.DispararDetectado();
         }
 
-        // Cierra la partida, guarda el resultado y abre la pantalla de final.
         public void TerminarPartida(bool victoria, string detalle = null)
         {
             if (PartidaTerminada)
@@ -391,8 +327,6 @@ namespace SoltaLaPala.Menus
                 ProgresoNiveles.CompletarNivel(nivel);
             }
 
-            // Un nivel terminado no se retoma: dejar el guardado vivo haria que
-            // "Continuar" devolviera al jugador a una partida ya resuelta.
             GuardadoPartida.Borrar();
 
             if (GestorMenus.Instancia == null)
@@ -411,7 +345,6 @@ namespace SoltaLaPala.Menus
             }
         }
 
-        // Deja los contadores a cero para volver a jugar el nivel.
         public void Reiniciar()
         {
             impacto = 0;
@@ -420,12 +353,8 @@ namespace SoltaLaPala.Menus
             tiempoRestante = duracionNivel;
             PartidaTerminada = false;
 
-            // Es estatica y sobrevive al nivel: si quedo encendida, la sospecha
-            // seguiria subiendo desde el primer segundo del nivel nuevo.
             AccionSospechosaEnCurso = false;
 
-            // Reiniciar deja el nivel listo, no lanzado: lo arranca EmpezarNivel
-            // cuando el jugador vuelve al juego.
             PartidaEnCurso = false;
             AlCambiarContadores?.Invoke(impacto, sospecha);
             AlCambiarTiempo?.Invoke(tiempoRestante);
@@ -444,12 +373,8 @@ namespace SoltaLaPala.Menus
             sospecha = datos.sospecha;
             sospechaAcumulada = sospecha;
 
-            // Un guardado viejo (sin tiempo escrito) traeria 0 y mataria la partida
-            // en el primer frame. Si no hay tiempo valido, se arranca con el completo.
             tiempoRestante = datos.tiempoRestante > 0f ? datos.tiempoRestante : duracionNivel;
 
-            // El guardado solo existe para partidas en curso, asi que cargar una
-            // siempre deja la partida abierta.
             PartidaTerminada = false;
 
             AlCambiarContadores?.Invoke(impacto, sospecha);

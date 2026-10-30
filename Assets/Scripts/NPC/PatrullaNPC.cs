@@ -4,12 +4,6 @@ using UnityEngine;
 
 namespace SoltaLaPala.NPC
 {
-    // Mueve al NPC por una RutaNPC en bucle, y lo frena para que te mire fijo
-    // cuando te pilla.
-    //
-    // Sin ruta asignada el NPC se queda quieto donde este, pero sigue girandose
-    // hacia el jugador si lo ve: asi los NPC estaticos usan el mismo componente
-    // que los que patrullan.
     [RequireComponent(typeof(DetectorVisionNPC))]
     public class PatrullaNPC : MonoBehaviour
     {
@@ -32,27 +26,20 @@ namespace SoltaLaPala.NPC
         public float esperaTrasPerderte = 2f;
 
         [Header("Vigilancia")]
-        [Tooltip("Velocidad de giro al clavarte la mirada. Mas rapido que el " +
-                 "giro normal: te acaba de pillar.")]
+        [Tooltip("Velocidad de giro al mirar al jugador.")]
         public float velocidadGiroVigilando = 540f;
 
         private DetectorVisionNPC detector;
         private Transform transformJugador;
 
-        // Indice de la parada a la que se dirige ahora.
         private int indiceDestino;
-        // 1 yendo hacia adelante por la ruta, -1 de vuelta. Solo lo usa IdaYVuelta.
         private int sentido = 1;
 
-        // Cuenta atras de la espera en el punto actual.
         private float esperaRestante;
-        // Cuenta atras desde que dejo de verte.
         private float vigilanciaRestante;
 
-        // True mientras esta plantado mirandote en vez de patrullando.
         public bool Vigilando { get; private set; }
 
-        // Donde y como estaba el NPC al cargar el nivel, para poder reiniciarlo.
         private Vector3 posicionInicial;
         private Quaternion rotacionInicial;
 
@@ -64,8 +51,6 @@ namespace SoltaLaPala.NPC
             rotacionInicial = transform.rotation;
         }
 
-        // Deja al NPC como al entrar al nivel: en su sitio, mirando donde miraba,
-        // sin vigilar al jugador y con la ruta empezada de nuevo.
         public void Reiniciar()
         {
             transform.SetPositionAndRotation(posicionInicial, rotacionInicial);
@@ -81,15 +66,11 @@ namespace SoltaLaPala.NPC
         {
             BuscarJugador();
 
-            // Se arranca yendo al punto mas cercano y no al primero: si no, un NPC
-            // colocado a mitad de ruta cruza el mapa en linea recta al empezar.
             indiceDestino = BuscarPuntoMasCercano();
         }
 
         private void Update()
         {
-            // Con un menu abierto el juego esta pausado. Time.deltaTime ya vale 0,
-            // pero se sale antes para no gastar el resto del calculo.
             if (GestorMenus.Instancia != null && GestorMenus.Instancia.HayMenuAbierto)
             {
                 return;
@@ -100,9 +81,6 @@ namespace SoltaLaPala.NPC
                 BuscarJugador();
             }
 
-            // Si el dialogo es con este NPC se queda quieto mirando a quien le
-            // habla: seguir la ruta lo haria irse caminando a mitad de frase.
-            // Los demas NPC siguen con lo suyo.
             if (HablandoConmigo())
             {
                 MirarAlJugador();
@@ -120,8 +98,6 @@ namespace SoltaLaPala.NPC
             Patrullar();
         }
 
-        // Decide si el NPC esta en modo vigilancia y lleva la cuenta atras de
-        // cuanto le queda para volver a lo suyo.
         private void ActualizarVigilancia()
         {
             bool teVe = detector.Estado != DetectorVisionNPC.EstadoVision.SinVer;
@@ -138,20 +114,16 @@ namespace SoltaLaPala.NPC
                 return;
             }
 
-            // Dejo de verte: no vuelve a la ruta de inmediato, se queda un rato
-            // mirando hacia donde estabas.
             vigilanciaRestante -= Time.deltaTime;
 
             if (vigilanciaRestante <= 0f)
             {
                 Vigilando = false;
 
-                // Al retomar, la espera del punto se salta: ya estuvo parado de sobra.
                 esperaRestante = 0f;
             }
         }
 
-        // Gira hacia el jugador sin moverse del sitio.
         private void MirarAlJugador()
         {
             if (transformJugador == null)
@@ -161,14 +133,11 @@ namespace SoltaLaPala.NPC
 
             Vector3 haciaJugador = transformJugador.position - transform.position;
 
-            // Se anula la componente vertical: el NPC gira sobre si mismo, no se
-            // inclina para mirar al suelo o al techo.
             haciaJugador.y = 0f;
 
             GirarHacia(haciaJugador, velocidadGiroVigilando);
         }
 
-        // Avanza hacia la parada actual y encadena con la siguiente al llegar.
         private void Patrullar()
         {
             if (ruta == null || ruta.CantidadPuntos == 0)
@@ -184,8 +153,6 @@ namespace SoltaLaPala.NPC
 
             Vector3 destino = ruta.ObtenerPosicion(indiceDestino);
 
-            // La altura la marca el suelo donde esta el NPC, no el punto: asi las
-            // marcas se pueden colocar a ojo sin que el NPC flote o se hunda.
             destino.y = transform.position.y;
 
             Vector3 haciaDestino = destino - transform.position;
@@ -203,12 +170,10 @@ namespace SoltaLaPala.NPC
                 transform.position, destino, velocidad * Time.deltaTime);
         }
 
-        // Rota suavemente hacia una direccion horizontal.
         private void GirarHacia(Vector3 direccion, float gradosPorSegundo)
         {
             direccion.y = 0f;
 
-            // Una direccion casi nula da una rotacion indefinida y hace temblar al NPC.
             if (direccion.sqrMagnitude < 0.0001f)
             {
                 return;
@@ -220,7 +185,6 @@ namespace SoltaLaPala.NPC
                 gradosPorSegundo * Time.deltaTime);
         }
 
-        // Parada mas cercana a donde esta el NPC ahora.
         private int BuscarPuntoMasCercano()
         {
             if (ruta == null || ruta.CantidadPuntos == 0)
@@ -245,7 +209,6 @@ namespace SoltaLaPala.NPC
             return mejor;
         }
 
-        // True si la conversacion en marcha es con este NPC.
         private bool HablandoConmigo()
         {
             GestorDialogos gestor = GestorDialogos.Instancia;

@@ -3,11 +3,6 @@ using UnityEngine.UI;
 
 namespace SoltaLaPala.Menus
 {
-    // Temporizador del nivel en pantalla, arriba a la izquierda.
-    //
-    // PROTOTIPO: de momento es solo el numero. Mas adelante va a ser un reloj
-    // dibujado; cuando ese arte exista se asigna al campo 'texto' y la generacion
-    // por codigo se apaga sola (mismo criterio que InterfazInventario y MenuBase).
     public class HudTiempo : MonoBehaviour
     {
         [Header("Referencias")]
@@ -22,14 +17,10 @@ namespace SoltaLaPala.Menus
         [Tooltip("Por debajo de estos segundos el numero se pinta en rojo.")]
         public float segundosDeAviso = 30f;
 
-        // Se dibuja debajo de cualquier menu: con la pausa abierta el reloj no
-        // tiene que taparla.
         private const int OrdenCanvas = 50;
 
         private EstadoPartida estadoSuscrito;
 
-        // Ultimo valor pintado, en segundos enteros. Evita reconstruir el string
-        // en cada frame cuando el numero visible no cambio.
         private int ultimoSegundoPintado = -1;
 
         private void Awake()
@@ -40,9 +31,6 @@ namespace SoltaLaPala.Menus
             }
         }
 
-        // La suscripcion va en OnEnable/OnDisable y no en Awake porque el
-        // EstadoPartida puede crearse despues que este HUD: si en el primer intento
-        // no esta, Update lo vuelve a intentar.
         private void OnEnable()
         {
             Suscribir();
@@ -55,8 +43,6 @@ namespace SoltaLaPala.Menus
 
         private void Update()
         {
-            // EstadoPartida se recrea al cambiar de escena o de partida, asi que
-            // hay que reengancharse al nuevo.
             if (estadoSuscrito != EstadoPartida.Instancia)
             {
                 Desuscribir();
@@ -66,8 +52,6 @@ namespace SoltaLaPala.Menus
             ActualizarVisibilidad();
         }
 
-        // El reloj solo se ve mientras se esta jugando: en el menu principal no
-        // hay nivel en curso, y en la pausa taparia el panel.
         private void ActualizarVisibilidad()
         {
             if (texto == null)
@@ -97,7 +81,6 @@ namespace SoltaLaPala.Menus
             estado.AlCambiarTiempo += Pintar;
             estadoSuscrito = estado;
 
-            // Pintar de entrada para no mostrar el placeholder hasta el primer tick.
             Pintar(estado.TiempoRestante);
         }
 
@@ -110,7 +93,6 @@ namespace SoltaLaPala.Menus
             }
         }
 
-        // Pinta los segundos restantes como M:SS.
         private void Pintar(float segundosRestantes)
         {
             if (texto == null)
@@ -118,8 +100,6 @@ namespace SoltaLaPala.Menus
                 return;
             }
 
-            // Hacia arriba: mientras quede una fraccion de segundo se sigue viendo
-            // un 1, y el 0 aparece solo cuando el tiempo se agoto de verdad.
             int totalSegundos = Mathf.Max(0, Mathf.CeilToInt(segundosRestantes));
 
             if (totalSegundos == ultimoSegundoPintado)
@@ -135,12 +115,10 @@ namespace SoltaLaPala.Menus
                 : ConstructorUI.ColorTexto;
         }
 
-        // Crea el canvas y el numero anclados arriba a la izquierda.
         private void GenerarInterfaz()
         {
             Canvas canvas = ConstructorUI.CrearCanvas("CanvasHudTiempo", transform, OrdenCanvas);
 
-            // El HUD no recibe clicks: su raycaster solo robaria eventos a los menus.
             Destroy(canvas.GetComponent<GraphicRaycaster>());
 
             texto = ConstructorUI.CrearTexto("Tiempo", canvas.transform, "0:00",

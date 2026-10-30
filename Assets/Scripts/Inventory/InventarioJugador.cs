@@ -3,22 +3,17 @@ using SoltaLaPala.Dialogue;
 using SoltaLaPala.Guardado;
 using SoltaLaPala.Interaction;
 using SoltaLaPala.Menus;
+using SoltaLaPala.Personajes;
 using UnityEngine;
 
 namespace SoltaLaPala.Inventory
 {
-    // Inventario del jugador estilo PEAK / hotbar de Minecraft: 3 slots fijos,
-    // se cambia de slot con las teclas 1, 2 y 3.
-    // Siempre hay un slot seleccionado, pero ese slot puede estar vacio:
-    // al usar o soltar un item el slot se queda vacio y el PJ queda con las manos vacias.
-    // Solo cuando los 3 slots estan llenos es imposible tener las manos vacias.
     public class InventarioJugador : MonoBehaviour, IGuardable
     {
         public const int CantidadSlots = 3;
 
         [Header("Mano")]
-        [Tooltip("Punto delante del jugador donde flota el item sujeto (luego sera el hueso de la mano). " +
-                 "Si se deja vacio se crea solo con el offset de abajo.")]
+        [Tooltip("Punto donde flota el item sujeto. Si se deja vacio se crea con el offset de abajo.")]
         public Transform anclaMano;
 
         [Tooltip("Donde flota el item respecto al jugador, si no hay ancla asignada. " +
@@ -28,8 +23,7 @@ namespace SoltaLaPala.Inventory
         [Tooltip("Giro del item en la mano, en grados.")]
         public Vector3 rotacionMano = new Vector3(0f, 0f, 0f);
 
-        [Tooltip("Escala del item mientras esta sujeto. Los objetos del mundo " +
-                 "suelen ser demasiado grandes vistos de cerca.")]
+        [Tooltip("Escala del item mientras esta sujeto.")]
         public float escalaEnMano = 1f;
 
         [Tooltip("Cuanto flota el item arriba y abajo. 0 lo deja quieto.")]
@@ -38,28 +32,27 @@ namespace SoltaLaPala.Inventory
         [Tooltip("Velocidad del flotado, en ciclos por segundo.")]
         public float velocidadFlotado = 1.5f;
 
+        [Header("Mano del modelo")]
+        [Tooltip("Posicion del item respecto al hueso de la mano derecha, en metros.")]
+        public Vector3 offsetEnHueso = new Vector3(0.08f, 0.02f, 0f);
+
+        [Tooltip("Giro del item respecto al hueso de la mano derecha, en grados.")]
+        public Vector3 rotacionEnHueso = Vector3.zero;
+
         private readonly DatosItem[] slots = new DatosItem[CantidadSlots];
         private int slotSeleccionado = 0;
         private GameObject instanciaEnMano;
 
-        // True si el ancla la creo este script. Solo entonces se le aplican
-        // offsetMano y el flotado: un ancla puesta a mano (o un hueso del
-        // esqueleto) manda ella, y moverla seria pelearse con la animacion.
-        private bool anclaCreada;
+        private bool anclaFlotante;
 
-        // Se dispara cuando cambia el contenido de un slot. Parametro: indice del slot.
         public event Action<int> AlCambiarSlot;
 
-        // Se dispara cuando cambia el slot seleccionado. Parametro: nuevo indice.
         public event Action<int> AlCambiarSeleccion;
 
         public int SlotSeleccionado => slotSeleccionado;
 
-        // Item del slot seleccionado, o null si ese slot esta vacio (manos vacias).
         public DatosItem ItemSeleccionado => slots[slotSeleccionado];
 
-        // Si no hay ancla puesta en el inspector, se crea una delante del jugador
-        // para que el item sujeto se vea flotando como si lo llevara en la mano.
         private void Awake()
         {
             if (anclaMano == null)
@@ -70,18 +63,44 @@ namespace SoltaLaPala.Inventory
                 objeto.transform.localRotation = Quaternion.Euler(rotacionMano);
                 anclaMano = objeto.transform;
 
-                anclaCreada = true;
+                anclaFlotante = true;
             }
         }
 
-        // Lee las teclas de slot y cambia el slot seleccionado.
+        private void Start()
+        {
+            ColgarDeLaMano();
+        }
+
+        public void ColgarDeLaMano()
+        {
+            if (!anclaFlotante)
+            {
+                return;
+            }
+
+            ModeloPersonaje modelo = GetComponent<ModeloPersonaje>();
+            Transform mano = modelo != null ? modelo.BuscarHueso(ModeloPersonaje.HuesoManoDerecha) : null;
+            if (mano == null)
+            {
+                return;
+            }
+
+            anclaFlotante = false;
+            anclaMano.SetParent(mano, false);
+            anclaMano.localPosition = offsetEnHueso;
+            anclaMano.localRotation = Quaternion.Euler(rotacionEnHueso);
+
+            Vector3 escalaMano = mano.lossyScale;
+            anclaMano.localScale = new Vector3(1f / escalaMano.x, 1f / escalaMano.y, 1f / escalaMano.z);
+
+            ActualizarItemEnMano();
+        }
+
         private void Update()
         {
             AnimarItemEnMano();
 
-            // Con un menu abierto el juego esta pausado y el jugador esta navegando
-            // la UI: no debe cambiar de item sin querer. Lo mismo hablando con un NPC:
-            // no se puede soltar ni cambiar de item en mitad de una conversacion.
             if (GestorMenus.Instancia != null && GestorMenus.Instancia.HayMenuAbierto)
             {
                 return;
@@ -92,8 +111,6 @@ namespace SoltaLaPala.Inventory
                 return;
             }
 
-            // Slot1, Slot2 y Slot3 son valores consecutivos del enum, asi que
-            // se generan sumando el indice en vez de escribir un if por tecla.
             for (int i = 0; i < CantidadSlots; i++)
             {
                 if (ControlesJuego.Pulsada(AccionJuego.Slot1 + i))
@@ -104,25 +121,19 @@ namespace SoltaLaPala.Inventory
                 }
             }
 
-            // Tecla Q (SoltarObjeto) para soltar el item seleccionado al suelo
             if (ControlesJuego.Pulsada(AccionJuego.SoltarObjeto))
             {
                 SoltarItemSeleccionado();
             }
         }
 
-        // Mueve el ancla arriba y abajo para que el item se vea flotando en vez de
-        // clavado en el aire. Solo si el ancla la creamos nosotros.
         private void AnimarItemEnMano()
         {
-            if (!anclaCreada || anclaMano == null)
+            if (!anclaFlotante || anclaMano == null)
             {
                 return;
             }
 
-            // Se reposiciona desde offsetMano en vez de acumular sobre la posicion
-            // actual, asi tocar el offset en el inspector durante Play se ve al momento
-            // y el flotado no deriva con el tiempo.
             float desplazamiento = amplitudFlotado > 0f
                 ? Mathf.Sin(Time.time * velocidadFlotado * Mathf.PI * 2f) * amplitudFlotado
                 : 0f;
@@ -131,9 +142,6 @@ namespace SoltaLaPala.Inventory
             anclaMano.localRotation = Quaternion.Euler(rotacionMano);
         }
 
-        // Mete el item en el slot seleccionado si esta libre; si no, en el primer slot vacio.
-        // Devuelve false si los 3 slots estan ocupados.
-        // Si acaba en el slot seleccionado, el item pasa directamente a la mano.
         public bool IntentarAgregarItem(DatosItem item)
         {
             if (item == null)
@@ -141,8 +149,6 @@ namespace SoltaLaPala.Inventory
                 return false;
             }
 
-            // Prioridad al slot que tenes activo: recoges algo y te queda en la mano,
-            // que es lo que espera el jugador.
             int destino = slots[slotSeleccionado] == null
                 ? slotSeleccionado
                 : ObtenerPrimerSlotVacio();
@@ -155,6 +161,12 @@ namespace SoltaLaPala.Inventory
             slots[destino] = item;
             AlCambiarSlot?.Invoke(destino);
 
+            ModeloPersonaje modelo = GetComponent<ModeloPersonaje>();
+            if (modelo != null && modelo.Animador != null)
+            {
+                modelo.Animador.Agarrar();
+            }
+
             if (destino == slotSeleccionado)
             {
                 ActualizarItemEnMano();
@@ -163,8 +175,6 @@ namespace SoltaLaPala.Inventory
             return true;
         }
 
-        // Vacia el slot y devuelve el item que habia (para soltarlo, usarlo o darselo a un NPC).
-        // La seleccion no se mueve: si era el slot seleccionado, el PJ queda con las manos vacias.
         public DatosItem QuitarItem(int indiceSlot)
         {
             if (!EsIndiceValido(indiceSlot) || slots[indiceSlot] == null)
@@ -184,7 +194,6 @@ namespace SoltaLaPala.Inventory
             return item;
         }
 
-        // Tira al suelo el item que se tiene en la mano actualmente.
         public void SoltarItemSeleccionado()
         {
             if (ItemSeleccionado == null)
@@ -223,7 +232,6 @@ namespace SoltaLaPala.Inventory
 
             objetoSuelo.name = itemASoltar.nombre;
 
-            // Asegurar que tenga collider y este activo
             Collider col = objetoSuelo.GetComponent<Collider>();
             if (col == null)
             {
@@ -235,7 +243,6 @@ namespace SoltaLaPala.Inventory
             }
             col.enabled = true;
 
-            // Fisica para que caiga al suelo con un impulso hacia adelante
             Rigidbody rb = objetoSuelo.GetComponent<Rigidbody>();
             if (rb == null)
             {
@@ -245,13 +252,11 @@ namespace SoltaLaPala.Inventory
             rb.detectCollisions = true;
             rb.AddForce(direccionLanzamiento * 2.5f + Vector3.up * 1.2f, ForceMode.VelocityChange);
 
-            // Se marca para poder borrarlo al reiniciar el nivel (el original reaparece solo).
             if (objetoSuelo.GetComponent<ObjetoSoltado>() == null)
             {
                 objetoSuelo.AddComponent<ObjetoSoltado>();
             }
 
-            // Componentes necesarios para volver a recogerlo y que tenga silueta blanca
             ObjetoRecogible recogible = objetoSuelo.GetComponent<ObjetoRecogible>();
             if (recogible == null)
             {
@@ -274,8 +279,6 @@ namespace SoltaLaPala.Inventory
             resaltado.renderers = objetoSuelo.GetComponentsInChildren<Renderer>(true);
         }
 
-        // Selecciona el slot indicado y actualiza lo que hay en la mano.
-        // Ignora indices fuera de rango y reselecciones del slot que ya estaba activo.
         public void SeleccionarSlot(int indiceSlot)
         {
             if (!EsIndiceValido(indiceSlot) || indiceSlot == slotSeleccionado)
@@ -288,7 +291,6 @@ namespace SoltaLaPala.Inventory
             AlCambiarSeleccion?.Invoke(slotSeleccionado);
         }
 
-        // Deja los tres slots vacios y las manos libres. Lo usa el reinicio de nivel.
         public void Vaciar()
         {
             for (int i = 0; i < CantidadSlots; i++)
@@ -302,10 +304,6 @@ namespace SoltaLaPala.Inventory
             AlCambiarSeleccion?.Invoke(slotSeleccionado);
         }
 
-        // Inventario del jugador de la escena, o null si todavia no existe.
-        //
-        // Se busca cada vez en vez de cachearlo: los componentes que lo consultan
-        // (requisitos, misiones) pueden arrancar antes que el jugador.
         public static InventarioJugador DelJugador()
         {
             GameObject jugador = GameObject.FindGameObjectWithTag("Player");
@@ -313,10 +311,6 @@ namespace SoltaLaPala.Inventory
             return jugador != null ? jugador.GetComponent<InventarioJugador>() : null;
         }
 
-        // Indice del slot donde esta ese item, o -1 si no lo lleva.
-        //
-        // Con soloEnLaMano solo cuenta el slot seleccionado; si no, busca en los
-        // tres.
         public int BuscarSlotCon(DatosItem item, bool soloEnLaMano)
         {
             if (item == null)
@@ -340,19 +334,16 @@ namespace SoltaLaPala.Inventory
             return -1;
         }
 
-        // Devuelve el item de un slot, o null si esta vacio o el indice no es valido.
         public DatosItem ObtenerItem(int indiceSlot)
         {
             return EsIndiceValido(indiceSlot) ? slots[indiceSlot] : null;
         }
 
-        // True si los 3 slots estan ocupados (no se puede recoger nada mas).
         public bool EstaLleno()
         {
             return ObtenerPrimerSlotVacio() == -1;
         }
 
-        // Devuelve el primer indice de slot vacio, o -1 si no hay ninguno.
         private int ObtenerPrimerSlotVacio()
         {
             for (int i = 0; i < CantidadSlots; i++)
@@ -366,16 +357,11 @@ namespace SoltaLaPala.Inventory
             return -1;
         }
 
-        // True si el indice cae dentro de los slots existentes.
         private static bool EsIndiceValido(int indiceSlot)
         {
             return indiceSlot >= 0 && indiceSlot < CantidadSlots;
         }
 
-        // Sincroniza la mano con el slot seleccionado: destruye la instancia anterior y,
-        // si el slot tiene item, instancia su prefab en la anclaMano
-        // (de momento flotando delante del PJ; mas adelante disparara la animacion de sujetar).
-        // Si el slot esta vacio simplemente deja las manos vacias.
         private void ActualizarItemEnMano()
         {
             if (instanciaEnMano != null)
@@ -386,14 +372,11 @@ namespace SoltaLaPala.Inventory
 
             DatosItem item = ItemSeleccionado;
 
-            // Slot vacio, item sin prefab o sin ancla configurada: manos vacias y ya esta.
             if (item == null || item.prefabEnMano == null || anclaMano == null)
             {
                 return;
             }
 
-            // Se instancia como hijo del ancla para que siga al PJ sin tener que
-            // reposicionarlo cada frame.
             instanciaEnMano = Instantiate(item.prefabEnMano, anclaMano);
             instanciaEnMano.transform.localPosition = Vector3.zero;
             instanciaEnMano.transform.localRotation = item.prefabEnMano.transform.localRotation;
@@ -402,11 +385,6 @@ namespace SoltaLaPala.Inventory
             DesactivarFisica(instanciaEnMano);
         }
 
-        // Apaga colliders y rigidbodies del item sujeto.
-        //
-        // El prefab suele ser el mismo objeto que estaba en el suelo, con su fisica
-        // puesta: sujetarlo tal cual haria que empuje al jugador, dispare
-        // interacciones o se caiga al vacio.
         private static void DesactivarFisica(GameObject objeto)
         {
             foreach (Collider colisionador in objeto.GetComponentsInChildren<Collider>(true))
@@ -421,8 +399,6 @@ namespace SoltaLaPala.Inventory
             }
         }
 
-        // Guarda un id por slot. Los slots vacios van como cadena vacia, para que
-        // el array conserve las posiciones: importa en que slot estaba cada item.
         public void Capturar(DatosPartidaGuardada datos)
         {
             string[] ids = new string[CantidadSlots];
@@ -443,19 +419,12 @@ namespace SoltaLaPala.Inventory
 
             for (int i = 0; i < CantidadSlots; i++)
             {
-                // Un guardado de una version con mas o menos slots no debe salirse
-                // del array, y sin registro no hay forma de resolver ningun id.
                 string id = (ids != null && i < ids.Length) ? ids[i] : string.Empty;
                 slots[i] = registro != null ? registro.Resolver(id) : null;
 
-                // La UI de slots se pinta desde este evento, asi que hay que
-                // avisar de todos, tambien de los que quedaron vacios.
                 AlCambiarSlot?.Invoke(i);
             }
 
-            // Se asigna directo en vez de por SeleccionarSlot: ese metodo ignora
-            // el indice si coincide con el actual, y entonces la mano se quedaria
-            // mostrando el item de antes de cargar.
             slotSeleccionado = EsIndiceValido(datos.slotSeleccionado) ? datos.slotSeleccionado : 0;
 
             ActualizarItemEnMano();

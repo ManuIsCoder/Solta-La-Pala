@@ -4,8 +4,6 @@ using UnityEngine;
 
 namespace SoltaLaPala.Player
 {
-    // Camara orbital de tercera persona: gira alrededor del jugador con el raton.
-    // La direccion en la que mira esta camara es la que MovimientoJugador usa como "adelante" (W).
     public class CamaraTerceraPersona : MonoBehaviour, IGuardable
     {
         [Header("Objetivo")]
@@ -14,10 +12,10 @@ namespace SoltaLaPala.Player
         [Tooltip("Desplazamiento sobre el pivote, para que la camara mire a la cabeza y no a los pies.")]
         public Vector3 offsetObjetivo = new Vector3(0f, 1.5f, 0f);
 
-        [Header("Raton")]
+        [Header("Mouse")]
         public float sensibilidadX = 200f;
         public float sensibilidadY = 150f;
-        [Tooltip("Invierte el eje vertical del raton.")]
+        [Tooltip("Invierte el eje vertical del mouse.")]
         public bool invertirY = false;
 
         [Header("Limites verticales")]
@@ -33,8 +31,7 @@ namespace SoltaLaPala.Player
         [Header("Primera persona")]
         [Tooltip("Altura de los ojos del PJ, para la vista en primera persona.")]
         public Vector3 offsetPrimeraPersona = new Vector3(0f, 0.55f, 0.15f);
-        [Tooltip("Cuanto puede mirar hacia arriba en primera persona. Mas libre " +
-                 "que en tercera, donde la camara chocaria con el suelo.")]
+        [Tooltip("Limites de la mirada vertical en primera persona.")]
         public float pitchMinimoPrimeraPersona = -75f;
         public float pitchMaximoPrimeraPersona = 75f;
 
@@ -44,24 +41,17 @@ namespace SoltaLaPala.Player
         [Tooltip("Margen para que la camara no quede pegada a la pared.")]
         public float margenColision = 0.2f;
 
-        // Angulo horizontal acumulado (izquierda/derecha).
         private float yaw;
-        // Angulo vertical acumulado (arriba/abajo).
         private float pitch;
-        // Angulos con los que arranco la escena, para volver a ellos al reiniciar el nivel.
         private float yawInicial;
         private float pitchInicial;
         private bool camaraBloqueada;
-        // Velocidad que va acumulando SmoothDamp al seguir al jugador.
         private Vector3 velocidadSeguimiento;
 
-        // True mientras se mira por los ojos del PJ en vez de por detras.
         public bool EnPrimeraPersona { get; private set; }
 
-        // Inicializa yaw/pitch con la rotacion actual y esconde/bloquea el cursor.
         private void Start()
         {
-            // Si no se asigno objetivo en el inspector, buscar al jugador por tag.
             if (objetivo == null)
             {
                 GameObject jugador = GameObject.FindGameObjectWithTag("Player");
@@ -77,9 +67,6 @@ namespace SoltaLaPala.Player
                 }
             }
 
-            // Arrancar desde la rotacion que tenga la camara en la escena, para no dar un tiron
-            // en el primer frame. Los angulos de eulerAngles vienen en rango 0..360, asi que
-            // el pitch hay que pasarlo a -180..180 antes de recortarlo.
             Vector3 rotacionInicial = transform.eulerAngles;
             yaw = rotacionInicial.y;
             pitch = Mathf.Clamp(NormalizarAngulo(rotacionInicial.x), pitchMinimo, pitchMaximo);
@@ -91,8 +78,6 @@ namespace SoltaLaPala.Player
             BloquearCursor(true);
         }
 
-        // La sensibilidad y el invertir-Y los manda el menu de configuracion, asi que
-        // se copian al arrancar y cada vez que el jugador los cambia.
         private void OnEnable()
         {
             AjustesJuego.AlCambiarAjustes += AplicarAjustes;
@@ -110,15 +95,12 @@ namespace SoltaLaPala.Player
             invertirY = AjustesJuego.InvertirY;
         }
 
-        // Pasa un angulo de 0..360 a -180..180, que es el rango con el que trabaja el clamp del pitch.
         private static float NormalizarAngulo(float angulo)
         {
             angulo %= 360f;
             return angulo > 180f ? angulo - 360f : angulo;
         }
 
-        // Lee el raton cada frame y acumula yaw/pitch.
-        // No hace nada si la camara esta bloqueada (ej: durante un dialogo).
         private void Update()
         {
             if (camaraBloqueada || HayUiQueCapturaElRaton())
@@ -134,16 +116,6 @@ namespace SoltaLaPala.Player
             AplicarRotacion(LeerRaton());
         }
 
-        // True si hay algo en pantalla que se maneja con el raton.
-        //
-        // Se comprueba ademas de camaraBloqueada porque no todo el que abre UI se
-        // acuerda de bloquear la camara, y girar la vista mientras eliges una
-        // opcion con el raton es desorientante.
-        //
-        // Los menus se consultan directamente; el resto de pantallas (dialogos,
-        // panel de sabotaje) se apuntan con RegistrarUiAbierta. Preguntar por ellas
-        // desde aqui obligaria a Player a conocer a todo el que dibuje UI, y
-        // Dialogue y Sabotaje ya dependen de Player.
         private static bool HayUiQueCapturaElRaton()
         {
             if (uiExternasAbiertas > 0)
@@ -154,45 +126,31 @@ namespace SoltaLaPala.Player
             return GestorMenus.Instancia != null && GestorMenus.Instancia.HayMenuAbierto;
         }
 
-        // Cuantas pantallas externas hay abiertas ahora mismo. Es un contador y no
-        // un bool para que dos paneles solapados no se pisen al cerrarse.
         private static int uiExternasAbiertas;
 
-        // Lo llama cualquier pantalla que capture el raton al abrirse y cerrarse.
         public static void RegistrarUiAbierta(bool abierta)
         {
             uiExternasAbiertas = Mathf.Max(0, uiExternasAbiertas + (abierta ? 1 : -1));
         }
 
-        // Las estaticas sobreviven a salir y volver a entrar en Play dentro del
-        // editor: sin esto, un panel que quedo abierto al parar el juego dejaria
-        // la camara bloqueada en la siguiente sesion.
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ReiniciarEstadoEstatico()
         {
             uiExternasAbiertas = 0;
         }
 
-        // Alterna entre tercera y primera persona.
         public void CambiarVista()
         {
             EnPrimeraPersona = !EnPrimeraPersona;
 
-            // Los limites de pitch cambian entre modos: al pasar a tercera desde
-            // una vista muy alta o muy baja hay que recortar el angulo, o la
-            // camara se quedaria fuera de su rango hasta que muevas el raton.
             pitch = Mathf.Clamp(pitch, PitchMinimoActual, PitchMaximoActual);
 
-            // Sin esto la camara viaja suavemente desde detras del PJ hasta su
-            // cabeza, atravesandolo por dentro durante el trayecto.
             velocidadSeguimiento = Vector3.zero;
         }
 
         private float PitchMinimoActual => EnPrimeraPersona ? pitchMinimoPrimeraPersona : pitchMinimo;
         private float PitchMaximoActual => EnPrimeraPersona ? pitchMaximoPrimeraPersona : pitchMaximo;
 
-        // Coloca la camara despues de que el jugador se haya movido.
-        // Va en LateUpdate para que no tiemble la imagen.
         private void LateUpdate()
         {
             if (objetivo == null)
@@ -202,9 +160,6 @@ namespace SoltaLaPala.Player
 
             Vector3 posicionDeseada = CalcularPosicionDeseada();
 
-            // En primera persona la camara va pegada a los ojos: ni colision (esta
-            // dentro del PJ, chocaria con el) ni suavizado (retrasar la cabeza
-            // respecto al cuerpo marea).
             if (EnPrimeraPersona)
             {
                 transform.position = posicionDeseada;
@@ -214,9 +169,6 @@ namespace SoltaLaPala.Player
 
             posicionDeseada = ResolverColision(posicionDeseada);
 
-            // La posicion se suaviza para que la camara no de tirones al moverse el jugador,
-            // pero la rotacion se aplica de golpe: suavizarla haria que la camara vaya
-            // por detras del raton y se siente pastoso.
             transform.position = suavizadoSeguimiento > 0f
                 ? Vector3.SmoothDamp(transform.position, posicionDeseada, ref velocidadSeguimiento, suavizadoSeguimiento)
                 : posicionDeseada;
@@ -224,9 +176,6 @@ namespace SoltaLaPala.Player
             transform.rotation = Quaternion.Euler(pitch, yaw, 0f);
         }
 
-        // Devuelve el movimiento del raton de este frame, ya escalado por sensibilidad.
-        // Ojo: los ejes "Mouse X"/"Mouse Y" ya vienen escalados por el tiempo de frame,
-        // por eso NO se multiplican por Time.deltaTime (haria la camara lenta y pastosa).
         private Vector2 LeerRaton()
         {
             float deltaX = Input.GetAxis("Mouse X") * sensibilidadX * 0.01f;
@@ -234,27 +183,18 @@ namespace SoltaLaPala.Player
             return new Vector2(deltaX, deltaY);
         }
 
-        // Suma el delta del raton a yaw/pitch y recorta el pitch entre pitchMinimo y pitchMaximo
-        // para que no se pueda dar la vuelta completa en vertical.
         private void AplicarRotacion(Vector2 deltaRaton)
         {
             yaw += deltaRaton.x;
 
-            // En pantalla, mover el raton hacia arriba (delta positivo) tiene que bajar el pitch,
-            // porque un pitch positivo en Unity mira hacia abajo. De ahi el signo invertido.
             pitch += invertirY ? deltaRaton.y : -deltaRaton.y;
             pitch = Mathf.Clamp(pitch, PitchMinimoActual, PitchMaximoActual);
 
-            // El yaw no se recorta (giro libre de 360), pero se mantiene en rango
-            // para que no crezca sin limite en partidas largas.
             yaw = Mathf.Repeat(yaw, 360f);
         }
 
-        // Calcula donde deberia estar la camara: parte del jugador + offset,
-        // y retrocede 'distancia' en la direccion contraria a la que mira.
         private Vector3 CalcularPosicionDeseada()
         {
-            // En primera persona la camara esta en el pivote mismo: no retrocede.
             if (EnPrimeraPersona)
             {
                 return ObtenerPivote();
@@ -263,21 +203,15 @@ namespace SoltaLaPala.Player
             return ObtenerPivote() - Quaternion.Euler(pitch, yaw, 0f) * Vector3.forward * distancia;
         }
 
-        // Punto alrededor del cual orbita la camara: el jugador desplazado por offsetObjetivo
-        // (a la altura de la cabeza, no de los pies).
-        // En primera persona el pivote son los ojos, y la camara se queda ahi.
         private Vector3 ObtenerPivote()
         {
             if (EnPrimeraPersona){
-                // Posiciona la camara en la cara, respetando hacia donde gira el jugador
                 return objetivo.position + objetivo.TransformDirection(offsetPrimeraPersona);
             }
 
             return objetivo.position + offsetObjetivo;
         }
 
-        // Lanza un rayo del jugador a la posicion deseada y, si choca con algo,
-        // acerca la camara para no meterse dentro de paredes.
         private Vector3 ResolverColision(Vector3 posicionDeseada)
         {
             if (capasColision == 0)
@@ -288,8 +222,6 @@ namespace SoltaLaPala.Player
             Vector3 pivote = ObtenerPivote();
             Vector3 haciaCamara = posicionDeseada - pivote;
 
-            // SphereCast en vez de Raycast: un rayo fino se cuela por esquinas y bordes,
-            // la esfera respeta el volumen que ocupa la camara.
             if (Physics.SphereCast(pivote, margenColision, haciaCamara.normalized, out RaycastHit impacto,
                     haciaCamara.magnitude, capasColision, QueryTriggerInteraction.Ignore))
             {
@@ -299,34 +231,24 @@ namespace SoltaLaPala.Player
             return posicionDeseada;
         }
 
-        // Bloquea o desbloquea el giro de la camara y libera el cursor.
-        // Lo llama el sistema de dialogo junto con BloquearMovimiento.
         public void BloquearCamara(bool bloqueado)
         {
             camaraBloqueada = bloqueado;
 
-            // Al bloquear se libera el cursor para poder clicar en la UI del dialogo,
-            // y al desbloquear se vuelve a capturar.
             BloquearCursor(!bloqueado);
         }
 
-        // Captura el cursor en el centro de la pantalla y lo esconde, o lo libera.
         private void BloquearCursor(bool bloqueado)
         {
             Cursor.lockState = bloqueado ? CursorLockMode.Locked : CursorLockMode.None;
             Cursor.visible = !bloqueado;
         }
 
-        // Direccion horizontal hacia donde mira la camara (sin componente vertical).
-        // Es el "adelante" que usa MovimientoJugador para la tecla W.
-        // Se calcula desde el yaw y no desde transform.forward para que mirar al suelo
-        // no empuje al PJ hacia abajo: solo cuenta el giro horizontal.
         public Vector3 ObtenerAdelante()
         {
             return Quaternion.Euler(0f, yaw, 0f) * Vector3.forward;
         }
 
-        // Direccion horizontal a la derecha de la camara. El "lateral" para las teclas A/D.
         public Vector3 ObtenerDerecha()
         {
             return Quaternion.Euler(0f, yaw, 0f) * Vector3.right;
@@ -346,8 +268,6 @@ namespace SoltaLaPala.Player
             ColocarSinSuavizado();
         }
 
-        // Vuelve al angulo con el que arranco la escena, sin suavizado. Lo usa el
-        // reinicio de nivel despues de devolver al jugador a su punto de inicio.
         public void VolverAlInicio()
         {
             yaw = yawInicial;
@@ -356,11 +276,6 @@ namespace SoltaLaPala.Player
             ColocarSinSuavizado();
         }
 
-        // Pone la camara en su sitio de un golpe, saltando el SmoothDamp.
-        //
-        // Hace falta al cargar partida: el jugador acaba de teletransportarse y el
-        // suavizado haria que la camara viaje volando desde donde estaba, atravesando
-        // el escenario durante medio segundo.
         private void ColocarSinSuavizado()
         {
             if (objetivo == null)
@@ -373,8 +288,6 @@ namespace SoltaLaPala.Player
             transform.position = EnPrimeraPersona ? destino : ResolverColision(destino);
             transform.rotation = Quaternion.Euler(pitch, yaw, 0f);
 
-            // La velocidad acumulada del suavizado es de la posicion vieja y arrastraria
-            // la camara mas alla del objetivo en los frames siguientes.
             velocidadSeguimiento = Vector3.zero;
         }
     }

@@ -7,7 +7,6 @@ namespace SoltaLaPala.Minijuegos
     {
         protected virtual void Start()
         {
-            // Si el panel arranca activo en la escena para pruebas directas
             if (panelRaiz != null && panelRaiz.activeInHierarchy && Inventario == null)
             {
                 Iniciar(InventarioJugador.DelJugador(), GestorMinijuego.Instancia);
@@ -27,7 +26,7 @@ namespace SoltaLaPala.Minijuegos
 
             if (panelRaiz != null)
                 panelRaiz.SetActive(true);
-            
+
             AlIniciar();
         }
 

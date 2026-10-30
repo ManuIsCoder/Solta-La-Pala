@@ -4,10 +4,6 @@ using UnityEngine.Rendering;
 
 namespace SoltaLaPala.Interaction
 {
-    // Pinta una silueta blanca (outline) cuando el jugador esta apuntando a este objeto.
-    //
-    // Usa un shader Inverted Hull sin alterar los materiales ni colores originales
-    // del objeto, evitando que se vuelva completamente blanco solido.
     public class ResaltadoInteractuable : MonoBehaviour
     {
         [Header("Silueta")]
@@ -53,7 +49,6 @@ namespace SoltaLaPala.Interaction
             return materialSiluetaCompartido;
         }
 
-        // Crea un objeto hijo 'Silueta' por cada MeshRenderer existente
         private void ConstruirSiluetas()
         {
             Material mat = ObtenerMaterialSilueta();
@@ -91,7 +86,6 @@ namespace SoltaLaPala.Interaction
             }
         }
 
-        // Enciende o apaga la silueta blanca
         public void Resaltar(bool activo)
         {
             if (resaltado == activo) return;
@@ -107,7 +101,6 @@ namespace SoltaLaPala.Interaction
             }
         }
 
-        // Si el objeto se desactiva (ej: al recogerlo), apaga el resaltado
         private void OnDisable()
         {
             if (resaltado)

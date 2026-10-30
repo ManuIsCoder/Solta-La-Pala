@@ -10,9 +10,6 @@ using UnityEngine.UI;
 
 namespace SoltaLaPala.Sabotaje
 {
-    // Menú emergente de sabotaje para preparar la taza de café.
-    // Utiliza el mismo diseño visual que el panel de opciones de diálogo (sprites de arte,
-    // navegación por flechas y confirmación con Enter/Espacio o clic).
     public class MenuSabotajeTaza : MonoBehaviour
     {
         public static MenuSabotajeTaza Instancia { get; private set; }
@@ -61,13 +58,11 @@ namespace SoltaLaPala.Sabotaje
         private readonly List<Text> textosOpciones = new List<Text>();
         private int opcionSeleccionada = 0;
 
-        // Congela al jugador mientras el panel está abierto.
         private readonly ControlJugador controlJugador = new ControlJugador();
 
         private GameObject objetoTazaMundo;
         private RequisitoItem requisitoActual;
 
-        // True mientras el panel está abierto. Lo consulta la cámara para no girar con el ratón.
         public bool Abierto => panel != null && panel.activeSelf;
 
         private void Awake()
@@ -100,7 +95,6 @@ namespace SoltaLaPala.Sabotaje
             return asignado != null ? asignado : Resources.Load<Sprite>(rutaResources);
         }
 
-        // Construye la UI con el Canvas, el panel con el sprite de opciones y los 4 botones.
         private void ConstruirUIPorDefecto()
         {
             ConstructorUI.AsegurarEventSystem();
@@ -159,7 +153,6 @@ namespace SoltaLaPala.Sabotaje
             columna.childForceExpandWidth  = true;
             columna.childForceExpandHeight = false;
 
-            // Si ya hay botones viejos generados por código anterior, limpiarlos
             for (int i = panel.transform.childCount - 1; i >= 0; i--)
             {
                 Transform hijo = panel.transform.GetChild(i);
@@ -171,7 +164,6 @@ namespace SoltaLaPala.Sabotaje
             barrasOpciones.Clear();
             textosOpciones.Clear();
 
-            // Crear los 4 botones de opciones
             botonNormal     = CrearBotonOpcion("Café Normal", () => ElegirOpcion("Café Normal", 0, 0));
             botonSal        = CrearBotonOpcion("Café con Sal", () => ElegirOpcion("Café con Sal", 1, 5));
             botonFrio       = CrearBotonOpcion("Café Frío y Rancio", () => ElegirOpcion("Café Frío y Rancio", 2, 10));
@@ -187,18 +179,15 @@ namespace SoltaLaPala.Sabotaje
 
             objeto.AddComponent<LayoutElement>().preferredHeight = 46f;
 
-            // EventTrigger para activar la barra seleccionada al pasar el ratón por encima
             EventTrigger trigger = objeto.AddComponent<EventTrigger>();
             EventTrigger.Entry entryHover = new EventTrigger.Entry { eventID = EventTriggerType.PointerEnter };
             entryHover.callback.AddListener((data) => { ResaltarOpcion(miIndice); });
             trigger.triggers.Add(entryHover);
 
-            // Fondo base transparente para recibir raycasts
             Image fondoTransparente = objeto.AddComponent<Image>();
             fondoTransparente.color = Color.clear;
             fondoTransparente.raycastTarget = true;
 
-            // Overlay con la barra seleccionada
             GameObject seleccionadoImg = new GameObject("BarraSeleccion", typeof(RectTransform));
             seleccionadoImg.transform.SetParent(objeto.transform, false);
 
@@ -221,7 +210,6 @@ namespace SoltaLaPala.Sabotaje
             boton.transition = Selectable.Transition.None;
             boton.onClick.AddListener(() => alPulsar());
 
-            // Texto de la opción
             GameObject objetoTexto = new GameObject("Texto", typeof(RectTransform));
             objetoTexto.transform.SetParent(objeto.transform, false);
 
@@ -284,7 +272,6 @@ namespace SoltaLaPala.Sabotaje
         {
             if (!Abierto) return;
 
-            // Ajuste en tiempo real de escala, tamaño, posición y fuentes
             if (panel != null)
             {
                 RectTransform rtPanel = panel.GetComponent<RectTransform>();
@@ -309,7 +296,6 @@ namespace SoltaLaPala.Sabotaje
                 }
             }
 
-            // Navegación con teclado idéntica al panel de opciones de diálogo
             if (botonesOpciones.Count > 0)
             {
                 if (Input.GetKeyDown(KeyCode.UpArrow))

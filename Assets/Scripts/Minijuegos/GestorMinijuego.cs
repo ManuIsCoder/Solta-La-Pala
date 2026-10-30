@@ -5,10 +5,8 @@ using SoltaLaPala.Inventory;
 
 namespace SoltaLaPala.Minijuegos
 {
-
     public class GestorMinijuego : MonoBehaviour
     {
-
         public static GestorMinijuego Instancia { get; private set; }
         [Header("HUD a ocultar durante el minijuego")]
         [Tooltip("Arrastrá aquí todos los GameObjects del HUD que deben ocultarse " + "(inventario, ojo de visión, barra de sospecha, etc). " + "El HudTiempo NO va aquí: ese debe seguir visible.")]
@@ -40,9 +38,6 @@ namespace SoltaLaPala.Minijuegos
             minijuego.Iniciar(inventario, this);
         }
 
-        // Cierra el minijuego abierto, si lo hay. Lo usa el reinicio de nivel: si se
-        // acaba el tiempo con uno abierto, sin esto el jugador seguiria bloqueado y
-        // el HUD oculto en el nivel nuevo.
         public void ForzarCierre()
         {
             if (!MinijuegoActivo)
@@ -55,7 +50,6 @@ namespace SoltaLaPala.Minijuegos
                 minijuegoActual.Salir();
             }
 
-            // Salir() ya llama a CerrarMinijuego; esto cubre que no hubiera minijuego.
             CerrarMinijuego();
         }
 
@@ -65,7 +59,7 @@ namespace SoltaLaPala.Minijuegos
 
             MinijuegoActivo = false;
             minijuegoActual = null;
-            
+
             OcultarHud(false);
             controlJugador.Bloquear(false);
         }

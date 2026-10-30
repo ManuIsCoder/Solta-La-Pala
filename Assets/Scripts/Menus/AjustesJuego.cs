@@ -3,9 +3,6 @@ using UnityEngine;
 
 namespace SoltaLaPala.Menus
 {
-    // Ajustes de audio, camara y pantalla. Igual que ControlesJuego es estatica y
-    // persiste en PlayerPrefs, para que el menu de configuracion los pueda tocar
-    // desde cualquier pantalla y sobrevivan al cierre del juego.
     public static class AjustesJuego
     {
         private const string PrefVolumenGeneral = "ajustes_volumenGeneral";
@@ -29,10 +26,8 @@ namespace SoltaLaPala.Menus
         private static bool invertirY;
         private static bool pantallaCompleta = true;
 
-        // Avisa cuando cambia cualquier ajuste, para que la camara y la UI se actualicen.
         public static event Action AlCambiarAjustes;
 
-        // Volumen maestro (0..1). Se aplica directamente al AudioListener.
         public static float VolumenGeneral
         {
             get { AsegurarCargado(); return volumenGeneral; }
@@ -46,7 +41,6 @@ namespace SoltaLaPala.Menus
             }
         }
 
-        // Volumen de musica (0..1). Guardado para cuando se enganche el audio del juego.
         public static float VolumenMusica
         {
             get { AsegurarCargado(); return volumenMusica; }
@@ -59,7 +53,6 @@ namespace SoltaLaPala.Menus
             }
         }
 
-        // Volumen de efectos (0..1).
         public static float VolumenEfectos
         {
             get { AsegurarCargado(); return volumenEfectos; }
@@ -72,7 +65,6 @@ namespace SoltaLaPala.Menus
             }
         }
 
-        // Sensibilidad horizontal del raton.
         public static float SensibilidadX
         {
             get { AsegurarCargado(); return sensibilidadX; }
@@ -85,7 +77,6 @@ namespace SoltaLaPala.Menus
             }
         }
 
-        // Sensibilidad vertical del raton.
         public static float SensibilidadY
         {
             get { AsegurarCargado(); return sensibilidadY; }
@@ -98,7 +89,6 @@ namespace SoltaLaPala.Menus
             }
         }
 
-        // Invertir el eje vertical del raton.
         public static bool InvertirY
         {
             get { AsegurarCargado(); return invertirY; }
@@ -111,7 +101,6 @@ namespace SoltaLaPala.Menus
             }
         }
 
-        // Pantalla completa si/no. Se aplica al momento sobre la ventana.
         public static bool PantallaCompleta
         {
             get { AsegurarCargado(); return pantallaCompleta; }
@@ -125,7 +114,6 @@ namespace SoltaLaPala.Menus
             }
         }
 
-        // Vuelve a los valores de fabrica.
         public static void RestaurarPorDefecto()
         {
             AsegurarCargado();
@@ -144,8 +132,6 @@ namespace SoltaLaPala.Menus
             Notificar();
         }
 
-        // Aplica los ajustes ya cargados al motor. Lo llama el arranque del juego
-        // para que el volumen y la pantalla respeten lo guardado desde el primer frame.
         public static void AplicarTodo()
         {
             AsegurarCargado();
@@ -153,7 +139,6 @@ namespace SoltaLaPala.Menus
             AplicarPantalla();
         }
 
-        // Lee todo de PlayerPrefs la primera vez que alguien pregunta algo.
         private static void AsegurarCargado()
         {
             if (cargado)
@@ -161,8 +146,6 @@ namespace SoltaLaPala.Menus
                 return;
             }
 
-            // Se marca cargado antes de leer: los setters llaman a AsegurarCargado()
-            // y sin esto la primera escritura volveria a entrar aca en bucle.
             cargado = true;
 
             volumenGeneral = PlayerPrefs.GetFloat(PrefVolumenGeneral, 1f);
@@ -193,7 +176,6 @@ namespace SoltaLaPala.Menus
 
         private static void AplicarPantalla()
         {
-            // Solo tocar la ventana si hace falta: cambiarla cada frame da tirones.
             if (Screen.fullScreen != pantallaCompleta)
             {
                 Screen.fullScreen = pantallaCompleta;

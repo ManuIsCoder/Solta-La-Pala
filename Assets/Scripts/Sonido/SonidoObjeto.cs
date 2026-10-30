@@ -2,19 +2,12 @@ using UnityEngine;
 
 namespace SoltaLaPala.Sonido
 {
-    // Como suena un objeto del mundo.
     public enum ModoSonidoObjeto
     {
-        // Suena todo el tiempo en bucle (heladera, luz fluorescente).
         Constante,
-        // Solo suena cuando alguien lo manda con Reproducir() (microondas, impresora, telefono).
         AlInteractuar
     }
 
-    // Sonido 3D de un objeto: se oye mas fuerte cuanto mas cerca esta el jugador.
-    //
-    // Los prefabs de Assets/Prefabs/con sonido lo llevan ya configurado. Para
-    // cambiar el audio o el volumen de uno, se edita aca en el Inspector.
     [DisallowMultipleComponent]
     public class SonidoObjeto : MonoBehaviour
     {
@@ -35,7 +28,6 @@ namespace SoltaLaPala.Sonido
 
         private AudioSource fuente;
 
-        // True mientras esta sonando algo.
         public bool Reproduciendo => fuente != null && fuente.isPlaying;
 
         private void Awake()
@@ -60,11 +52,9 @@ namespace SoltaLaPala.Sonido
             fuente.loop = true;
             fuente.Play();
 
-            // Que varios objetos iguales no suenen sincronizados.
             fuente.time = Random.value * fuente.clip.length;
         }
 
-        // Hace sonar uno de los audios, sin cortar el que ya este sonando.
         public void Reproducir()
         {
             AudioClip clip = ElegirSonido();
