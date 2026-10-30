@@ -59,5 +59,60 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 4152152737272641505, guid: 489172e12dc019448a4def3a15d3b137, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1411856231167704241}
+    - targetCorrespondingSourceObject: {fileID: 4152152737272641505, guid: 489172e12dc019448a4def3a15d3b137, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5906962708225915240}
+    - targetCorrespondingSourceObject: {fileID: 4152152737272641505, guid: 489172e12dc019448a4def3a15d3b137, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: -501780574651612413}
   m_SourcePrefab: {fileID: 100100000, guid: 489172e12dc019448a4def3a15d3b137, type: 3}
+--- !u!1 &3564685551861542209 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4152152737272641505, guid: 489172e12dc019448a4def3a15d3b137, type: 3}
+  m_PrefabInstance: {fileID: 641523756562487968}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1411856231167704241
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3564685551861542209}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e32406c235fd1e4c81c9ab3ba4cd9ae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SoltaLaPala.Interaction.ResaltadoInteractuable
+  colorSilueta: {r: 1, g: 1, b: 1, a: 1}
+  grosor: 0.025
+  renderers: []
+--- !u!114 &5906962708225915240
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3564685551861542209}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61f7a9c45dbf7244d8a4a4b2b5dbb1b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SoltaLaPala.Guardado.IdentificadorObjeto
+  id: fotoChiqui Variant_e78d53ae
+--- !u!114 &-501780574651612413
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3564685551861542209}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b42f1a5b9596ad4590f60c0f96576bb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SoltaLaPala.Interaction.ObjetoRecogible
+  item: {fileID: 0}

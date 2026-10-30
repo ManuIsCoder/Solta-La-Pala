@@ -43,5 +43,8 @@ namespace SoltaLaPala.Minijuegos
         protected abstract void AlIniciar();
 
         protected virtual void AlSalir() { }
+
+        // Lo llama EstadoPartida al reiniciar el nivel para que el minijuego vuelva a su estado inicial.
+        public virtual void Reiniciar() { }
     }
 }

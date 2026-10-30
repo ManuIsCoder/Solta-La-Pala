@@ -66,10 +66,25 @@ namespace SoltaLaPala.Minijuegos
 
         private void OcultarHud(bool ocultar)
         {
-            foreach (var elemento in elementosHudAOcultar)
+            if (elementosHudAOcultar != null)
             {
-                if (elemento != null)
-                    elemento.SetActive(!ocultar);
+                foreach (var elemento in elementosHudAOcultar)
+                {
+                    if (elemento != null)
+                        elemento.SetActive(!ocultar);
+                }
+            }
+
+            // Asegura que el inventario se oculte durante el minijuego y vuelva al salir
+            var interfazInv = FindFirstObjectByType<InterfazInventario>(FindObjectsInactive.Include);
+            if (interfazInv != null)
+            {
+                interfazInv.gameObject.SetActive(!ocultar);
+                var canvasInv = interfazInv.GetComponentInChildren<Canvas>(true);
+                if (canvasInv != null)
+                {
+                    canvasInv.enabled = !ocultar;
+                }
             }
         }
     }

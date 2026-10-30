@@ -205,6 +205,17 @@ namespace SoltaLaPala.Menus
             rect.offsetMax = Vector2.zero;
         }
 
+        // Hace que el rect ocupe todo el padre respetando márgenes (izq, abajo, der, arriba).
+        public static void Estirar(RectTransform rect, float izquierda, float abajo, float derecha, float arriba)
+        {
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            rect.offsetMin = new Vector2(izquierda, abajo);
+            rect.offsetMax = new Vector2(-derecha, -arriba);
+        }
+
+        // Asegura que exista un EventSystem en la escena. Sin el, los botones de UI
+        // no reciben clicks: es el fallo mas comun al generar menus por codigo.
         public static void AsegurarEventSystem()
         {
             if (UnityEngine.EventSystems.EventSystem.current != null)

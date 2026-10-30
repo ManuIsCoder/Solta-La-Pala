@@ -7,14 +7,26 @@ namespace SoltaLaPala.Minijuegos
     [RequireComponent(typeof(ResaltadoInteractuable))]
     public class MicroondasInteractuable : MonoBehaviour, IInteractuable
     {
+        public enum EstadoSwitch
+        {
+            Activado,
+            Desactivado
+        }
+
+        [Header("Interruptor del minijuego")]
+        [Tooltip("Permite habilitar o deshabilitar el minijuego desde el Inspector")]
+        public EstadoSwitch estado = EstadoSwitch.Activado;
+
         public MinijuegoMicroondas minijuego;
 
         public Transform Transform => transform;
-        public string ObtenerTextoInteraccion() => "[E] Usar microondas";
-        public bool PuedeInteractuar() => GestorMinijuego.Instancia != null && !GestorMinijuego.Instancia.MinijuegoActivo;
+        public string ObtenerTextoInteraccion() => estado == EstadoSwitch.Activado ? "[E] Usar microondas" : string.Empty;
+        public bool PuedeInteractuar() => estado == EstadoSwitch.Activado && GestorMinijuego.Instancia != null && !GestorMinijuego.Instancia.MinijuegoActivo;
 
         public void Interactuar(GameObject quienInteractua)
         {
+            if (estado == EstadoSwitch.Desactivado) return;
+
             var inv = quienInteractua.GetComponent<InventarioJugador>();
             GestorMinijuego.Instancia?.AbrirMinijuego(minijuego, inv);
         }

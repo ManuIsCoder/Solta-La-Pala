@@ -37,6 +37,15 @@ namespace SoltaLaPala.Interaction
             }
         }
 
+        // Si el item tiene un modelo 3D asignado (prefabEnMano) y este objeto en la escena
+        // es una primitiva de prototipo (cubo, cápsula, esfera, cilindro), reemplaza la
+        // visual por el modelo 3D real.
+        private static readonly System.Collections.Generic.HashSet<string> MeshesPrototipo =
+            new System.Collections.Generic.HashSet<string>
+            {
+                "Cube", "Capsule", "Sphere", "Cylinder", "Plane", "Quad"
+            };
+
         private void ActualizarVisualSiTieneModelo()
         {
             if (item == null || item.prefabEnMano == null)
@@ -44,8 +53,9 @@ namespace SoltaLaPala.Interaction
                 return;
             }
 
+            // Si es una primitiva de prototipo, reemplazar por el modelo 3D oficial
             MeshFilter mf = GetComponent<MeshFilter>();
-            if (mf != null && (mf.sharedMesh == null || mf.sharedMesh.name == "Cube"))
+            if (mf != null && (mf.sharedMesh == null || MeshesPrototipo.Contains(mf.sharedMesh.name)))
             {
                 MeshRenderer mr = GetComponent<MeshRenderer>();
                 if (mr != null)

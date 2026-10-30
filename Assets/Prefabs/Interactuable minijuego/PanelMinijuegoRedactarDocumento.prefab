@@ -1,0 +1,89 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &920000001
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 920000002}
+  - component: {fileID: 920000003}
+  m_Layer: 5
+  m_Name: PanelMinijuegoRedactarDocumento
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!224 &920000002
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 920000001}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &920000003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 920000001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a12b34c5d6e7f8a9b0c1d2e3f4a5b6c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SoltaLaPala.Minijuegos.MinijuegoRedactarDocumento
+  panelRaiz: {fileID: 920000001}
+  herramientaActual: 0
+  spriteFondoEscritorio: {fileID: 21300000, guid: 990665278254f134f873d4384c39fcee, type: 3}
+  spritePapelBlanco: {fileID: 21300000, guid: ddb8251b0c625564eb8a7c78c824d636, type: 3}
+  texturaReporte: {fileID: 2800000, guid: 3a3f9661e83a6e54ea27d073bffd8a99, type: 3}
+  texturaDibujo: {fileID: 2800000, guid: c18604dd104b47945ac08908906e95ff, type: 3}
+  imagenFondoEscritorio: {fileID: 0}
+  imagenPapelFondo: {fileID: 0}
+  rawImageRevelado: {fileID: 0}
+  rectTransformPapel: {fileID: 0}
+  spriteBirome: {fileID: 21300000, guid: 4c4f6031c18aaa24c98803923e2bfa84, type: 3}
+  spriteCrayola: {fileID: 21300000, guid: b8a5c75585e3b66449ad59944a3f3752, type: 3}
+  spriteIconoDocumento: {fileID: 21300000, guid: d05e106648aff724b8bd13e8259007cb, type: 3}
+  spriteIconoDibujo: {fileID: 21300000, guid: 79845842e9f471c4b8e9991806851601, type: 3}
+  botonBirome: {fileID: 0}
+  botonCrayola: {fileID: 0}
+  marcoSeleccionBirome: {fileID: 0}
+  marcoSeleccionCrayola: {fileID: 0}
+  textoHerramientaActiva: {fileID: 0}
+  cursorHerramienta: {fileID: 0}
+  rectCursor: {fileID: 0}
+  barraProgreso: {fileID: 0}
+  textoProgreso: {fileID: 0}
+  textoInstrucciones: {fileID: 0}
+  botonSalir: {fileID: 0}
+  ventanaPopup: {fileID: 0}
+  textoTituloVentana: {fileID: 0}
+  textoMensajeVentana: {fileID: 0}
+  botonAceptarVentana: {fileID: 0}
+  fondoBarraTituloVentana: {fileID: 0}
+  iconoVentanaResultado: {fileID: 0}
+  idBirome: Birome
+  idCrayolas: Crayolas
+  idDocumento: Documento
+  idDibujo: Dibujo
+  modoPrueba: 0
+  porcentajeParaCompletar: 0.6
+  radioBirome: 22
+  radioCrayola: 32
