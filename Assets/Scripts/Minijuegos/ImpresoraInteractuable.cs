@@ -49,6 +49,7 @@ namespace SoltaLaPala.Minijuegos
         public string idFotoChiqui = "FotoChiqui";
         public string idFotoChiquiAlternativo = "fotoChiqui";
         public string idCarpeta = "Carpeta";
+        public string idCarpetaSaboteada = "CarpetaSaboteada";
 
         [Header("Referencias de Expulsión")]
         [Tooltip("Punto físico desde donde saldrá la carpeta expulsada. Si se deja vacío, saldrá delante de la impresora.")]
@@ -330,8 +331,16 @@ namespace SoltaLaPala.Minijuegos
                 rotSalida = transform.rotation;
             }
 
-            DatosItem itemCarpeta = Resources.Load<DatosItem>("Items/" + idCarpeta)
-                                   ?? Resources.Load<DatosItem>(idCarpeta);
+            // Cargar DatosItem según sea legítimo (Carpeta) o sabotaje (CarpetaSaboteada)
+            string idItemExpulsar = fueSabotaje ? idCarpetaSaboteada : idCarpeta;
+            DatosItem itemCarpeta = Resources.Load<DatosItem>("Items/" + idItemExpulsar)
+                                   ?? Resources.Load<DatosItem>(idItemExpulsar);
+
+            if (itemCarpeta == null && fueSabotaje)
+            {
+                // Fallback por si la carpeta saboteada no estuviera cargada
+                itemCarpeta = Resources.Load<DatosItem>("Items/" + idCarpeta) ?? Resources.Load<DatosItem>(idCarpeta);
+            }
 
             GameObject carpetaInstancia;
 
@@ -341,7 +350,7 @@ namespace SoltaLaPala.Minijuegos
             }
             else if (itemCarpeta != null && itemCarpeta.prefabEnMano != null)
             {
-                // Cargar modelo oficial desde el ScriptableObject DatosItem de Carpeta
+                // Cargar modelo oficial desde el ScriptableObject DatosItem
                 carpetaInstancia = Instantiate(itemCarpeta.prefabEnMano, posSalida, rotSalida);
             }
             else
@@ -396,10 +405,10 @@ namespace SoltaLaPala.Minijuegos
             if (idComp == null)
             {
                 idComp = carpetaInstancia.AddComponent<IdentificadorObjeto>();
-                idComp.AsignarId("Carpeta_Impresa_" + System.Guid.NewGuid().ToString("N").Substring(0, 8));
+                idComp.AsignarId((fueSabotaje ? "Carpeta_Saboteada_" : "Carpeta_Informes_") + System.Guid.NewGuid().ToString("N").Substring(0, 8));
             }
 
-            // Asegurar ObjetoRecogible con DatosItem "Carpeta"
+            // Asegurar ObjetoRecogible con el DatosItem correspondiente (Carpeta o CarpetaSaboteada)
             ObjetoRecogible recogible = carpetaInstancia.GetComponent<ObjetoRecogible>();
             if (recogible == null)
             {

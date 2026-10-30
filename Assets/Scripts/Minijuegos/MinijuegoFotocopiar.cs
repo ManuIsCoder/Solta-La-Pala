@@ -28,6 +28,9 @@ namespace SoltaLaPala.Minijuegos
         public string idFotoChiqui = "FotoChiqui";
         public string idFotoChiquiAlternativo = "fotoChiqui";
         public string idCarpetaResultado = "Carpeta";
+        public string idCarpetaSaboteadaResultado = "CarpetaSaboteada";
+        [Tooltip("Si es true, la sospecha e impacto se aplican al entregar la carpeta al NPC de la misión, no en la computadora.")]
+        public bool aplicarPuntajeAlEntregarAlNPC = true;
 
         [Header("Sprites y Gráficos")]
         public Sprite spriteFondoComputadora;
@@ -348,32 +351,32 @@ namespace SoltaLaPala.Minijuegos
             {
                 // SABOTAJE
                 resultadoExito = false;
-                mensajeVentanaFinal = "¡Tarea Saboteada!\nHas fotocopiado la foto de Chiqui Tapia en lugar de los informes.\n\n" +
-                                     "<b>➔ La Carpeta saboteada ha salido de la impresora.</b>";
+                mensajeVentanaFinal = "¡Fotocopia completada!\nHas fotocopiado la foto de Chiqui Tapia en lugar de los informes.\n\n" +
+                                     "<b>➔ Recoge la Carpeta saboteada de la impresora y llévasela al jefe.</b>";
 
-                if (EstadoPartida.Instancia != null)
+                if (!aplicarPuntajeAlEntregarAlNPC && EstadoPartida.Instancia != null)
                 {
                     EstadoPartida.Instancia.RegistrarSabotaje(3, 15);
                 }
 
-                Debug.LogWarning("[MinijuegoFotocopiar] ¡Sabotaje cometido! Se fotocopió la foto de Chiqui Tapia.");
+                Debug.LogWarning("[MinijuegoFotocopiar] ¡Carpeta saboteada generada! El impacto y la sospecha se aplicarán al entregársela al jefe.");
             }
             else
             {
                 // ÉXITO LEGÍTIMO
                 resultadoExito = true;
-                mensajeVentanaFinal = "Informes oficiales fotocopiados con éxito.\nEl jefe estará conforme.\n\n" +
-                                     "<b>➔ La Carpeta con los informes ha salido de la impresora.</b>";
+                mensajeVentanaFinal = "Informes oficiales fotocopiados con éxito.\n\n" +
+                                     "<b>➔ Recoge la Carpeta con los informes de la impresora y llévasela al jefe.</b>";
 
-                if (EstadoPartida.Instancia != null)
+                if (!aplicarPuntajeAlEntregarAlNPC && EstadoPartida.Instancia != null)
                 {
                     EstadoPartida.Instancia.ReducirSospecha(15);
                 }
 
-                Debug.Log("[MinijuegoFotocopiar] ¡Fotocopiado exitoso! Informes copiados.");
+                Debug.Log("[MinijuegoFotocopiar] ¡Carpeta legítima generada! La reducción de sospecha se aplicará al entregársela al jefe.");
             }
 
-            // PASO 4: DE LA IMPRESORA SALE LA CARPETA FÍSICAMENTE
+            // PASO 4: DE LA IMPRESORA SALE LA CARPETA FÍSICAMENTE (Legítima o Saboteada)
             if (impresora != null)
             {
                 impresora.ExpulsarCarpeta(fueSabotaje);
@@ -381,7 +384,8 @@ namespace SoltaLaPala.Minijuegos
             else
             {
                 // Fallback directo al inventario si no hay impresora asignada
-                DatosItem itemCarpeta = Resources.Load<DatosItem>("Items/" + idCarpetaResultado) ?? Resources.Load<DatosItem>(idCarpetaResultado);
+                string idRes = fueSabotaje ? idCarpetaSaboteadaResultado : idCarpetaResultado;
+                DatosItem itemCarpeta = Resources.Load<DatosItem>("Items/" + idRes) ?? Resources.Load<DatosItem>(idRes);
                 if (itemCarpeta != null && Inventario != null)
                 {
                     Inventario.IntentarAgregarItem(itemCarpeta);
