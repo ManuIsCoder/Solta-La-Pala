@@ -15,6 +15,6 @@ MonoBehaviour:
   id: FotoChiqui
   nombre: Foto de Chiqui Tapia
   icono: {fileID: 21300000, guid: 76061a14a44c3034585c1b78e18fed95, type: 3}
-  prefabEnMano: {fileID: 100100000, guid: ccb11ceb13c2dc5419a0850a6598ebc1, type: 3}
+  prefabEnMano: {fileID: 3564685551861542209, guid: ccb11ceb13c2dc5419a0850a6598ebc1, type: 3}
   descripcion: Foto del Chiqui Tapia. Usala en la impresora para arruinar la tarea.
   esSospechoso: 1
