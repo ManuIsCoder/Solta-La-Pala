@@ -10,10 +10,12 @@ namespace SoltaLaPala.Minijuegos
     /// Interactuable para la Impresora física en la Sala de Impresión.
     /// 
     /// Flujo:
-    /// 1. El jugador viene con el documento (Informes o Foto de Chiqui).
-    /// 2. Presiona [E] para "Poner documento en la impresora". El documento se carga en la máquina y se consume del inventario.
-    /// 3. El jugador va a la computadora e imprime.
-    /// 4. Al imprimir, la impresora expulsa físicamente la Carpeta resultante con ObjetoRecogible listo para agarrar con [E].
+    /// 1. El jugador viene con el documento (Informes/Documento o Foto de Chiqui) en la mano o inventario.
+    /// 2. Presiona [E] para "Poner documento en la impresora".
+    ///    - El documento se elimina inmediatamente de la mano / inventario.
+    ///    - La impresora registra que tiene el documento cargado.
+    /// 3. El jugador va a la computadora -> la computadora detecta el documento y deja IMPRIMIR.
+    /// 4. Al imprimir, la impresora expulsa físicamente la Carpeta resultante lista para agarrar con [E].
     /// </summary>
     [RequireComponent(typeof(ResaltadoInteractuable))]
     public class ImpresoraInteractuable : MonoBehaviour, IInteractuable
@@ -30,6 +32,9 @@ namespace SoltaLaPala.Minijuegos
             Informe,
             FotoChiqui
         }
+
+        public static ImpresoraInteractuable Instancia { get; private set; }
+        public static EstadoDocumentoImpresora DocumentoCargadoGlobal = EstadoDocumentoImpresora.Vacio;
 
         [Header("Interruptor del interactuable")]
         public EstadoSwitch estado = EstadoSwitch.Activado;
@@ -62,6 +67,8 @@ namespace SoltaLaPala.Minijuegos
 
         private void Awake()
         {
+            Instancia = this;
+
             if (audioSource == null)
             {
                 audioSource = GetComponent<AudioSource>();
@@ -73,36 +80,42 @@ namespace SoltaLaPala.Minijuegos
             }
         }
 
-        #region Comprobación de Inventario del Jugador
-
-        private bool JugadorTieneInforme(InventarioJugador inv)
+        private void OnEnable()
         {
-            if (inv == null) return false;
-            return inv.TieneItem(idInforme)
-                || (!string.IsNullOrEmpty(idInformeAlternativo) && inv.TieneItem(idInformeAlternativo))
-                || inv.TieneItem("Papeles");
+            Instancia = this;
         }
 
-        private bool JugadorTieneFotoChiqui(InventarioJugador inv)
-        {
-            if (inv == null) return false;
-            return inv.TieneItem(idFotoChiqui)
-                || (!string.IsNullOrEmpty(idFotoChiquiAlternativo) && inv.TieneItem(idFotoChiquiAlternativo))
-                || inv.TieneItem("Dibujo");
-        }
+        #region Comprobación de Ítems
 
-        private bool EsItemFotoChiqui(DatosItem item)
+        public static bool EsFotoChiqui(DatosItem item)
         {
             if (item == null) return false;
-            string id = item.Id;
-            return id == idFotoChiqui || id == idFotoChiquiAlternativo || id == "Dibujo";
+            string id = (item.Id ?? "").ToLower();
+            string nom = (item.nombre ?? "").ToLower();
+            return id.Contains("chiqui") || nom.Contains("chiqui") || id == "dibujo";
         }
 
-        private bool EsItemInforme(DatosItem item)
+        public static bool EsDocumentoOInforme(DatosItem item)
         {
             if (item == null) return false;
-            string id = item.Id;
-            return id == idInforme || id == idInformeAlternativo || id == "Papeles";
+            string id = (item.Id ?? "").ToLower();
+            string nom = (item.nombre ?? "").ToLower();
+            return id.Contains("informe") || id.Contains("documento") || id.Contains("papel")
+                || nom.Contains("informe") || nom.Contains("documento") || nom.Contains("papel");
+        }
+
+        public bool JugadorTieneCualquierDocumento(InventarioJugador inv)
+        {
+            if (inv == null) return false;
+            if (EsFotoChiqui(inv.ItemSeleccionado) || EsDocumentoOInforme(inv.ItemSeleccionado)) return true;
+
+            for (int i = 0; i < InventarioJugador.CantidadSlots; i++)
+            {
+                DatosItem it = inv.ObtenerItem(i);
+                if (EsFotoChiqui(it) || EsDocumentoOInforme(it)) return true;
+            }
+
+            return false;
         }
 
         #endregion
@@ -122,31 +135,29 @@ namespace SoltaLaPala.Minijuegos
                 if (inv == null)
                     return "[E] Impresora (Requiere Informes o Foto de Chiqui)";
 
-                // Si tiene el ítem seleccionado en mano
-                if (EsItemFotoChiqui(inv.ItemSeleccionado))
+                // Si tiene el ítem directamente en mano
+                if (EsFotoChiqui(inv.ItemSeleccionado))
                     return "[E] Poner Foto de Chiqui en la impresora";
 
-                if (EsItemInforme(inv.ItemSeleccionado))
+                if (EsDocumentoOInforme(inv.ItemSeleccionado))
                     return "[E] Poner Informes en la impresora";
 
-                // Si los tiene en el inventario aunque no estén en la mano activa
-                if (JugadorTieneInforme(inv) && !JugadorTieneFotoChiqui(inv))
-                    return "[E] Poner Informes en la impresora";
+                // Si lo tiene en algún slot del inventario
+                for (int i = 0; i < InventarioJugador.CantidadSlots; i++)
+                {
+                    DatosItem it = inv.ObtenerItem(i);
+                    if (EsFotoChiqui(it)) return "[E] Poner Foto de Chiqui en la impresora";
+                    if (EsDocumentoOInforme(it)) return "[E] Poner Informes en la impresora";
+                }
 
-                if (JugadorTieneFotoChiqui(inv) && !JugadorTieneInforme(inv))
-                    return "[E] Poner Foto de Chiqui en la impresora";
-
-                if (JugadorTieneInforme(inv) && JugadorTieneFotoChiqui(inv))
-                    return "[E] Poner documento en la impresora";
-
-                return "[E] Impresora (Requiere Informes o Foto de Chiqui)";
+                return "[E] Impresora (Requiere Informes o Foto de Chiqui en mano)";
             }
             else
             {
                 string nombreDoc = (documentoCargado == EstadoDocumentoImpresora.FotoChiqui)
                     ? "Foto de Chiqui"
                     : "Informes";
-                return $"[E] Impresora lista ({nombreDoc}) -> Usa la Computadora para Imprimir";
+                return $"[E] Impresora lista ({nombreDoc}) -> Ve a la Computadora a Imprimir";
             }
         }
 
@@ -162,61 +173,61 @@ namespace SoltaLaPala.Minijuegos
         {
             if (estado == EstadoSwitch.Desactivado) return;
 
-            var inv = quienInteractua != null ? quienInteractua.GetComponent<InventarioJugador>() : null;
-
             if (documentoCargado != EstadoDocumentoImpresora.Vacio)
             {
-                Debug.Log("[Impresora] El documento ya está en la bandeja del escáner. Ve a la computadora para imprimir.");
+                Debug.Log("[Impresora] El documento ya está colocado en la impresora. Ve a la computadora para imprimir.");
                 return;
             }
 
+            var inv = quienInteractua != null ? quienInteractua.GetComponent<InventarioJugador>() : null;
             if (inv == null) return;
 
-            // Decidir qué documento colocar
-            if (EsItemFotoChiqui(inv.ItemSeleccionado) || (JugadorTieneFotoChiqui(inv) && !JugadorTieneInforme(inv)))
+            // 1. Revisar primero si tiene el documento en la mano (slot seleccionado)
+            DatosItem enMano = inv.ItemSeleccionado;
+            if (EsFotoChiqui(enMano))
             {
-                ColocarDocumentoEnImpresora(EstadoDocumentoImpresora.FotoChiqui, inv);
+                ColocarDocumentoEnImpresora(EstadoDocumentoImpresora.FotoChiqui, inv, inv.SlotSeleccionado);
+                return;
             }
-            else if (EsItemInforme(inv.ItemSeleccionado) || JugadorTieneInforme(inv))
+
+            if (EsDocumentoOInforme(enMano))
             {
-                ColocarDocumentoEnImpresora(EstadoDocumentoImpresora.Informe, inv);
+                ColocarDocumentoEnImpresora(EstadoDocumentoImpresora.Informe, inv, inv.SlotSeleccionado);
+                return;
             }
-            else if (JugadorTieneFotoChiqui(inv))
+
+            // 2. Si no lo tiene en la mano activa, buscar en los otros slots del inventario
+            for (int i = 0; i < InventarioJugador.CantidadSlots; i++)
             {
-                ColocarDocumentoEnImpresora(EstadoDocumentoImpresora.FotoChiqui, inv);
+                DatosItem it = inv.ObtenerItem(i);
+                if (EsFotoChiqui(it))
+                {
+                    ColocarDocumentoEnImpresora(EstadoDocumentoImpresora.FotoChiqui, inv, i);
+                    return;
+                }
+                if (EsDocumentoOInforme(it))
+                {
+                    ColocarDocumentoEnImpresora(EstadoDocumentoImpresora.Informe, inv, i);
+                    return;
+                }
             }
-            else
-            {
-                Debug.Log("[Impresora] No tienes Informes ni Foto de Chiqui en tu inventario para poner.");
-            }
+
+            Debug.Log("[Impresora] No tienes ningún documento (Informes o Foto de Chiqui) para colocar.");
         }
 
         #endregion
 
         #region Colocación y Expulsión Física
 
-        private void ColocarDocumentoEnImpresora(EstadoDocumentoImpresora tipo, InventarioJugador inv)
+        private void ColocarDocumentoEnImpresora(EstadoDocumentoImpresora tipo, InventarioJugador inv, int slotAEliminar)
         {
             documentoCargado = tipo;
+            DocumentoCargadoGlobal = tipo;
 
-            // Consumir del inventario
-            if (tipo == EstadoDocumentoImpresora.FotoChiqui)
+            // ELIMINAR EL DOCUMENTO DEL INVENTARIO / MANO
+            if (inv != null && slotAEliminar >= 0)
             {
-                if (!inv.QuitarItem(idFotoChiqui))
-                {
-                    if (!inv.QuitarItem(idFotoChiquiAlternativo))
-                        inv.QuitarItem("Dibujo");
-                }
-                Debug.Log("[Impresora] ✔ Has colocado la Foto de Chiqui Tapia en la impresora. ¡Ahora ve a la computadora a imprimir!");
-            }
-            else
-            {
-                if (!inv.QuitarItem(idInforme))
-                {
-                    if (!inv.QuitarItem(idInformeAlternativo))
-                        inv.QuitarItem("Papeles");
-                }
-                Debug.Log("[Impresora] ✔ Has colocado los Informes del Jefe en la impresora. ¡Ahora ve a la computadora a imprimir!");
+                inv.QuitarItem(slotAEliminar);
             }
 
             if (objetoVisualDocumentoEnEscaner != null)
@@ -229,10 +240,14 @@ namespace SoltaLaPala.Minijuegos
                 audioSource.PlayOneShot(clipPonerPapel);
             }
 
+            string nombreTipo = (tipo == EstadoDocumentoImpresora.FotoChiqui) ? "Foto de Chiqui Tapia" : "Informes del Jefe";
+            Debug.Log($"[Impresora] ✔ Se colocó '{nombreTipo}' en la impresora y se eliminó de la mano. ¡Ahora ve a la computadora a imprimir!");
+
             // Notificar al minijuego si está abierto o en escena
             var mini = FindFirstObjectByType<MinijuegoFotocopiar>(FindObjectsInactive.Include);
             if (mini != null)
             {
+                mini.impresora = this;
                 mini.ActualizarPantallaSegunEstadoImpresora();
             }
         }
@@ -249,6 +264,7 @@ namespace SoltaLaPala.Minijuegos
             }
 
             documentoCargado = EstadoDocumentoImpresora.Vacio;
+            DocumentoCargadoGlobal = EstadoDocumentoImpresora.Vacio;
 
             StartCoroutine(RutinaExpulsarCarpeta(fueSabotaje));
         }

@@ -554,14 +554,55 @@ namespace SoltaLaPala.Minijuegos
                 rtPanel.sizeDelta = new Vector2(700f, 700f);
             }
 
+            // Siempre asegurar que el fondo NO esté deformado (independientemente de si ya fue construida la UI)
+            if (imagenFondo != null)
+            {
+                imagenFondo.preserveAspect = true;
+                imagenFondo.type = Image.Type.Simple;
+                if (spriteFondoComputadora != null) imagenFondo.sprite = spriteFondoComputadora;
+                // Ajustar tamaño: ancho=700, altura proporcional 16:9
+                RectTransform rtFondoExist = imagenFondo.GetComponent<RectTransform>();
+                if (rtFondoExist != null)
+                {
+                    rtFondoExist.anchorMin = new Vector2(0.5f, 0.5f);
+                    rtFondoExist.anchorMax = new Vector2(0.5f, 0.5f);
+                    rtFondoExist.pivot     = new Vector2(0.5f, 0.5f);
+                    rtFondoExist.anchoredPosition = Vector2.zero;
+                    rtFondoExist.sizeDelta = new Vector2(700f, 393.75f);
+                }
+            }
+
             if (imagenFondo != null && botonImprimir != null)
             {
                 return;
             }
 
-            // 1. Imagen Fondo Cuadrado
-            if (imagenFondo == null)
+            // 1. Fondo: capa sólida oscura que llena todo el panel (700x700)
+            //    + imagen de la computadora encima preservando su ratio 16:9 (640x360)
             {
+                // Capa base sólida oscura (estirada al 100% del panel cuadrado)
+                Transform trFondoBase = transform.Find("FondoBase");
+                Image imgBase;
+                if (trFondoBase != null)
+                {
+                    imgBase = trFondoBase.GetComponent<Image>();
+                }
+                else
+                {
+                    GameObject objBase = new GameObject("FondoBase", typeof(RectTransform), typeof(Image));
+                    objBase.transform.SetParent(transform, false);
+                    objBase.transform.SetSiblingIndex(0); // primer hijo → debajo de todo
+                    RectTransform rtBase = objBase.GetComponent<RectTransform>();
+                    ConstructorUI.Estirar(rtBase);
+                    imgBase = objBase.GetComponent<Image>();
+                }
+                if (imgBase != null)
+                {
+                    imgBase.sprite = null;
+                    imgBase.color = new Color(0.10f, 0.12f, 0.16f, 1f); // azul-oscuro sin textura
+                }
+
+                // Capa de imagen: fondo computadora centrado, 700px ancho, altura proporcional (700 * 360/640 ≈ 394)
                 Transform trFondo = transform.Find("Fondo");
                 if (trFondo != null)
                 {
@@ -571,14 +612,23 @@ namespace SoltaLaPala.Minijuegos
                 {
                     GameObject objFondo = new GameObject("Fondo", typeof(RectTransform), typeof(Image));
                     objFondo.transform.SetParent(transform, false);
-                    ConstructorUI.Estirar(objFondo.GetComponent<RectTransform>());
+                    objFondo.transform.SetSiblingIndex(1); // segundo hijo → encima de la base
+                    RectTransform rtFondo = objFondo.GetComponent<RectTransform>();
+                    rtFondo.anchorMin = new Vector2(0.5f, 0.5f);
+                    rtFondo.anchorMax = new Vector2(0.5f, 0.5f);
+                    rtFondo.pivot    = new Vector2(0.5f, 0.5f);
+                    rtFondo.anchoredPosition = Vector2.zero;
+                    // 700 de ancho, altura proporcional 16:9 → 700*(360/640) = 393.75
+                    rtFondo.sizeDelta = new Vector2(700f, 393.75f);
                     imagenFondo = objFondo.GetComponent<Image>();
                 }
-            }
-            if (imagenFondo != null)
-            {
-                imagenFondo.sprite = spriteFondoComputadora;
-                imagenFondo.color = Color.white;
+                if (imagenFondo != null)
+                {
+                    imagenFondo.sprite = spriteFondoComputadora;
+                    imagenFondo.color  = Color.white;
+                    imagenFondo.preserveAspect = true;
+                    imagenFondo.type = Image.Type.Simple;
+                }
             }
 
             // 2. Barra Superior y Botón Salir
