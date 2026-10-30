@@ -69,9 +69,34 @@ namespace SoltaLaPala.Minijuegos
         {
             Instancia = this;
 
+            // Eliminar componentes conflictivos que implementen IInteractuable en este mismo objeto (como InteractuableConSonido)
+            // para garantizar que InteractorJugador siempre interactúe con ImpresoraInteractuable
+            var otrosInteractuables = GetComponents<IInteractuable>();
+            foreach (var inter in otrosInteractuables)
+            {
+                if (inter != (IInteractuable)this && inter is MonoBehaviour mb)
+                {
+                    Destroy(mb);
+                }
+            }
+
             if (audioSource == null)
             {
                 audioSource = GetComponent<AudioSource>();
+                if (audioSource == null)
+                {
+                    audioSource = gameObject.AddComponent<AudioSource>();
+                }
+            }
+
+            if (clipPonerPapel == null)
+            {
+                clipPonerPapel = Resources.Load<AudioClip>("Audio/Objetos/Impresora2");
+            }
+
+            if (clipExpulsarCarpeta == null)
+            {
+                clipExpulsarCarpeta = Resources.Load<AudioClip>("Audio/Objetos/Impresora2");
             }
 
             if (objetoVisualDocumentoEnEscaner != null)
@@ -92,7 +117,9 @@ namespace SoltaLaPala.Minijuegos
             if (item == null) return false;
             string id = (item.Id ?? "").ToLower();
             string nom = (item.nombre ?? "").ToLower();
-            return id.Contains("chiqui") || nom.Contains("chiqui") || id == "dibujo";
+            string nomAsset = (item.name ?? "").ToLower();
+            return id.Contains("chiqui") || nom.Contains("chiqui") || nomAsset.Contains("chiqui") 
+                || id == "dibujo" || nom.Contains("dibujo") || nomAsset.Contains("dibujo");
         }
 
         public static bool EsDocumentoOInforme(DatosItem item)
@@ -100,8 +127,10 @@ namespace SoltaLaPala.Minijuegos
             if (item == null) return false;
             string id = (item.Id ?? "").ToLower();
             string nom = (item.nombre ?? "").ToLower();
+            string nomAsset = (item.name ?? "").ToLower();
             return id.Contains("informe") || id.Contains("documento") || id.Contains("papel")
-                || nom.Contains("informe") || nom.Contains("documento") || nom.Contains("papel");
+                || nom.Contains("informe") || nom.Contains("documento") || nom.Contains("papel")
+                || nomAsset.Contains("informe") || nomAsset.Contains("documento") || nomAsset.Contains("papel");
         }
 
         public bool JugadorTieneCualquierDocumento(InventarioJugador inv)
@@ -180,6 +209,11 @@ namespace SoltaLaPala.Minijuegos
             }
 
             var inv = quienInteractua != null ? quienInteractua.GetComponent<InventarioJugador>() : null;
+            if (inv == null)
+            {
+                var jugador = GameObject.FindGameObjectWithTag("Player");
+                if (jugador != null) inv = jugador.GetComponent<InventarioJugador>();
+            }
             if (inv == null) return;
 
             // 1. Revisar primero si tiene el documento en la mano (slot seleccionado)
@@ -212,7 +246,8 @@ namespace SoltaLaPala.Minijuegos
                 }
             }
 
-            Debug.Log("[Impresora] No tienes ningún documento (Informes o Foto de Chiqui) para colocar.");
+            string infoItem = enMano != null ? $"'{enMano.nombre}' (id: {enMano.Id})" : "manos vacías";
+            Debug.Log($"[Impresora] No se colocó nada. Tienes en la mano: {infoItem}. Se requiere Informes o Foto de Chiqui.");
         }
 
         #endregion
@@ -238,6 +273,13 @@ namespace SoltaLaPala.Minijuegos
             if (audioSource != null && clipPonerPapel != null)
             {
                 audioSource.PlayOneShot(clipPonerPapel);
+            }
+
+            // Actualizar el prompt de interacción en pantalla de inmediato
+            var interactor = FindFirstObjectByType<InteractorJugador>();
+            if (interactor != null && interactor.interfazTexto != null)
+            {
+                interactor.interfazTexto.Mostrar(ObtenerTextoInteraccion());
             }
 
             string nombreTipo = (tipo == EstadoDocumentoImpresora.FotoChiqui) ? "Foto de Chiqui Tapia" : "Informes del Jefe";

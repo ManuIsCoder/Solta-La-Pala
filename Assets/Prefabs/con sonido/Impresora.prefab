@@ -138,7 +138,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1683809117423138758}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d20372970cd9c0b498650626b5259ab5, type: 3}
   m_Name: 
@@ -153,12 +153,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 1683809117423138758}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 80f40a734a315ae4d938ed10eb0e3e83, type: 3}
+  m_Script: {fileID: 11500000, guid: b59f7e24c0974a5188753a2df366a041, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SoltaLaPala.Minijuegos.ImpresoraInteractuable
   estado: 0
-  minijuego: {fileID: 0}
+  documentoCargado: 0
   idInforme: Informe
   idInformeAlternativo: Documento
   idFotoChiqui: FotoChiqui
   idFotoChiquiAlternativo: fotoChiqui
+  idCarpeta: Carpeta
