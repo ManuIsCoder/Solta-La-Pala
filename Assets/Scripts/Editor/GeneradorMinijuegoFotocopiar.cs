@@ -195,13 +195,25 @@ namespace SoltaLaPala.Editor
             script.spriteIconoChiqui = spriteChiqui;
             script.clipImpresora = clipAudio;
 
-            // 2. Fondo Cuadrado
+            // 2. Fondo Base Oscuro + Fondo Computadora 25% más grande (875 x 492.2)
+            GameObject objFondoBase = new GameObject("FondoBase", typeof(RectTransform), typeof(Image));
+            objFondoBase.transform.SetParent(panelRaiz.transform, false);
+            ConstructorUI.Estirar(objFondoBase.GetComponent<RectTransform>());
+            Image imgBase = objFondoBase.GetComponent<Image>();
+            imgBase.color = new Color(0.10f, 0.12f, 0.16f, 1f);
+
             GameObject objFondo = new GameObject("FondoComputadora", typeof(RectTransform), typeof(Image));
             objFondo.transform.SetParent(panelRaiz.transform, false);
-            ConstructorUI.Estirar(objFondo.GetComponent<RectTransform>());
+            RectTransform rtFondo = objFondo.GetComponent<RectTransform>();
+            rtFondo.anchorMin = new Vector2(0.5f, 0.5f);
+            rtFondo.anchorMax = new Vector2(0.5f, 0.5f);
+            rtFondo.pivot     = new Vector2(0.5f, 0.5f);
+            rtFondo.anchoredPosition = Vector2.zero;
+            rtFondo.sizeDelta = new Vector2(875f, 492.2f);
             Image imgFondo = objFondo.GetComponent<Image>();
             imgFondo.sprite = spriteFondo;
             imgFondo.color = Color.white;
+            imgFondo.preserveAspect = true;
             script.imagenFondo = imgFondo;
 
             // 3. Botón Salir
@@ -250,7 +262,7 @@ namespace SoltaLaPala.Editor
             txtTit.color = Color.white;
             script.textoTituloVentana = txtTit;
 
-            // 5. Marco Central Cuadrado para Estado
+            // 5. Marco Central para Estado (10% más chico: 522 x 396)
             GameObject panelCentro = new GameObject("PanelCentro", typeof(RectTransform), typeof(Image));
             panelCentro.transform.SetParent(panelRaiz.transform, false);
             RectTransform rtCentro = panelCentro.GetComponent<RectTransform>();
@@ -258,7 +270,7 @@ namespace SoltaLaPala.Editor
             rtCentro.anchorMax = new Vector2(0.5f, 0.5f);
             rtCentro.pivot = new Vector2(0.5f, 0.5f);
             rtCentro.anchoredPosition = new Vector2(0f, 25f);
-            rtCentro.sizeDelta = new Vector2(580f, 440f);
+            rtCentro.sizeDelta = new Vector2(522f, 396f);
             panelCentro.GetComponent<Image>().color = new Color(0.12f, 0.14f, 0.19f, 0.90f);
 
             // Icono Central
@@ -268,8 +280,8 @@ namespace SoltaLaPala.Editor
             rtIcono.anchorMin = new Vector2(0.5f, 1f);
             rtIcono.anchorMax = new Vector2(0.5f, 1f);
             rtIcono.pivot = new Vector2(0.5f, 1f);
-            rtIcono.anchoredPosition = new Vector2(0f, -25f);
-            rtIcono.sizeDelta = new Vector2(110f, 110f);
+            rtIcono.anchoredPosition = new Vector2(0f, -20f);
+            rtIcono.sizeDelta = new Vector2(100f, 100f);
             Image imgIcono = objIcono.GetComponent<Image>();
             imgIcono.preserveAspect = true;
             imgIcono.sprite = spriteInforme;
@@ -282,11 +294,11 @@ namespace SoltaLaPala.Editor
             rtMsgPrinc.anchorMin = new Vector2(0.5f, 1f);
             rtMsgPrinc.anchorMax = new Vector2(0.5f, 1f);
             rtMsgPrinc.pivot = new Vector2(0.5f, 1f);
-            rtMsgPrinc.anchoredPosition = new Vector2(0f, -150f);
-            rtMsgPrinc.sizeDelta = new Vector2(520f, 35f);
+            rtMsgPrinc.anchoredPosition = new Vector2(0f, -130f);
+            rtMsgPrinc.sizeDelta = new Vector2(470f, 32f);
             Text tMsgPrinc = objMsgPrinc.GetComponent<Text>();
             tMsgPrinc.font = ConstructorUI.Fuente;
-            tMsgPrinc.fontSize = 17;
+            tMsgPrinc.fontSize = 16;
             tMsgPrinc.alignment = TextAnchor.MiddleCenter;
             tMsgPrinc.color = Color.white;
             tMsgPrinc.text = "<color=#FFCC00><b>⚠ BANDEJA DE ESCÁNER VACÍA</b></color>";
@@ -299,11 +311,11 @@ namespace SoltaLaPala.Editor
             rtSub.anchorMin = new Vector2(0.5f, 1f);
             rtSub.anchorMax = new Vector2(0.5f, 1f);
             rtSub.pivot = new Vector2(0.5f, 1f);
-            rtSub.anchoredPosition = new Vector2(0f, -195f);
-            rtSub.sizeDelta = new Vector2(520f, 140f);
+            rtSub.anchoredPosition = new Vector2(0f, -170f);
+            rtSub.sizeDelta = new Vector2(470f, 130f);
             Text tSub = objSub.GetComponent<Text>();
             tSub.font = ConstructorUI.Fuente;
-            tSub.fontSize = 14;
+            tSub.fontSize = 13;
             tSub.alignment = TextAnchor.MiddleCenter;
             tSub.color = new Color(0.85f, 0.90f, 1f, 0.95f);
             tSub.text = "No se detectó ningún documento en la impresora.\n\n" +
@@ -318,8 +330,8 @@ namespace SoltaLaPala.Editor
             rtProg.anchorMin = new Vector2(0.5f, 0f);
             rtProg.anchorMax = new Vector2(0.5f, 0f);
             rtProg.pivot = new Vector2(0.5f, 0f);
-            rtProg.anchoredPosition = new Vector2(0f, 25f);
-            rtProg.sizeDelta = new Vector2(500f, 16f);
+            rtProg.anchoredPosition = new Vector2(0f, 20f);
+            rtProg.sizeDelta = new Vector2(450f, 16f);
 
             Slider slider = objBarra.GetComponent<Slider>();
             slider.minValue = 0f;

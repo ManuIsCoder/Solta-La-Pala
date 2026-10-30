@@ -288,11 +288,19 @@ namespace SoltaLaPala.Minijuegos
                 rotSalida = transform.rotation;
             }
 
+            DatosItem itemCarpeta = Resources.Load<DatosItem>("Items/" + idCarpeta)
+                                   ?? Resources.Load<DatosItem>(idCarpeta);
+
             GameObject carpetaInstancia;
 
             if (prefabCarpeta != null)
             {
                 carpetaInstancia = Instantiate(prefabCarpeta, posSalida, rotSalida);
+            }
+            else if (itemCarpeta != null && itemCarpeta.prefabEnMano != null)
+            {
+                // Cargar modelo oficial desde el ScriptableObject DatosItem de Carpeta
+                carpetaInstancia = Instantiate(itemCarpeta.prefabEnMano, posSalida, rotSalida);
             }
             else
             {
@@ -355,9 +363,6 @@ namespace SoltaLaPala.Minijuegos
             {
                 recogible = carpetaInstancia.AddComponent<ObjetoRecogible>();
             }
-
-            DatosItem itemCarpeta = Resources.Load<DatosItem>("Items/" + idCarpeta)
-                                   ?? Resources.Load<DatosItem>(idCarpeta);
 
             recogible.item = itemCarpeta;
 

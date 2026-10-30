@@ -187,7 +187,18 @@ namespace SoltaLaPala.Minijuegos
         {
             BuscarImpresoraSiEsNecesario();
 
-            bool tieneDocumento = modoPrueba || (impresora != null && impresora.documentoCargado != ImpresoraInteractuable.EstadoDocumentoImpresora.Vacio);
+            // Detectar si hay documento (por referencia directa a la impresora o por estado global estático o modo prueba)
+            var estadoDoc = ImpresoraInteractuable.EstadoDocumentoImpresora.Vacio;
+            if (impresora != null && impresora.documentoCargado != ImpresoraInteractuable.EstadoDocumentoImpresora.Vacio)
+            {
+                estadoDoc = impresora.documentoCargado;
+            }
+            else if (ImpresoraInteractuable.DocumentoCargadoGlobal != ImpresoraInteractuable.EstadoDocumentoImpresora.Vacio)
+            {
+                estadoDoc = ImpresoraInteractuable.DocumentoCargadoGlobal;
+            }
+
+            bool tieneDocumento = modoPrueba || (estadoDoc != ImpresoraInteractuable.EstadoDocumentoImpresora.Vacio);
 
             if (!tieneDocumento)
             {
@@ -224,7 +235,9 @@ namespace SoltaLaPala.Minijuegos
             else
             {
                 // PASO 3: YA HAY DOCUMENTO EN LA IMPRESORA
-                var doc = impresora != null ? impresora.documentoCargado : ImpresoraInteractuable.EstadoDocumentoImpresora.Informe;
+                var doc = estadoDoc != ImpresoraInteractuable.EstadoDocumentoImpresora.Vacio 
+                    ? estadoDoc 
+                    : (impresora != null && impresora.documentoCargado != ImpresoraInteractuable.EstadoDocumentoImpresora.Vacio ? impresora.documentoCargado : ImpresoraInteractuable.EstadoDocumentoImpresora.Informe);
 
                 if (imagenIconoEstado != null)
                 {
@@ -328,7 +341,8 @@ namespace SoltaLaPala.Minijuegos
 
             BuscarImpresoraSiEsNecesario();
 
-            bool fueSabotaje = impresora != null && impresora.documentoCargado == ImpresoraInteractuable.EstadoDocumentoImpresora.FotoChiqui;
+            bool fueSabotaje = (impresora != null && impresora.documentoCargado == ImpresoraInteractuable.EstadoDocumentoImpresora.FotoChiqui) ||
+                               (ImpresoraInteractuable.DocumentoCargadoGlobal == ImpresoraInteractuable.EstadoDocumentoImpresora.FotoChiqui);
 
             if (fueSabotaje)
             {
@@ -554,13 +568,13 @@ namespace SoltaLaPala.Minijuegos
                 rtPanel.sizeDelta = new Vector2(700f, 700f);
             }
 
-            // Siempre asegurar que el fondo NO esté deformado (independientemente de si ya fue construida la UI)
+            // Siempre asegurar que el fondo NO esté deformado y esté en el tamaño configurado (25% más grande: 875 x 492.2)
             if (imagenFondo != null)
             {
                 imagenFondo.preserveAspect = true;
                 imagenFondo.type = Image.Type.Simple;
                 if (spriteFondoComputadora != null) imagenFondo.sprite = spriteFondoComputadora;
-                // Ajustar tamaño: ancho=700, altura proporcional 16:9
+                // Fondo 25% más grande (700 * 1.25 = 875, altura proporcional 16:9 = 492.2)
                 RectTransform rtFondoExist = imagenFondo.GetComponent<RectTransform>();
                 if (rtFondoExist != null)
                 {
@@ -568,7 +582,18 @@ namespace SoltaLaPala.Minijuegos
                     rtFondoExist.anchorMax = new Vector2(0.5f, 0.5f);
                     rtFondoExist.pivot     = new Vector2(0.5f, 0.5f);
                     rtFondoExist.anchoredPosition = Vector2.zero;
-                    rtFondoExist.sizeDelta = new Vector2(700f, 393.75f);
+                    rtFondoExist.sizeDelta = new Vector2(875f, 492.2f);
+                }
+            }
+
+            // Asegurar que el PanelCentro (panel que dice qué hace) esté un 10% más chico (522 x 396)
+            Transform trPanelCentroExist = transform.Find("PanelCentro");
+            if (trPanelCentroExist != null)
+            {
+                RectTransform rtCentroExist = trPanelCentroExist.GetComponent<RectTransform>();
+                if (rtCentroExist != null)
+                {
+                    rtCentroExist.sizeDelta = new Vector2(522f, 396f);
                 }
             }
 
@@ -578,7 +603,7 @@ namespace SoltaLaPala.Minijuegos
             }
 
             // 1. Fondo: capa sólida oscura que llena todo el panel (700x700)
-            //    + imagen de la computadora encima preservando su ratio 16:9 (640x360)
+            //    + imagen de la computadora encima 25% más grande preservando su ratio 16:9 (875x492.2)
             {
                 // Capa base sólida oscura (estirada al 100% del panel cuadrado)
                 Transform trFondoBase = transform.Find("FondoBase");
@@ -602,7 +627,7 @@ namespace SoltaLaPala.Minijuegos
                     imgBase.color = new Color(0.10f, 0.12f, 0.16f, 1f); // azul-oscuro sin textura
                 }
 
-                // Capa de imagen: fondo computadora centrado, 700px ancho, altura proporcional (700 * 360/640 ≈ 394)
+                // Capa de imagen: fondo computadora centrado, 875px ancho, altura proporcional (875 * 360/640 ≈ 492.2)
                 Transform trFondo = transform.Find("Fondo");
                 if (trFondo != null)
                 {
@@ -618,8 +643,7 @@ namespace SoltaLaPala.Minijuegos
                     rtFondo.anchorMax = new Vector2(0.5f, 0.5f);
                     rtFondo.pivot    = new Vector2(0.5f, 0.5f);
                     rtFondo.anchoredPosition = Vector2.zero;
-                    // 700 de ancho, altura proporcional 16:9 → 700*(360/640) = 393.75
-                    rtFondo.sizeDelta = new Vector2(700f, 393.75f);
+                    rtFondo.sizeDelta = new Vector2(875f, 492.2f);
                     imagenFondo = objFondo.GetComponent<Image>();
                 }
                 if (imagenFondo != null)
@@ -687,7 +711,7 @@ namespace SoltaLaPala.Minijuegos
             rtCentro.anchorMax = new Vector2(0.5f, 0.5f);
             rtCentro.pivot = new Vector2(0.5f, 0.5f);
             rtCentro.anchoredPosition = new Vector2(0f, 25f);
-            rtCentro.sizeDelta = new Vector2(580f, 440f);
+            rtCentro.sizeDelta = new Vector2(522f, 396f); // 10% más chico (580*0.9 = 522, 440*0.9 = 396)
             panelCentro.GetComponent<Image>().color = new Color(0.12f, 0.14f, 0.19f, 0.90f);
 
             // Icono de Estado / Documento
@@ -697,8 +721,8 @@ namespace SoltaLaPala.Minijuegos
             rtIcono.anchorMin = new Vector2(0.5f, 1f);
             rtIcono.anchorMax = new Vector2(0.5f, 1f);
             rtIcono.pivot = new Vector2(0.5f, 1f);
-            rtIcono.anchoredPosition = new Vector2(0f, -25f);
-            rtIcono.sizeDelta = new Vector2(110f, 110f);
+            rtIcono.anchoredPosition = new Vector2(0f, -20f);
+            rtIcono.sizeDelta = new Vector2(100f, 100f);
             imagenIconoEstado = objIcono.GetComponent<Image>();
             imagenIconoEstado.preserveAspect = true;
 
@@ -709,11 +733,11 @@ namespace SoltaLaPala.Minijuegos
             rtMsgPrinc.anchorMin = new Vector2(0.5f, 1f);
             rtMsgPrinc.anchorMax = new Vector2(0.5f, 1f);
             rtMsgPrinc.pivot = new Vector2(0.5f, 1f);
-            rtMsgPrinc.anchoredPosition = new Vector2(0f, -150f);
-            rtMsgPrinc.sizeDelta = new Vector2(520f, 35f);
+            rtMsgPrinc.anchoredPosition = new Vector2(0f, -130f);
+            rtMsgPrinc.sizeDelta = new Vector2(470f, 32f);
             textoMensajePrincipal = objMsgPrinc.GetComponent<Text>();
             textoMensajePrincipal.font = ConstructorUI.Fuente;
-            textoMensajePrincipal.fontSize = 17;
+            textoMensajePrincipal.fontSize = 16;
             textoMensajePrincipal.alignment = TextAnchor.MiddleCenter;
             textoMensajePrincipal.color = Color.white;
 
@@ -724,11 +748,11 @@ namespace SoltaLaPala.Minijuegos
             rtSub.anchorMin = new Vector2(0.5f, 1f);
             rtSub.anchorMax = new Vector2(0.5f, 1f);
             rtSub.pivot = new Vector2(0.5f, 1f);
-            rtSub.anchoredPosition = new Vector2(0f, -195f);
-            rtSub.sizeDelta = new Vector2(520f, 140f);
+            rtSub.anchoredPosition = new Vector2(0f, -170f);
+            rtSub.sizeDelta = new Vector2(470f, 130f);
             textoSubmensajeInstruccion = objSub.GetComponent<Text>();
             textoSubmensajeInstruccion.font = ConstructorUI.Fuente;
-            textoSubmensajeInstruccion.fontSize = 14;
+            textoSubmensajeInstruccion.fontSize = 13;
             textoSubmensajeInstruccion.alignment = TextAnchor.MiddleCenter;
             textoSubmensajeInstruccion.color = new Color(0.85f, 0.90f, 1f, 0.95f);
 
@@ -739,8 +763,8 @@ namespace SoltaLaPala.Minijuegos
             rtProg.anchorMin = new Vector2(0.5f, 0f);
             rtProg.anchorMax = new Vector2(0.5f, 0f);
             rtProg.pivot = new Vector2(0.5f, 0f);
-            rtProg.anchoredPosition = new Vector2(0f, 25f);
-            rtProg.sizeDelta = new Vector2(500f, 16f);
+            rtProg.anchoredPosition = new Vector2(0f, 20f);
+            rtProg.sizeDelta = new Vector2(450f, 16f);
 
             barraProgreso = objBarra.GetComponent<Slider>();
             barraProgreso.minValue = 0f;
