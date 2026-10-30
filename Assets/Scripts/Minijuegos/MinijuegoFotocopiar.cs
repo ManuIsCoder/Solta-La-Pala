@@ -8,66 +8,42 @@ using UnityEngine.UI;
 namespace SoltaLaPala.Minijuegos
 {
     /// <summary>
-    /// Minijuego: Fotocopiar imagen.
+    /// Minijuego: Fotocopiar imagen (UI Cuadrada en la Computadora).
     /// 
-    /// De qué trata:
-    ///   El jefe pide fotocopiar unos informes oficiales de la oficina.
-    /// 
-    /// Objetivo legítimo (cumplir la tarea):
-    ///   Poner los Informes en la impresora y presionar Fotocopiar.
-    ///   Resultado: Éxito, reduce la sospecha (-15) y entrega la Carpeta oficial.
-    /// 
-    /// Sabotaje (arruinar la tarea):
-    ///   Poner la foto de Chiqui Tapia en la impresora y presionar Fotocopiar.
-    ///   Resultado: Sabotaje, aumenta la sospecha (+15), registra sabotaje y entrega la Carpeta saboteada.
+    /// Flujo de interacción:
+    /// 1. Interactuar con Computadora -> Si no hay papel en la impresora, dice "Pon el documento en la impresora".
+    /// 2. Ir a la Impresora física -> Poner el documento (Informes o Foto del Chiqui).
+    /// 3. Volver a la Computadora -> Darle al botón "IMPRIMIR".
+    /// 4. Impresora física -> Sale la Carpeta.
     /// </summary>
     public class MinijuegoFotocopiar : MinijuegoBase
     {
-        public enum TipoDocumento
-        {
-            Ninguno,
-            Informe,
-            FotoChiqui
-        }
-
-        [Header("Estado de Entrada")]
-        [Tooltip("Documento actualmente colocado sobre la bandeja del escáner / impresora")]
-        public TipoDocumento documentoEnBandeja = TipoDocumento.Ninguno;
+        [Header("Impresora Física Asociada")]
+        [Tooltip("Referencia a la impresora física en la sala. Si se deja vacía, se buscará automáticamente en la escena.")]
+        public ImpresoraInteractuable impresora;
 
         [Header("IDs de Ítems e Inventario")]
-        [Tooltip("ID principal del ítem de informe en el inventario")]
         public string idInforme = "Informe";
-        [Tooltip("ID alternativo de informe por compatibilidad")]
         public string idInformeAlternativo = "Documento";
-        [Tooltip("ID del ítem de la foto de Chiqui Tapia para sabotear")]
         public string idFotoChiqui = "FotoChiqui";
-        [Tooltip("ID alternativo de foto de Chiqui por compatibilidad")]
         public string idFotoChiquiAlternativo = "fotoChiqui";
-        [Tooltip("ID del ítem de salida que se entrega al jugador")]
         public string idCarpetaResultado = "Carpeta";
 
         [Header("Sprites y Gráficos")]
         public Sprite spriteFondoComputadora;
-        public Sprite spriteImpresora;
+        public Sprite spriteIconoAlertaVacio;
         public Sprite spriteIconoInforme;
         public Sprite spriteIconoChiqui;
 
-        [Header("Referencias de UI")]
+        [Header("Referencias de UI (Cuadrada)")]
         public Image imagenFondo;
-        public Image imagenImpresoraVisual;
-        public Image imagenDocumentoEnBandeja;
-        public Text textoDocumentoEnBandeja;
-        public Text textoInstrucciones;
-        public Text textoEstadoProceso;
-        public Slider barraProgresoImpresion;
-        public Button botonFotocopiar;
+        public Image imagenIconoEstado;
+        public Text textoTituloVentana;
+        public Text textoMensajePrincipal;
+        public Text textoSubmensajeInstruccion;
+        public Slider barraProgreso;
+        public Button botonImprimir;
         public Button botonSalir;
-
-        [Header("Botones / Selección de Archivo en la Computadora")]
-        public Button botonSeleccionarInforme;
-        public Button botonSeleccionarChiqui;
-        public Image marcoSeleccionInforme;
-        public Image marcoSeleccionChiqui;
 
         [Header("Audio")]
         public AudioSource audioSource;
@@ -75,21 +51,20 @@ namespace SoltaLaPala.Minijuegos
 
         [Header("UI - Ventana de Estado Final")]
         public GameObject ventanaPopup;
-        public Text textoTituloVentana;
-        public Text textoMensajeVentana;
-        public Button botonAceptarVentana;
-        public Image fondoBarraTituloVentana;
+        public Text textoTituloPopup;
+        public Text textoMensajePopup;
+        public Button botonAceptarPopup;
+        public Image fondoBarraTituloPopup;
 
         [Header("Ajustes")]
-        [Tooltip("Permite probar el minijuego sin requerir tener los ítems en el inventario")]
+        [Tooltip("Permite probar la impresión aunque no se haya puesto físicamente el documento en la impresora")]
         public bool modoPrueba = false;
         [Tooltip("Tiempo en segundos que dura el proceso de fotocopiado")]
-        public float duracionFotocopiado = 2.8f;
+        public float duracionFotocopiado = 2.6f;
 
         // Estado interno
-        private bool yaInicializado = false;
-        private bool minijuegoTerminado = false;
         private bool procesoEnMarcha = false;
+        private bool minijuegoTerminado = false;
         private bool resultadoExito = false;
         private string mensajeVentanaFinal = "";
         private Coroutine corrutinaFotocopiado;
@@ -101,6 +76,7 @@ namespace SoltaLaPala.Minijuegos
                 panelRaiz = gameObject;
             }
 
+            BuscarImpresoraSiEsNecesario();
             ConstruirUIAutomaticaSiEsNecesario();
             CrearVentanaPopupSiNoExiste();
             ConfigurarAudio();
@@ -111,30 +87,10 @@ namespace SoltaLaPala.Minijuegos
                 botonSalir.onClick.AddListener(Salir);
             }
 
-            if (botonFotocopiar != null)
+            if (botonImprimir != null)
             {
-                botonFotocopiar.onClick.RemoveAllListeners();
-                botonFotocopiar.onClick.AddListener(OnBotonFotocopiarPresionado);
-            }
-
-            if (botonSeleccionarInforme != null)
-            {
-                botonSeleccionarInforme.onClick.RemoveAllListeners();
-                botonSeleccionarInforme.onClick.AddListener(() => ColocarDocumento(TipoDocumento.Informe));
-            }
-
-            if (botonSeleccionarChiqui != null)
-            {
-                botonSeleccionarChiqui.onClick.RemoveAllListeners();
-                botonSeleccionarChiqui.onClick.AddListener(() => ColocarDocumento(TipoDocumento.FotoChiqui));
-            }
-
-            // Si el minijuego ya fue completado o saboteado previamente en esta partida
-            if (minijuegoTerminado)
-            {
-                BloquearControles();
-                MostrarVentanaFinal(mensajeVentanaFinal, resultadoExito);
-                return;
+                botonImprimir.onClick.RemoveAllListeners();
+                botonImprimir.onClick.AddListener(OnBotonImprimirPresionado);
             }
 
             if (ventanaPopup != null)
@@ -142,43 +98,20 @@ namespace SoltaLaPala.Minijuegos
                 ventanaPopup.SetActive(false);
             }
 
-            // Detectar ítems en posesión del jugador
-            bool tieneInforme = JugadorTieneInforme();
-            bool tieneChiqui = JugadorTieneFotoChiqui();
-
-            // Si es la primera vez que se interactúa, preseleccionar según lo que lleve en mano
-            if (!yaInicializado)
+            if (barraProgreso != null)
             {
-                yaInicializado = true;
-                if (tieneInforme && !tieneChiqui)
-                {
-                    ColocarDocumento(TipoDocumento.Informe);
-                }
-                else if (!tieneInforme && tieneChiqui)
-                {
-                    ColocarDocumento(TipoDocumento.FotoChiqui);
-                }
-                else if (tieneInforme && tieneChiqui)
-                {
-                    // Si tiene ambos, arranca en informe por defecto pero puede elegir
-                    ColocarDocumento(TipoDocumento.Informe);
-                }
-                else if (modoPrueba)
-                {
-                    ColocarDocumento(TipoDocumento.Informe);
-                }
-                else
-                {
-                    ColocarDocumento(TipoDocumento.Ninguno);
-                }
-            }
-            else
-            {
-                ActualizarVisualBandeja();
+                barraProgreso.value = 0f;
             }
 
-            ActualizarEstadoBotonesSeleccion(tieneInforme, tieneChiqui);
-            ActualizarEstadoBotonFotocopiar();
+            ActualizarPantallaSegunEstadoImpresora();
+        }
+
+        private void BuscarImpresoraSiEsNecesario()
+        {
+            if (impresora == null)
+            {
+                impresora = FindFirstObjectByType<ImpresoraInteractuable>(FindObjectsInactive.Include);
+            }
         }
 
         private void Update()
@@ -208,11 +141,9 @@ namespace SoltaLaPala.Minijuegos
         public override void Reiniciar()
         {
             minijuegoTerminado = false;
-            yaInicializado = false;
             procesoEnMarcha = false;
             resultadoExito = false;
             mensajeVentanaFinal = "";
-            documentoEnBandeja = TipoDocumento.Ninguno;
 
             if (corrutinaFotocopiado != null)
             {
@@ -220,9 +151,9 @@ namespace SoltaLaPala.Minijuegos
                 corrutinaFotocopiado = null;
             }
 
-            if (barraProgresoImpresion != null)
+            if (barraProgreso != null)
             {
-                barraProgresoImpresion.value = 0f;
+                barraProgreso.value = 0f;
             }
 
             if (ventanaPopup != null)
@@ -234,8 +165,6 @@ namespace SoltaLaPala.Minijuegos
             {
                 panelRaiz.SetActive(false);
             }
-
-            DesbloquearControles();
         }
 
         protected override void AlSalir()
@@ -254,150 +183,100 @@ namespace SoltaLaPala.Minijuegos
             procesoEnMarcha = false;
         }
 
-        #region Comprobación de Ítems del Jugador
-
-        public bool JugadorTieneInforme()
+        public void ActualizarPantallaSegunEstadoImpresora()
         {
-            if (modoPrueba) return true;
-            if (Inventario == null) return false;
+            BuscarImpresoraSiEsNecesario();
 
-            return Inventario.TieneItem(idInforme)
-                || (!string.IsNullOrEmpty(idInformeAlternativo) && Inventario.TieneItem(idInformeAlternativo))
-                || Inventario.TieneItem("Papeles");
-        }
+            bool tieneDocumento = modoPrueba || (impresora != null && impresora.documentoCargado != ImpresoraInteractuable.EstadoDocumentoImpresora.Vacio);
 
-        public bool JugadorTieneFotoChiqui()
-        {
-            if (modoPrueba) return true;
-            if (Inventario == null) return false;
-
-            return Inventario.TieneItem(idFotoChiqui)
-                || (!string.IsNullOrEmpty(idFotoChiquiAlternativo) && Inventario.TieneItem(idFotoChiquiAlternativo))
-                || Inventario.TieneItem("Dibujo");
-        }
-
-        public bool JugadorTieneCualquierRequisito()
-        {
-            return modoPrueba || JugadorTieneInforme() || JugadorTieneFotoChiqui();
-        }
-
-        #endregion
-
-        #region Lógica de Selección y Colocación
-
-        public void ColocarDocumento(TipoDocumento tipo)
-        {
-            if (procesoEnMarcha || minijuegoTerminado) return;
-
-            documentoEnBandeja = tipo;
-            ActualizarVisualBandeja();
-            ActualizarEstadoBotonFotocopiar();
-        }
-
-        private void ActualizarVisualBandeja()
-        {
-            if (imagenDocumentoEnBandeja != null)
+            if (!tieneDocumento)
             {
-                switch (documentoEnBandeja)
+                // PASO 1: NO HAY DOCUMENTO EN LA IMPRESORA
+                if (imagenIconoEstado != null)
                 {
-                    case TipoDocumento.Informe:
-                        imagenDocumentoEnBandeja.gameObject.SetActive(true);
-                        imagenDocumentoEnBandeja.sprite = spriteIconoInforme;
-                        imagenDocumentoEnBandeja.color = Color.white;
-                        break;
-                    case TipoDocumento.FotoChiqui:
-                        imagenDocumentoEnBandeja.gameObject.SetActive(true);
-                        imagenDocumentoEnBandeja.sprite = spriteIconoChiqui;
-                        imagenDocumentoEnBandeja.color = Color.white;
-                        break;
-                    default:
-                        imagenDocumentoEnBandeja.gameObject.SetActive(false);
-                        break;
+                    imagenIconoEstado.gameObject.SetActive(true);
+                    if (spriteIconoAlertaVacio != null)
+                    {
+                        imagenIconoEstado.sprite = spriteIconoAlertaVacio;
+                    }
+                    imagenIconoEstado.color = new Color(1f, 0.75f, 0.2f, 1f);
+                }
+
+                if (textoMensajePrincipal != null)
+                {
+                    textoMensajePrincipal.text = "<color=#FFCC00><b>⚠ BANDEJA DE ESCÁNER VACÍA</b></color>";
+                }
+
+                if (textoSubmensajeInstruccion != null)
+                {
+                    textoSubmensajeInstruccion.text = "No se detectó ningún documento en la impresora.\n\n" +
+                                                      "<size=17><color=#55CCFF><b>➔ Pon el documento en la impresora</b></color></size>\n\n" +
+                                                      "<i>(Ve físicamente a la impresora y presiona [E] con los Informes o la Foto de Chiqui).</i>";
+                }
+
+                if (botonImprimir != null)
+                {
+                    botonImprimir.interactable = false;
+                    Text t = botonImprimir.GetComponentInChildren<Text>();
+                    if (t != null) t.text = "IMPRIMIR (Bandeja Vacía)";
                 }
             }
-
-            if (textoDocumentoEnBandeja != null)
+            else
             {
-                switch (documentoEnBandeja)
+                // PASO 3: YA HAY DOCUMENTO EN LA IMPRESORA
+                var doc = impresora != null ? impresora.documentoCargado : ImpresoraInteractuable.EstadoDocumentoImpresora.Informe;
+
+                if (imagenIconoEstado != null)
                 {
-                    case TipoDocumento.Informe:
-                        textoDocumentoEnBandeja.text = "<color=#88DDFF><b>En bandeja:</b> Informes oficiales de la empresa</color>";
-                        break;
-                    case TipoDocumento.FotoChiqui:
-                        textoDocumentoEnBandeja.text = "<color=#FFAA55><b>En bandeja:</b> Foto del Chiqui Tapia</color>";
-                        break;
-                    default:
-                        textoDocumentoEnBandeja.text = "<color=#AAAAAA><i>Bandeja de escáner vacía. Selecciona un archivo.</i></color>";
-                        break;
+                    imagenIconoEstado.gameObject.SetActive(true);
+                    imagenIconoEstado.sprite = (doc == ImpresoraInteractuable.EstadoDocumentoImpresora.FotoChiqui)
+                        ? spriteIconoChiqui
+                        : spriteIconoInforme;
+                    imagenIconoEstado.color = Color.white;
                 }
-            }
 
-            // Marcos de selección en la UI de la computadora
-            if (marcoSeleccionInforme != null)
-            {
-                marcoSeleccionInforme.color = (documentoEnBandeja == TipoDocumento.Informe)
-                    ? new Color(0.2f, 0.8f, 0.4f, 0.9f)
-                    : new Color(0.3f, 0.35f, 0.45f, 0.4f);
-            }
-
-            if (marcoSeleccionChiqui != null)
-            {
-                marcoSeleccionChiqui.color = (documentoEnBandeja == TipoDocumento.FotoChiqui)
-                    ? new Color(0.9f, 0.5f, 0.2f, 0.9f)
-                    : new Color(0.3f, 0.35f, 0.45f, 0.4f);
-            }
-
-            if (textoEstadoProceso != null && !procesoEnMarcha)
-            {
-                if (documentoEnBandeja == TipoDocumento.Ninguno)
+                if (textoMensajePrincipal != null)
                 {
-                    textoEstadoProceso.text = "Selecciona un documento en la computadora para colocarlo en la impresora.";
+                    if (doc == ImpresoraInteractuable.EstadoDocumentoImpresora.FotoChiqui)
+                    {
+                        textoMensajePrincipal.text = "<color=#FFAA55><b>✔ DOCUMENTO DETECTADO: Foto de Chiqui Tapia</b></color>";
+                    }
+                    else
+                    {
+                        textoMensajePrincipal.text = "<color=#55FF88><b>✔ DOCUMENTO DETECTADO: Informes del Jefe</b></color>";
+                    }
                 }
-                else
+
+                if (textoSubmensajeInstruccion != null)
                 {
-                    textoEstadoProceso.text = "Documento cargado en el escáner. Presiona <b>FOTOCOPIAR</b>.";
+                    textoSubmensajeInstruccion.text = "Documento verificado en el escáner de la impresora.\n\n" +
+                                                      "Presiona el botón de abajo para iniciar la impresión.\n" +
+                                                      "<b>La Carpeta duplicada saldrá de la impresora.</b>";
+                }
+
+                if (botonImprimir != null)
+                {
+                    botonImprimir.interactable = true;
+                    Text t = botonImprimir.GetComponentInChildren<Text>();
+                    if (t != null) t.text = "🖨 IMPRIMIR DOCUMENTO";
                 }
             }
         }
 
-        private void ActualizarEstadoBotonesSeleccion(bool tieneInforme, bool tieneChiqui)
-        {
-            if (botonSeleccionarInforme != null)
-            {
-                botonSeleccionarInforme.interactable = modoPrueba || tieneInforme;
-            }
+        #region Proceso de Impresión
 
-            if (botonSeleccionarChiqui != null)
-            {
-                botonSeleccionarChiqui.interactable = modoPrueba || tieneChiqui;
-            }
+        public void OnBotonImprimirPresionado()
+        {
+            if (procesoEnMarcha) return;
+
+            corrutinaFotocopiado = StartCoroutine(RutinaImpresion());
         }
 
-        private void ActualizarEstadoBotonFotocopiar()
-        {
-            if (botonFotocopiar != null)
-            {
-                bool puedeFotocopiar = !procesoEnMarcha && !minijuegoTerminado && documentoEnBandeja != TipoDocumento.Ninguno;
-                botonFotocopiar.interactable = puedeFotocopiar;
-            }
-        }
-
-        #endregion
-
-        #region Proceso de Fotocopiado
-
-        public void OnBotonFotocopiarPresionado()
-        {
-            if (procesoEnMarcha || minijuegoTerminado || documentoEnBandeja == TipoDocumento.Ninguno)
-                return;
-
-            corrutinaFotocopiado = StartCoroutine(RutinaFotocopiar());
-        }
-
-        private IEnumerator RutinaFotocopiar()
+        private IEnumerator RutinaImpresion()
         {
             procesoEnMarcha = true;
-            BloquearControles();
+            if (botonImprimir != null) botonImprimir.interactable = false;
+            if (botonSalir != null) botonSalir.interactable = false;
 
             // Reproducir sonido de impresora
             if (audioSource != null && clipImpresora != null)
@@ -419,172 +298,88 @@ namespace SoltaLaPala.Minijuegos
                 tiempoPasado += Time.deltaTime;
                 float t = Mathf.Clamp01(tiempoPasado / tiempoTotal);
 
-                if (barraProgresoImpresion != null)
+                if (barraProgreso != null)
                 {
-                    barraProgresoImpresion.value = t;
+                    barraProgreso.value = t;
                 }
 
-                if (textoEstadoProceso != null)
+                if (textoSubmensajeInstruccion != null)
                 {
-                    if (t < 0.35f)
-                    {
-                        textoEstadoProceso.text = "⚙ Escaneando documento original...";
-                    }
-                    else if (t < 0.75f)
-                    {
-                        textoEstadoProceso.text = "📄 Procesando e imprimiendo copias...";
-                    }
+                    if (t < 0.4f)
+                        textoSubmensajeInstruccion.text = "⚙ <i>Escaneando documento original...</i>";
+                    else if (t < 0.8f)
+                        textoSubmensajeInstruccion.text = "📄 <i>Imprimiendo páginas en la impresora...</i>";
                     else
-                    {
-                        textoEstadoProceso.text = "📁 Expulsando copias a la bandeja de salida...";
-                    }
-                }
-
-                // Efecto parpadeo sutil de escáner en la imagen del documento
-                if (imagenDocumentoEnBandeja != null)
-                {
-                    float alphaLuz = 0.7f + Mathf.PingPong(tiempoPasado * 4f, 0.3f);
-                    imagenDocumentoEnBandeja.color = new Color(1f, 1f, 1f, alphaLuz);
+                        textoSubmensajeInstruccion.text = "📁 <i>Expulsando Carpeta en la bandeja de salida...</i>";
                 }
 
                 yield return null;
             }
 
-            if (barraProgresoImpresion != null)
-            {
-                barraProgresoImpresion.value = 1f;
-            }
+            if (barraProgreso != null) barraProgreso.value = 1f;
 
-            if (imagenDocumentoEnBandeja != null)
-            {
-                imagenDocumentoEnBandeja.color = Color.white;
-            }
-
-            FinalizarFotocopiado();
+            FinalizarImpresion();
         }
 
-        private void FinalizarFotocopiado()
+        private void FinalizarImpresion()
         {
             procesoEnMarcha = false;
             minijuegoTerminado = true;
 
-            // Determinar si fue cumplimiento o sabotaje
-            if (documentoEnBandeja == TipoDocumento.Informe)
+            BuscarImpresoraSiEsNecesario();
+
+            bool fueSabotaje = impresora != null && impresora.documentoCargado == ImpresoraInteractuable.EstadoDocumentoImpresora.FotoChiqui;
+
+            if (fueSabotaje)
             {
-                // Cumplimiento legítimo
-                resultadoExito = true;
-                mensajeVentanaFinal = "Informes oficiales fotocopiados con éxito.\nSe ha archivado el duplicado en la Carpeta.";
-
-                // Reducir la sospecha
-                if (EstadoPartida.Instancia != null)
-                {
-                    EstadoPartida.Instancia.ReducirSospecha(15);
-                }
-
-                // Consumir el informe del inventario si corresponde
-                ConsumirItemUsado(idInforme, idInformeAlternativo);
-
-                // Entregar el objeto resultante: la Carpeta
-                EntregarCarpetaAlJugador();
-
-                if (textoEstadoProceso != null)
-                {
-                    textoEstadoProceso.text = "<color=#55FF88><b>✔ ¡COMPLETADO!</b> Informes duplicados correctamente.</color>";
-                }
-
-                Debug.Log("[MinijuegoFotocopiar] ¡Fotocopiado exitoso! Informes copiados y sospecha reducida.");
-            }
-            else if (documentoEnBandeja == TipoDocumento.FotoChiqui)
-            {
-                // Sabotaje cometido: arruina la tarea
+                // SABOTAJE
                 resultadoExito = false;
-                mensajeVentanaFinal = "¡Tarea Saboteada!\nHas fotocopiado la imagen de Chiqui Tapia en lugar de los informes del jefe.";
+                mensajeVentanaFinal = "¡Tarea Saboteada!\nHas fotocopiado la foto de Chiqui Tapia en lugar de los informes.\n\n" +
+                                     "<b>➔ La Carpeta saboteada ha salido de la impresora.</b>";
 
-                // Registrar sabotaje y aumentar sospecha
                 if (EstadoPartida.Instancia != null)
                 {
                     EstadoPartida.Instancia.RegistrarSabotaje(3, 15);
                 }
 
-                // Consumir la foto del inventario si corresponde
-                ConsumirItemUsado(idFotoChiqui, idFotoChiquiAlternativo);
+                Debug.LogWarning("[MinijuegoFotocopiar] ¡Sabotaje cometido! Se fotocopió la foto de Chiqui Tapia.");
+            }
+            else
+            {
+                // ÉXITO LEGÍTIMO
+                resultadoExito = true;
+                mensajeVentanaFinal = "Informes oficiales fotocopiados con éxito.\nEl jefe estará conforme.\n\n" +
+                                     "<b>➔ La Carpeta con los informes ha salido de la impresora.</b>";
 
-                // Entregar el objeto resultante: la Carpeta
-                EntregarCarpetaAlJugador();
-
-                if (textoEstadoProceso != null)
+                if (EstadoPartida.Instancia != null)
                 {
-                    textoEstadoProceso.text = "<color=#FF5555><b>⚠ ¡TAREA SABOTEADA!</b> La foto de Chiqui Tapia fue fotocopiada.</color>";
+                    EstadoPartida.Instancia.ReducirSospecha(15);
                 }
 
-                Debug.LogWarning("[MinijuegoFotocopiar] ¡Sabotaje cometido! Se fotocopió la foto de Chiqui Tapia. Sospecha aumentada.");
+                Debug.Log("[MinijuegoFotocopiar] ¡Fotocopiado exitoso! Informes copiados.");
+            }
+
+            // PASO 4: DE LA IMPRESORA SALE LA CARPETA FÍSICAMENTE
+            if (impresora != null)
+            {
+                impresora.ExpulsarCarpeta(fueSabotaje);
+            }
+            else
+            {
+                // Fallback directo al inventario si no hay impresora asignada
+                DatosItem itemCarpeta = Resources.Load<DatosItem>("Items/" + idCarpetaResultado) ?? Resources.Load<DatosItem>(idCarpetaResultado);
+                if (itemCarpeta != null && Inventario != null)
+                {
+                    Inventario.IntentarAgregarItem(itemCarpeta);
+                }
             }
 
             MostrarVentanaFinal(mensajeVentanaFinal, resultadoExito);
         }
 
-        private void ConsumirItemUsado(string idPrincipal, string idAlternativo)
-        {
-            if (Inventario == null) return;
-
-            if (Inventario.TieneItem(idPrincipal))
-            {
-                Inventario.QuitarItem(idPrincipal);
-            }
-            else if (!string.IsNullOrEmpty(idAlternativo) && Inventario.TieneItem(idAlternativo))
-            {
-                Inventario.QuitarItem(idAlternativo);
-            }
-        }
-
-        private void EntregarCarpetaAlJugador()
-        {
-            if (Inventario == null) return;
-
-            // Intentar cargar el item Carpeta desde Resources
-            DatosItem itemCarpeta = Resources.Load<DatosItem>("Items/" + idCarpetaResultado);
-            if (itemCarpeta == null)
-            {
-                // Fallback por si está registrado sin subcarpeta
-                itemCarpeta = Resources.Load<DatosItem>(idCarpetaResultado);
-            }
-
-            if (itemCarpeta != null)
-            {
-                bool agregado = Inventario.IntentarAgregarItem(itemCarpeta);
-                if (agregado)
-                {
-                    Debug.Log($"[MinijuegoFotocopiar] Se entregó el ítem '{itemCarpeta.nombre}' al inventario del jugador.");
-                }
-                else
-                {
-                    Debug.LogWarning("[MinijuegoFotocopiar] El inventario está lleno; no se pudo entregar la Carpeta.");
-                }
-            }
-            else
-            {
-                Debug.LogWarning($"[MinijuegoFotocopiar] No se encontró el DatosItem para '{idCarpetaResultado}' en Resources/Items.");
-            }
-        }
-
         #endregion
 
-        #region Bloqueo y Ventana Final
-
-        private void BloquearControles()
-        {
-            if (botonFotocopiar != null) botonFotocopiar.interactable = false;
-            if (botonSalir != null) botonSalir.interactable = false;
-            if (botonSeleccionarInforme != null) botonSeleccionarInforme.interactable = false;
-            if (botonSeleccionarChiqui != null) botonSeleccionarChiqui.interactable = false;
-        }
-
-        private void DesbloquearControles()
-        {
-            if (botonSalir != null) botonSalir.interactable = true;
-            ActualizarEstadoBotonesSeleccion(JugadorTieneInforme(), JugadorTieneFotoChiqui());
-            ActualizarEstadoBotonFotocopiar();
-        }
+        #region Ventana Popup Final y Construcción UI Cuadrada
 
         public void MostrarVentanaFinal(string mensaje, bool exito)
         {
@@ -596,26 +391,26 @@ namespace SoltaLaPala.Minijuegos
                 ventanaPopup.transform.SetAsLastSibling();
             }
 
-            if (textoMensajeVentana != null)
+            if (textoMensajePopup != null)
             {
-                textoMensajeVentana.text = mensaje;
+                textoMensajePopup.text = mensaje;
             }
 
-            if (textoTituloVentana != null)
+            if (textoTituloPopup != null)
             {
-                textoTituloVentana.text = exito ? "Aviso del Sistema" : "Alerta de Seguridad";
+                textoTituloPopup.text = exito ? "Aviso del Sistema" : "Alerta de Seguridad";
             }
 
-            if (fondoBarraTituloVentana != null)
+            if (fondoBarraTituloPopup != null)
             {
-                fondoBarraTituloVentana.color = exito
+                fondoBarraTituloPopup.color = exito
                     ? new Color(0.12f, 0.45f, 0.24f, 1f)
                     : new Color(0.65f, 0.15f, 0.15f, 1f);
             }
 
-            if (botonAceptarVentana != null)
+            if (botonAceptarPopup != null)
             {
-                botonAceptarVentana.interactable = true;
+                botonAceptarPopup.interactable = true;
             }
         }
 
@@ -625,7 +420,7 @@ namespace SoltaLaPala.Minijuegos
 
             Transform padre = panelRaiz != null ? panelRaiz.transform : transform;
 
-            // Ventana Marco Principal
+            // Ventana Cuadrada / Compacta
             ventanaPopup = new GameObject("VentanaResultado", typeof(RectTransform), typeof(Image));
             ventanaPopup.transform.SetParent(padre, false);
             RectTransform rtVentana = ventanaPopup.GetComponent<RectTransform>();
@@ -633,10 +428,10 @@ namespace SoltaLaPala.Minijuegos
             rtVentana.anchorMax = new Vector2(0.5f, 0.5f);
             rtVentana.pivot = new Vector2(0.5f, 0.5f);
             rtVentana.anchoredPosition = Vector2.zero;
-            rtVentana.sizeDelta = new Vector2(520f, 240f);
+            rtVentana.sizeDelta = new Vector2(500f, 260f);
 
             Image imgFondo = ventanaPopup.GetComponent<Image>();
-            imgFondo.color = new Color(0.13f, 0.15f, 0.20f, 0.98f);
+            imgFondo.color = new Color(0.11f, 0.13f, 0.18f, 0.98f);
 
             // Barra de Título
             GameObject objBarra = new GameObject("BarraTitulo", typeof(RectTransform), typeof(Image));
@@ -646,11 +441,10 @@ namespace SoltaLaPala.Minijuegos
             rtBarra.anchorMax = new Vector2(1f, 1f);
             rtBarra.pivot = new Vector2(0.5f, 1f);
             rtBarra.anchoredPosition = Vector2.zero;
-            rtBarra.sizeDelta = new Vector2(0f, 40f);
-            fondoBarraTituloVentana = objBarra.GetComponent<Image>();
-            fondoBarraTituloVentana.color = new Color(0.18f, 0.22f, 0.32f, 1f);
+            rtBarra.sizeDelta = new Vector2(0f, 38f);
+            fondoBarraTituloPopup = objBarra.GetComponent<Image>();
+            fondoBarraTituloPopup.color = new Color(0.18f, 0.22f, 0.32f, 1f);
 
-            // Texto Título
             GameObject objTxtTit = new GameObject("Titulo", typeof(RectTransform), typeof(Text));
             objTxtTit.transform.SetParent(objBarra.transform, false);
             RectTransform rtTit = objTxtTit.GetComponent<RectTransform>();
@@ -658,27 +452,27 @@ namespace SoltaLaPala.Minijuegos
             rtTit.anchorMax = Vector2.one;
             rtTit.offsetMin = new Vector2(15f, 0f);
             rtTit.offsetMax = new Vector2(-15f, 0f);
-            textoTituloVentana = objTxtTit.GetComponent<Text>();
-            textoTituloVentana.font = ConstructorUI.Fuente;
-            textoTituloVentana.fontSize = 16;
-            textoTituloVentana.fontStyle = FontStyle.Bold;
-            textoTituloVentana.alignment = TextAnchor.MiddleLeft;
-            textoTituloVentana.color = Color.white;
-            textoTituloVentana.text = "Aviso del Sistema";
+            textoTituloPopup = objTxtTit.GetComponent<Text>();
+            textoTituloPopup.font = ConstructorUI.Fuente;
+            textoTituloPopup.fontSize = 15;
+            textoTituloPopup.fontStyle = FontStyle.Bold;
+            textoTituloPopup.alignment = TextAnchor.MiddleLeft;
+            textoTituloPopup.color = Color.white;
+            textoTituloPopup.text = "Aviso del Sistema";
 
-            // Texto Mensaje Central
+            // Mensaje Central
             GameObject objTxtMsg = new GameObject("Mensaje", typeof(RectTransform), typeof(Text));
             objTxtMsg.transform.SetParent(ventanaPopup.transform, false);
             RectTransform rtMsg = objTxtMsg.GetComponent<RectTransform>();
-            rtMsg.anchorMin = new Vector2(0f, 0.3f);
-            rtMsg.anchorMax = new Vector2(1f, 0.85f);
+            rtMsg.anchorMin = new Vector2(0f, 0.28f);
+            rtMsg.anchorMax = new Vector2(1f, 0.88f);
             rtMsg.offsetMin = new Vector2(25f, 0f);
             rtMsg.offsetMax = new Vector2(-25f, 0f);
-            textoMensajeVentana = objTxtMsg.GetComponent<Text>();
-            textoMensajeVentana.font = ConstructorUI.Fuente;
-            textoMensajeVentana.fontSize = 17;
-            textoMensajeVentana.alignment = TextAnchor.MiddleCenter;
-            textoMensajeVentana.color = Color.white;
+            textoMensajePopup = objTxtMsg.GetComponent<Text>();
+            textoMensajePopup.font = ConstructorUI.Fuente;
+            textoMensajePopup.fontSize = 15;
+            textoMensajePopup.alignment = TextAnchor.MiddleCenter;
+            textoMensajePopup.color = Color.white;
 
             // Botón Aceptar
             GameObject objBtnAceptar = new GameObject("BotonAceptar", typeof(RectTransform), typeof(Image), typeof(Button));
@@ -687,16 +481,14 @@ namespace SoltaLaPala.Minijuegos
             rtBtn.anchorMin = new Vector2(0.5f, 0f);
             rtBtn.anchorMax = new Vector2(0.5f, 0f);
             rtBtn.pivot = new Vector2(0.5f, 0f);
-            rtBtn.anchoredPosition = new Vector2(0f, 20f);
-            rtBtn.sizeDelta = new Vector2(150f, 40f);
+            rtBtn.anchoredPosition = new Vector2(0f, 16f);
+            rtBtn.sizeDelta = new Vector2(140f, 38f);
+            objBtnAceptar.GetComponent<Image>().color = new Color(0.24f, 0.28f, 0.38f, 1f);
 
-            Image imgBtn = objBtnAceptar.GetComponent<Image>();
-            imgBtn.color = new Color(0.24f, 0.28f, 0.38f, 1f);
-
-            botonAceptarVentana = objBtnAceptar.GetComponent<Button>();
-            botonAceptarVentana.colors = ConstructorUI.ColoresBoton();
-            botonAceptarVentana.onClick.RemoveAllListeners();
-            botonAceptarVentana.onClick.AddListener(Salir);
+            botonAceptarPopup = objBtnAceptar.GetComponent<Button>();
+            botonAceptarPopup.colors = ConstructorUI.ColoresBoton();
+            botonAceptarPopup.onClick.RemoveAllListeners();
+            botonAceptarPopup.onClick.AddListener(Salir);
 
             GameObject objTxtBtn = new GameObject("Txt", typeof(RectTransform), typeof(Text));
             objTxtBtn.transform.SetParent(objBtnAceptar.transform, false);
@@ -711,10 +503,6 @@ namespace SoltaLaPala.Minijuegos
 
             ventanaPopup.SetActive(false);
         }
-
-        #endregion
-
-        #region Configuración de Audio y UI Automática
 
         private void ConfigurarAudio()
         {
@@ -741,42 +529,37 @@ namespace SoltaLaPala.Minijuegos
 
         public void ConstruirUIAutomaticaSiEsNecesario()
         {
-            // Cargar recursos si no están asignados
+            // Cargar Sprites de Resources si hacen falta
             if (spriteFondoComputadora == null)
             {
                 spriteFondoComputadora = Resources.Load<Sprite>("Sprites/Minijuegos/fondo computadora");
             }
-            if (spriteImpresora == null)
-            {
-                spriteImpresora = Resources.Load<Sprite>("Sprites/Minijuegos/impresora-sinfondo");
-            }
             if (spriteIconoInforme == null)
             {
-                spriteIconoInforme = Resources.Load<Sprite>("Sprites/Minijuegos/documento_importante_24px");
-                if (spriteIconoInforme == null)
-                {
-                    spriteIconoInforme = Resources.Load<Sprite>("Sprites/Minijuegos/papelescrito-sinfondo");
-                }
+                spriteIconoInforme = Resources.Load<Sprite>("Sprites/Minijuegos/documento_importante_24px")
+                                     ?? Resources.Load<Sprite>("Sprites/Minijuegos/papelescrito-sinfondo");
             }
             if (spriteIconoChiqui == null)
             {
                 spriteIconoChiqui = Resources.Load<Sprite>("Sprites/Minijuegos/chiqui tapia formato hoja");
             }
 
-            // Panel Principal
+            // PANEL RAÍZ: CUADRADO (700 x 700)
             RectTransform rtPanel = panelRaiz != null ? panelRaiz.GetComponent<RectTransform>() : GetComponent<RectTransform>();
             if (rtPanel != null)
             {
-                rtPanel.sizeDelta = new Vector2(1150f, 748f);
+                rtPanel.anchorMin = new Vector2(0.5f, 0.5f);
+                rtPanel.anchorMax = new Vector2(0.5f, 0.5f);
+                rtPanel.pivot = new Vector2(0.5f, 0.5f);
+                rtPanel.sizeDelta = new Vector2(700f, 700f);
             }
 
-            // Si ya tiene hijos armados por Inspector, no duplicar
-            if (imagenFondo != null && botonFotocopiar != null && imagenImpresoraVisual != null)
+            if (imagenFondo != null && botonImprimir != null)
             {
                 return;
             }
 
-            // 1. Imagen Fondo
+            // 1. Imagen Fondo Cuadrado
             if (imagenFondo == null)
             {
                 Transform trFondo = transform.Find("Fondo");
@@ -794,15 +577,8 @@ namespace SoltaLaPala.Minijuegos
             }
             if (imagenFondo != null)
             {
-                if (spriteFondoComputadora != null)
-                {
-                    imagenFondo.sprite = spriteFondoComputadora;
-                    imagenFondo.color = Color.white;
-                }
-                else
-                {
-                    imagenFondo.color = new Color(0.12f, 0.14f, 0.18f, 1f);
-                }
+                imagenFondo.sprite = spriteFondoComputadora;
+                imagenFondo.color = Color.white;
             }
 
             // 2. Barra Superior y Botón Salir
@@ -814,12 +590,10 @@ namespace SoltaLaPala.Minijuegos
                 rtSalir.anchorMin = new Vector2(1f, 1f);
                 rtSalir.anchorMax = new Vector2(1f, 1f);
                 rtSalir.pivot = new Vector2(1f, 1f);
-                rtSalir.anchoredPosition = new Vector2(-25f, -25f);
-                rtSalir.sizeDelta = new Vector2(110f, 40f);
+                rtSalir.anchoredPosition = new Vector2(-15f, -15f);
+                rtSalir.sizeDelta = new Vector2(90f, 34f);
 
-                Image imgSalir = objSalir.GetComponent<Image>();
-                imgSalir.color = new Color(0.78f, 0.20f, 0.20f, 0.95f);
-
+                objSalir.GetComponent<Image>().color = new Color(0.78f, 0.20f, 0.20f, 0.95f);
                 botonSalir = objSalir.GetComponent<Button>();
                 botonSalir.colors = ConstructorUI.ColoresBoton();
 
@@ -828,218 +602,106 @@ namespace SoltaLaPala.Minijuegos
                 ConstructorUI.Estirar(objTxtSalir.GetComponent<RectTransform>());
                 Text txtSalir = objTxtSalir.GetComponent<Text>();
                 txtSalir.text = "✕ Salir";
-                txtSalir.fontSize = 15;
+                txtSalir.fontSize = 14;
                 txtSalir.alignment = TextAnchor.MiddleCenter;
                 txtSalir.color = Color.white;
                 txtSalir.font = ConstructorUI.Fuente;
             }
 
             // Título Superior
-            if (textoInstrucciones == null)
+            if (textoTituloVentana == null)
             {
-                GameObject objTit = new GameObject("TituloMinijuego", typeof(RectTransform), typeof(Text));
+                GameObject objTit = new GameObject("Titulo", typeof(RectTransform), typeof(Text));
                 objTit.transform.SetParent(transform, false);
                 RectTransform rtTit = objTit.GetComponent<RectTransform>();
                 rtTit.anchorMin = new Vector2(0.5f, 1f);
                 rtTit.anchorMax = new Vector2(0.5f, 1f);
                 rtTit.pivot = new Vector2(0.5f, 1f);
-                rtTit.anchoredPosition = new Vector2(0f, -28f);
-                rtTit.sizeDelta = new Vector2(700f, 40f);
+                rtTit.anchoredPosition = new Vector2(0f, -20f);
+                rtTit.sizeDelta = new Vector2(500f, 32f);
 
                 Text txt = objTit.GetComponent<Text>();
-                txt.text = "<b>SISTEMA DE FOTOCOPIADO E IMPRESIÓN</b>";
+                txt.text = "<b>TERMINAL DE FOTOCOPIADO</b>";
                 txt.font = ConstructorUI.Fuente;
-                txt.fontSize = 22;
+                txt.fontSize = 20;
                 txt.alignment = TextAnchor.MiddleCenter;
                 txt.color = Color.white;
-                textoInstrucciones = txt;
+                textoTituloVentana = txt;
             }
 
-            // Subtítulo / Indicación
-            GameObject objSub = new GameObject("Subtitulo", typeof(RectTransform), typeof(Text));
-            objSub.transform.SetParent(transform, false);
+            // Marco Central Cuadrado para Estado
+            GameObject panelCentro = new GameObject("PanelCentro", typeof(RectTransform), typeof(Image));
+            panelCentro.transform.SetParent(transform, false);
+            RectTransform rtCentro = panelCentro.GetComponent<RectTransform>();
+            rtCentro.anchorMin = new Vector2(0.5f, 0.5f);
+            rtCentro.anchorMax = new Vector2(0.5f, 0.5f);
+            rtCentro.pivot = new Vector2(0.5f, 0.5f);
+            rtCentro.anchoredPosition = new Vector2(0f, 25f);
+            rtCentro.sizeDelta = new Vector2(580f, 440f);
+            panelCentro.GetComponent<Image>().color = new Color(0.12f, 0.14f, 0.19f, 0.90f);
+
+            // Icono de Estado / Documento
+            GameObject objIcono = new GameObject("IconoEstado", typeof(RectTransform), typeof(Image));
+            objIcono.transform.SetParent(panelCentro.transform, false);
+            RectTransform rtIcono = objIcono.GetComponent<RectTransform>();
+            rtIcono.anchorMin = new Vector2(0.5f, 1f);
+            rtIcono.anchorMax = new Vector2(0.5f, 1f);
+            rtIcono.pivot = new Vector2(0.5f, 1f);
+            rtIcono.anchoredPosition = new Vector2(0f, -25f);
+            rtIcono.sizeDelta = new Vector2(110f, 110f);
+            imagenIconoEstado = objIcono.GetComponent<Image>();
+            imagenIconoEstado.preserveAspect = true;
+
+            // Mensaje Principal ("⚠ BANDEJA DE ESCÁNER VACÍA" o "✔ DOCUMENTO DETECTADO")
+            GameObject objMsgPrinc = new GameObject("MensajePrincipal", typeof(RectTransform), typeof(Text));
+            objMsgPrinc.transform.SetParent(panelCentro.transform, false);
+            RectTransform rtMsgPrinc = objMsgPrinc.GetComponent<RectTransform>();
+            rtMsgPrinc.anchorMin = new Vector2(0.5f, 1f);
+            rtMsgPrinc.anchorMax = new Vector2(0.5f, 1f);
+            rtMsgPrinc.pivot = new Vector2(0.5f, 1f);
+            rtMsgPrinc.anchoredPosition = new Vector2(0f, -150f);
+            rtMsgPrinc.sizeDelta = new Vector2(520f, 35f);
+            textoMensajePrincipal = objMsgPrinc.GetComponent<Text>();
+            textoMensajePrincipal.font = ConstructorUI.Fuente;
+            textoMensajePrincipal.fontSize = 17;
+            textoMensajePrincipal.alignment = TextAnchor.MiddleCenter;
+            textoMensajePrincipal.color = Color.white;
+
+            // Submensaje Instrucción ("Pon el documento en la impresora...")
+            GameObject objSub = new GameObject("SubmensajeInstruccion", typeof(RectTransform), typeof(Text));
+            objSub.transform.SetParent(panelCentro.transform, false);
             RectTransform rtSub = objSub.GetComponent<RectTransform>();
             rtSub.anchorMin = new Vector2(0.5f, 1f);
             rtSub.anchorMax = new Vector2(0.5f, 1f);
             rtSub.pivot = new Vector2(0.5f, 1f);
-            rtSub.anchoredPosition = new Vector2(0f, -65f);
-            rtSub.sizeDelta = new Vector2(800f, 30f);
-            Text txtSub = objSub.GetComponent<Text>();
-            txtSub.text = "Selecciona el documento en la computadora y presiona <b>FOTOCOPIAR</b>.";
-            txtSub.font = ConstructorUI.Fuente;
-            txtSub.fontSize = 15;
-            txtSub.alignment = TextAnchor.MiddleCenter;
-            txtSub.color = new Color(0.8f, 0.85f, 0.95f, 0.9f);
-
-            // ==========================================
-            // LADO IZQUIERDO: ARCHIVOS EN COMPUTADORA
-            // ==========================================
-            GameObject panelArchivos = new GameObject("PanelArchivosPC", typeof(RectTransform), typeof(Image));
-            panelArchivos.transform.SetParent(transform, false);
-            RectTransform rtPnlArch = panelArchivos.GetComponent<RectTransform>();
-            rtPnlArch.anchorMin = new Vector2(0f, 0.5f);
-            rtPnlArch.anchorMax = new Vector2(0f, 0.5f);
-            rtPnlArch.pivot = new Vector2(0f, 0.5f);
-            rtPnlArch.anchoredPosition = new Vector2(50f, 30f);
-            rtPnlArch.sizeDelta = new Vector2(440f, 480f);
-            Image imgPnlArch = panelArchivos.GetComponent<Image>();
-            imgPnlArch.color = new Color(0.15f, 0.18f, 0.24f, 0.85f);
-
-            // Título Panel PC
-            GameObject objTxtPC = new GameObject("TituloPC", typeof(RectTransform), typeof(Text));
-            objTxtPC.transform.SetParent(panelArchivos.transform, false);
-            RectTransform rtTxtPC = objTxtPC.GetComponent<RectTransform>();
-            rtTxtPC.anchorMin = new Vector2(0.5f, 1f);
-            rtTxtPC.anchorMax = new Vector2(0.5f, 1f);
-            rtTxtPC.pivot = new Vector2(0.5f, 1f);
-            rtTxtPC.anchoredPosition = new Vector2(0f, -15f);
-            rtTxtPC.sizeDelta = new Vector2(400f, 30f);
-            Text tPC = objTxtPC.GetComponent<Text>();
-            tPC.text = "<b>📁 ARCHIVOS EN EL ESCRITORIO</b>";
-            tPC.font = ConstructorUI.Fuente;
-            tPC.fontSize = 16;
-            tPC.alignment = TextAnchor.MiddleCenter;
-            tPC.color = new Color(0.9f, 0.95f, 1f, 1f);
-
-            // 1. Tarjeta Selección: Informes del Jefe
-            botonSeleccionarInforme = CrearTarjetaArchivo(panelArchivos.transform,
-                "BotonInforme",
-                "Informes del Jefe (Oficial)",
-                "Documento solicitado para fotocopiar",
-                spriteIconoInforme,
-                new Vector2(0f, -65f),
-                out marcoSeleccionInforme);
-
-            // 2. Tarjeta Selección: Foto Chiqui Tapia
-            botonSeleccionarChiqui = CrearTarjetaArchivo(panelArchivos.transform,
-                "BotonChiqui",
-                "Foto de Chiqui Tapia",
-                "¡CUIDADO! Arruinará la tarea (Sabotaje)",
-                spriteIconoChiqui,
-                new Vector2(0f, -225f),
-                out marcoSeleccionChiqui);
-
-            // Texto de ayuda en panel PC
-            GameObject objAyuda = new GameObject("TxtAyuda", typeof(RectTransform), typeof(Text));
-            objAyuda.transform.SetParent(panelArchivos.transform, false);
-            RectTransform rtAyuda = objAyuda.GetComponent<RectTransform>();
-            rtAyuda.anchorMin = new Vector2(0.5f, 0f);
-            rtAyuda.anchorMax = new Vector2(0.5f, 0f);
-            rtAyuda.pivot = new Vector2(0.5f, 0f);
-            rtAyuda.anchoredPosition = new Vector2(0f, 15f);
-            rtAyuda.sizeDelta = new Vector2(400f, 40f);
-            Text tAyuda = objAyuda.GetComponent<Text>();
-            tAyuda.text = "<i>Haz clic sobre el archivo para cargarlo en la bandeja del escáner de la impresora.</i>";
-            tAyuda.font = ConstructorUI.Fuente;
-            tAyuda.fontSize = 12;
-            tAyuda.alignment = TextAnchor.MiddleCenter;
-            tAyuda.color = new Color(0.7f, 0.75f, 0.85f, 0.8f);
-
-            // ==========================================
-            // LADO DERECHO: SALA DE IMPRESORA / ESCÁNER
-            // ==========================================
-            GameObject panelImpresora = new GameObject("PanelImpresora", typeof(RectTransform), typeof(Image));
-            panelImpresora.transform.SetParent(transform, false);
-            RectTransform rtPnlImp = panelImpresora.GetComponent<RectTransform>();
-            rtPnlImp.anchorMin = new Vector2(1f, 0.5f);
-            rtPnlImp.anchorMax = new Vector2(1f, 0.5f);
-            rtPnlImp.pivot = new Vector2(1f, 0.5f);
-            rtPnlImp.anchoredPosition = new Vector2(-50f, 30f);
-            rtPnlImp.sizeDelta = new Vector2(560f, 480f);
-            Image imgPnlImp = panelImpresora.GetComponent<Image>();
-            imgPnlImp.color = new Color(0.12f, 0.14f, 0.19f, 0.85f);
-
-            // Título Panel Impresora
-            GameObject objTxtImp = new GameObject("TituloImp", typeof(RectTransform), typeof(Text));
-            objTxtImp.transform.SetParent(panelImpresora.transform, false);
-            RectTransform rtTxtImp = objTxtImp.GetComponent<RectTransform>();
-            rtTxtImp.anchorMin = new Vector2(0.5f, 1f);
-            rtTxtImp.anchorMax = new Vector2(0.5f, 1f);
-            rtTxtImp.pivot = new Vector2(0.5f, 1f);
-            rtTxtImp.anchoredPosition = new Vector2(0f, -15f);
-            rtTxtImp.sizeDelta = new Vector2(500f, 30f);
-            Text tImp = objTxtImp.GetComponent<Text>();
-            tImp.text = "<b>🖨 IMPRESORA / FOTOCOPIADORA OFICIAL</b>";
-            tImp.font = ConstructorUI.Fuente;
-            tImp.fontSize = 16;
-            tImp.alignment = TextAnchor.MiddleCenter;
-            tImp.color = new Color(0.9f, 0.95f, 1f, 1f);
-
-            // Imagen Gráfica de la Impresora
-            GameObject objImgImp = new GameObject("GraficoImpresora", typeof(RectTransform), typeof(Image));
-            objImgImp.transform.SetParent(panelImpresora.transform, false);
-            RectTransform rtImgImp = objImgImp.GetComponent<RectTransform>();
-            rtImgImp.anchorMin = new Vector2(0.5f, 1f);
-            rtImgImp.anchorMax = new Vector2(0.5f, 1f);
-            rtImgImp.pivot = new Vector2(0.5f, 1f);
-            rtImgImp.anchoredPosition = new Vector2(0f, -55f);
-            rtImgImp.sizeDelta = new Vector2(240f, 190f);
-            imagenImpresoraVisual = objImgImp.GetComponent<Image>();
-            imagenImpresoraVisual.preserveAspect = true;
-            if (spriteImpresora != null)
-            {
-                imagenImpresoraVisual.sprite = spriteImpresora;
-            }
-
-            // Bandeja de Escáner (Vista Previa del documento cargado)
-            GameObject objBandeja = new GameObject("BandejaEscaner", typeof(RectTransform), typeof(Image));
-            objBandeja.transform.SetParent(panelImpresora.transform, false);
-            RectTransform rtBandeja = objBandeja.GetComponent<RectTransform>();
-            rtBandeja.anchorMin = new Vector2(0.5f, 1f);
-            rtBandeja.anchorMax = new Vector2(0.5f, 1f);
-            rtBandeja.pivot = new Vector2(0.5f, 1f);
-            rtBandeja.anchoredPosition = new Vector2(0f, -255f);
-            rtBandeja.sizeDelta = new Vector2(480f, 75f);
-            Image imgBandeja = objBandeja.GetComponent<Image>();
-            imgBandeja.color = new Color(0.08f, 0.10f, 0.14f, 0.95f);
-
-            // Icono del documento en la bandeja
-            GameObject objDocBandeja = new GameObject("IconoDocumentoBandeja", typeof(RectTransform), typeof(Image));
-            objDocBandeja.transform.SetParent(objBandeja.transform, false);
-            RectTransform rtDocBandeja = objDocBandeja.GetComponent<RectTransform>();
-            rtDocBandeja.anchorMin = new Vector2(0f, 0.5f);
-            rtDocBandeja.anchorMax = new Vector2(0f, 0.5f);
-            rtDocBandeja.pivot = new Vector2(0f, 0.5f);
-            rtDocBandeja.anchoredPosition = new Vector2(15f, 0f);
-            rtDocBandeja.sizeDelta = new Vector2(55f, 55f);
-            imagenDocumentoEnBandeja = objDocBandeja.GetComponent<Image>();
-            imagenDocumentoEnBandeja.preserveAspect = true;
-
-            // Texto descriptivo en bandeja
-            GameObject objTxtBandeja = new GameObject("TxtBandeja", typeof(RectTransform), typeof(Text));
-            objTxtBandeja.transform.SetParent(objBandeja.transform, false);
-            RectTransform rtTxtBandeja = objTxtBandeja.GetComponent<RectTransform>();
-            rtTxtBandeja.anchorMin = new Vector2(0f, 0f);
-            rtTxtBandeja.anchorMax = new Vector2(1f, 1f);
-            rtTxtBandeja.offsetMin = new Vector2(85f, 5f);
-            rtTxtBandeja.offsetMax = new Vector2(-15f, -5f);
-            textoDocumentoEnBandeja = objTxtBandeja.GetComponent<Text>();
-            textoDocumentoEnBandeja.font = ConstructorUI.Fuente;
-            textoDocumentoEnBandeja.fontSize = 14;
-            textoDocumentoEnBandeja.alignment = TextAnchor.MiddleLeft;
+            rtSub.anchoredPosition = new Vector2(0f, -195f);
+            rtSub.sizeDelta = new Vector2(520f, 140f);
+            textoSubmensajeInstruccion = objSub.GetComponent<Text>();
+            textoSubmensajeInstruccion.font = ConstructorUI.Fuente;
+            textoSubmensajeInstruccion.fontSize = 14;
+            textoSubmensajeInstruccion.alignment = TextAnchor.MiddleCenter;
+            textoSubmensajeInstruccion.color = new Color(0.85f, 0.90f, 1f, 0.95f);
 
             // Barra de Progreso
             GameObject objBarra = new GameObject("BarraProgreso", typeof(RectTransform), typeof(Slider));
-            objBarra.transform.SetParent(panelImpresora.transform, false);
+            objBarra.transform.SetParent(panelCentro.transform, false);
             RectTransform rtProg = objBarra.GetComponent<RectTransform>();
-            rtProg.anchorMin = new Vector2(0.5f, 1f);
-            rtProg.anchorMax = new Vector2(0.5f, 1f);
-            rtProg.pivot = new Vector2(0.5f, 1f);
-            rtProg.anchoredPosition = new Vector2(0f, -340f);
-            rtProg.sizeDelta = new Vector2(480f, 18f);
+            rtProg.anchorMin = new Vector2(0.5f, 0f);
+            rtProg.anchorMax = new Vector2(0.5f, 0f);
+            rtProg.pivot = new Vector2(0.5f, 0f);
+            rtProg.anchoredPosition = new Vector2(0f, 25f);
+            rtProg.sizeDelta = new Vector2(500f, 16f);
 
-            barraProgresoImpresion = objBarra.GetComponent<Slider>();
-            barraProgresoImpresion.minValue = 0f;
-            barraProgresoImpresion.maxValue = 1f;
-            barraProgresoImpresion.value = 0f;
+            barraProgreso = objBarra.GetComponent<Slider>();
+            barraProgreso.minValue = 0f;
+            barraProgreso.maxValue = 1f;
+            barraProgreso.value = 0f;
 
-            // Fondo de la barra
             GameObject bgBarra = new GameObject("FondoBarra", typeof(RectTransform), typeof(Image));
             bgBarra.transform.SetParent(objBarra.transform, false);
             ConstructorUI.Estirar(bgBarra.GetComponent<RectTransform>());
             bgBarra.GetComponent<Image>().color = new Color(0.06f, 0.08f, 0.11f, 1f);
 
-            // Relleno de la barra
             GameObject areaRelleno = new GameObject("AreaRelleno", typeof(RectTransform));
             areaRelleno.transform.SetParent(objBarra.transform, false);
             ConstructorUI.Estirar(areaRelleno.GetComponent<RectTransform>());
@@ -1050,147 +712,37 @@ namespace SoltaLaPala.Minijuegos
             rtFill.anchorMax = new Vector2(0f, 1f);
             rtFill.sizeDelta = Vector2.zero;
             fillBarra.GetComponent<Image>().color = new Color(0.25f, 0.75f, 0.45f, 1f);
-            barraProgresoImpresion.fillRect = rtFill;
+            barraProgreso.fillRect = rtFill;
 
-            // Texto de Estado
-            GameObject objTxtEst = new GameObject("TextoEstado", typeof(RectTransform), typeof(Text));
-            objTxtEst.transform.SetParent(panelImpresora.transform, false);
-            RectTransform rtTxtEst = objTxtEst.GetComponent<RectTransform>();
-            rtTxtEst.anchorMin = new Vector2(0.5f, 1f);
-            rtTxtEst.anchorMax = new Vector2(0.5f, 1f);
-            rtTxtEst.pivot = new Vector2(0.5f, 1f);
-            rtTxtEst.anchoredPosition = new Vector2(0f, -365f);
-            rtTxtEst.sizeDelta = new Vector2(480f, 26f);
-            textoEstadoProceso = objTxtEst.GetComponent<Text>();
-            textoEstadoProceso.font = ConstructorUI.Fuente;
-            textoEstadoProceso.fontSize = 14;
-            textoEstadoProceso.alignment = TextAnchor.MiddleCenter;
-            textoEstadoProceso.color = Color.white;
+            // Botón Inferior: IMPRIMIR DOCUMENTO
+            GameObject objBtnImp = new GameObject("BotonImprimir", typeof(RectTransform), typeof(Image), typeof(Button));
+            objBtnImp.transform.SetParent(transform, false);
+            RectTransform rtBtnImp = objBtnImp.GetComponent<RectTransform>();
+            rtBtnImp.anchorMin = new Vector2(0.5f, 0f);
+            rtBtnImp.anchorMax = new Vector2(0.5f, 0f);
+            rtBtnImp.pivot = new Vector2(0.5f, 0f);
+            rtBtnImp.anchoredPosition = new Vector2(0f, 25f);
+            rtBtnImp.sizeDelta = new Vector2(340f, 52f);
+            objBtnImp.GetComponent<Image>().color = new Color(0.18f, 0.52f, 0.32f, 1f);
 
-            // Botón Principal: FOTOCOPIAR
-            GameObject objBtnFoto = new GameObject("BotonFotocopiar", typeof(RectTransform), typeof(Image), typeof(Button));
-            objBtnFoto.transform.SetParent(panelImpresora.transform, false);
-            RectTransform rtBtnFoto = objBtnFoto.GetComponent<RectTransform>();
-            rtBtnFoto.anchorMin = new Vector2(0.5f, 0f);
-            rtBtnFoto.anchorMax = new Vector2(0.5f, 0f);
-            rtBtnFoto.pivot = new Vector2(0.5f, 0f);
-            rtBtnFoto.anchoredPosition = new Vector2(0f, 20f);
-            rtBtnFoto.sizeDelta = new Vector2(320f, 50f);
+            botonImprimir = objBtnImp.GetComponent<Button>();
+            ColorBlock cbImp = ConstructorUI.ColoresBoton();
+            cbImp.normalColor = Color.white;
+            cbImp.highlightedColor = new Color(1.25f, 1.25f, 1.25f, 1f);
+            cbImp.pressedColor = new Color(0.7f, 0.7f, 0.7f, 1f);
+            cbImp.disabledColor = new Color(0.5f, 0.5f, 0.5f, 0.4f);
+            botonImprimir.colors = cbImp;
 
-            Image imgBtnFoto = objBtnFoto.GetComponent<Image>();
-            imgBtnFoto.color = new Color(0.18f, 0.52f, 0.32f, 1f);
-
-            botonFotocopiar = objBtnFoto.GetComponent<Button>();
-            ColorBlock cbFoto = ConstructorUI.ColoresBoton();
-            cbFoto.normalColor = Color.white;
-            cbFoto.highlightedColor = new Color(1.25f, 1.25f, 1.25f, 1f);
-            cbFoto.pressedColor = new Color(0.7f, 0.7f, 0.7f, 1f);
-            cbFoto.disabledColor = new Color(0.5f, 0.5f, 0.5f, 0.4f);
-            botonFotocopiar.colors = cbFoto;
-
-            GameObject objTxtBtnFoto = new GameObject("Txt", typeof(RectTransform), typeof(Text));
-            objTxtBtnFoto.transform.SetParent(objBtnFoto.transform, false);
-            ConstructorUI.Estirar(objTxtBtnFoto.GetComponent<RectTransform>());
-            Text tBtnFoto = objTxtBtnFoto.GetComponent<Text>();
-            tBtnFoto.font = ConstructorUI.Fuente;
-            tBtnFoto.fontSize = 18;
-            tBtnFoto.fontStyle = FontStyle.Bold;
-            tBtnFoto.alignment = TextAnchor.MiddleCenter;
-            tBtnFoto.color = Color.white;
-            tBtnFoto.text = "🖨 FOTOCOPIAR";
-        }
-
-        private Button CrearTarjetaArchivo(Transform padre, string nombreObj, string titulo, string descripcion, Sprite icono, Vector2 pos, out Image marco)
-        {
-            GameObject tarjeta = new GameObject(nombreObj, typeof(RectTransform), typeof(Image), typeof(Button));
-            tarjeta.transform.SetParent(padre, false);
-            RectTransform rt = tarjeta.GetComponent<RectTransform>();
-            rt.anchorMin = new Vector2(0.5f, 1f);
-            rt.anchorMax = new Vector2(0.5f, 1f);
-            rt.pivot = new Vector2(0.5f, 1f);
-            rt.anchoredPosition = pos;
-            rt.sizeDelta = new Vector2(400f, 140f);
-
-            marco = tarjeta.GetComponent<Image>();
-            marco.color = new Color(0.25f, 0.30f, 0.40f, 0.4f);
-
-            Button btn = tarjeta.GetComponent<Button>();
-            btn.colors = ConstructorUI.ColoresBoton();
-
-            // Fondo interior
-            GameObject interior = new GameObject("Interior", typeof(RectTransform), typeof(Image));
-            interior.transform.SetParent(tarjeta.transform, false);
-            RectTransform rtInt = interior.GetComponent<RectTransform>();
-            rtInt.anchorMin = Vector2.zero;
-            rtInt.anchorMax = Vector2.one;
-            rtInt.offsetMin = new Vector2(3f, 3f);
-            rtInt.offsetMax = new Vector2(-3f, -3f);
-            interior.GetComponent<Image>().color = new Color(0.10f, 0.12f, 0.16f, 0.95f);
-
-            // Icono
-            GameObject objIcono = new GameObject("Icono", typeof(RectTransform), typeof(Image));
-            objIcono.transform.SetParent(interior.transform, false);
-            RectTransform rtIcono = objIcono.GetComponent<RectTransform>();
-            rtIcono.anchorMin = new Vector2(0f, 0.5f);
-            rtIcono.anchorMax = new Vector2(0f, 0.5f);
-            rtIcono.pivot = new Vector2(0f, 0.5f);
-            rtIcono.anchoredPosition = new Vector2(15f, 0f);
-            rtIcono.sizeDelta = new Vector2(90f, 90f);
-            Image imgIcono = objIcono.GetComponent<Image>();
-            imgIcono.preserveAspect = true;
-            if (icono != null)
-            {
-                imgIcono.sprite = icono;
-            }
-
-            // Título
-            GameObject objTit = new GameObject("Titulo", typeof(RectTransform), typeof(Text));
-            objTit.transform.SetParent(interior.transform, false);
-            RectTransform rtTit = objTit.GetComponent<RectTransform>();
-            rtTit.anchorMin = new Vector2(0f, 1f);
-            rtTit.anchorMax = new Vector2(1f, 1f);
-            rtTit.pivot = new Vector2(0f, 1f);
-            rtTit.anchoredPosition = new Vector2(120f, -20f);
-            rtTit.sizeDelta = new Vector2(-135f, 30f);
-            Text tTit = objTit.GetComponent<Text>();
-            tTit.text = $"<b>{titulo}</b>";
-            tTit.font = ConstructorUI.Fuente;
-            tTit.fontSize = 15;
-            tTit.alignment = TextAnchor.UpperLeft;
-            tTit.color = Color.white;
-
-            // Descripción
-            GameObject objDesc = new GameObject("Desc", typeof(RectTransform), typeof(Text));
-            objDesc.transform.SetParent(interior.transform, false);
-            RectTransform rtDesc = objDesc.GetComponent<RectTransform>();
-            rtDesc.anchorMin = new Vector2(0f, 0f);
-            rtDesc.anchorMax = new Vector2(1f, 1f);
-            rtDesc.offsetMin = new Vector2(120f, 35f);
-            rtDesc.offsetMax = new Vector2(-15f, -50f);
-            Text tDesc = objDesc.GetComponent<Text>();
-            tDesc.text = descripcion;
-            tDesc.font = ConstructorUI.Fuente;
-            tDesc.fontSize = 12;
-            tDesc.alignment = TextAnchor.UpperLeft;
-            tDesc.color = new Color(0.75f, 0.8f, 0.9f, 0.9f);
-
-            // Botón de acción rápido ("Poner en Impresora")
-            GameObject objAccion = new GameObject("IndicadorAccion", typeof(RectTransform), typeof(Text));
-            objAccion.transform.SetParent(interior.transform, false);
-            RectTransform rtAcc = objAccion.GetComponent<RectTransform>();
-            rtAcc.anchorMin = new Vector2(0f, 0f);
-            rtAcc.anchorMax = new Vector2(1f, 0f);
-            rtAcc.pivot = new Vector2(0f, 0f);
-            rtAcc.anchoredPosition = new Vector2(120f, 12f);
-            rtAcc.sizeDelta = new Vector2(-135f, 22f);
-            Text tAcc = objAccion.GetComponent<Text>();
-            tAcc.text = "➔ <i>Clic para poner en impresora</i>";
-            tAcc.font = ConstructorUI.Fuente;
-            tAcc.fontSize = 12;
-            tAcc.alignment = TextAnchor.MiddleLeft;
-            tAcc.color = new Color(0.4f, 0.8f, 1f, 1f);
-
-            return btn;
+            GameObject objTxtBtn = new GameObject("Txt", typeof(RectTransform), typeof(Text));
+            objTxtBtn.transform.SetParent(objBtnImp.transform, false);
+            ConstructorUI.Estirar(objTxtBtn.GetComponent<RectTransform>());
+            Text tBtn = objTxtBtn.GetComponent<Text>();
+            tBtn.font = ConstructorUI.Fuente;
+            tBtn.fontSize = 17;
+            tBtn.fontStyle = FontStyle.Bold;
+            tBtn.alignment = TextAnchor.MiddleCenter;
+            tBtn.color = Color.white;
+            tBtn.text = "🖨 IMPRIMIR DOCUMENTO";
         }
 
         #endregion
