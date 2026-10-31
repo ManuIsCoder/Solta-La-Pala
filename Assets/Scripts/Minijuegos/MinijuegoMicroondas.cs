@@ -1,3 +1,5 @@
+using SoltaLaPala.Inventory;
+using SoltaLaPala.Guardado;
 using SoltaLaPala.Menus;
 using UnityEngine;
 using UnityEngine.UI;
@@ -8,8 +10,13 @@ namespace SoltaLaPala.Minijuegos
     public class MinijuegoMicroondas : MinijuegoBase
     {
         [Header("IDs de ítems")]
+        public string idComida = "Sandwich";
         public string idPlato = "PlatoComida";
         public string idTenedor = "Tenedor";
+        public string idComidaCaliente = "SandwichCaliente";
+
+        [Header("Fondo UI")]
+        public Image imagenFondo;
 
         [Header("UI")]
         public Button botonEncender;
@@ -28,7 +35,7 @@ namespace SoltaLaPala.Minijuegos
 
         protected override void AlIniciar()
         {
-            bool tienePlato = modoPrueba || (Inventario != null && Inventario.TieneItem(idPlato));
+            bool tienePlato = modoPrueba || (Inventario != null && (Inventario.TieneItem(idComida) || Inventario.TieneItem(idPlato)));
             bool tienetenedor = modoPrueba || (Inventario != null && Inventario.TieneItem(idTenedor));
             tenedorAdentro = false;
 
@@ -105,8 +112,21 @@ namespace SoltaLaPala.Minijuegos
             if (EstadoPartida.Instancia != null)
                 EstadoPartida.Instancia.RegistrarSabotaje(impacto, sospecha);
 
-            Inventario?.QuitarItem(idPlato);
-            if (tenedorAdentro) Inventario?.QuitarItem(idTenedor);
+            if (Inventario != null)
+            {
+                if (!Inventario.QuitarItem(idComida))
+                    Inventario.QuitarItem(idPlato);
+
+                if (tenedorAdentro)
+                {
+                    Inventario.QuitarItem(idTenedor);
+                }
+                else
+                {
+                    DatosItem caliente = ItemsRegistrados.Instancia != null ? ItemsRegistrados.Instancia.Resolver(idComidaCaliente) : null;
+                    if (caliente != null) Inventario.IntentarAgregarItem(caliente);
+                }
+            }
 
             Salir();
         }

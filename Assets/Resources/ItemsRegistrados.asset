@@ -13,17 +13,25 @@ MonoBehaviour:
   m_Name: ItemsRegistrados
   m_EditorClassIdentifier: Assembly-CSharp::SoltaLaPala.Guardado.ItemsRegistrados
   items:
+  - {fileID: 11400000, guid: 170fd7398031a534b8d6c6c12de31b75, type: 2}
+  - {fileID: 11400000, guid: 7250c78ef2dc39e4e9d068c5770d5f50, type: 2}
+  - {fileID: 11400000, guid: f2532bd024f84499ba4c9b9402ab3e20, type: 2}
+  - {fileID: 11400000, guid: 24a1ce971bd736d4e951255298f22753, type: 2}
+  - {fileID: 11400000, guid: 207d5309ac5ed5c46985b25afbdb21a9, type: 2}
+  - {fileID: 11400000, guid: 6637af42a757b6f4c8a60819754a4dac, type: 2}
+  - {fileID: 11400000, guid: 9eccda83eb9e41f2862412f8172e5271, type: 2}
   - {fileID: 11400000, guid: 691dccd8f43009b4fb6aa73373dda41f, type: 2}
   - {fileID: 11400000, guid: e0bed133ea0f3c24c88e1d065aacc1c5, type: 2}
-  - {fileID: 11400000, guid: 207d5309ac5ed5c46985b25afbdb21a9, type: 2}
-  - {fileID: 11400000, guid: f2532bd024f84499ba4c9b9402ab3e20, type: 2}
-  - {fileID: 11400000, guid: 9eccda83eb9e41f2862412f8172e5271, type: 2}
   - {fileID: 11400000, guid: dc876f8f950d48a1bf8f7212771e1c86, type: 2}
+  - {fileID: 11400000, guid: 6656a920e13f4282bd6c5bf341e4f80e, type: 2}
   - {fileID: 11400000, guid: 8a2925b057c24207bfc9af4a45372386, type: 2}
   - {fileID: 11400000, guid: 797a4192dfd84bb098957503add81040, type: 2}
-  - {fileID: 11400000, guid: b17c97711ac74ae99d90d2676026a0c5, type: 2}
+  - {fileID: 11400000, guid: c75099e4940b7ce4eb4e3e3257d5f585, type: 2}
+  - {fileID: 11400000, guid: 0aba734f6fa4f0f4d9e5a8ab7565ada5, type: 2}
+  - {fileID: 11400000, guid: 3dc3762f31a9d3f4e8b3f823e89f4d73, type: 2}
+  - {fileID: 11400000, guid: 98de697610cec8540bb715ab0b89d42a, type: 2}
   - {fileID: 11400000, guid: 690c07cc4a764480b0382b75589fcaa1, type: 2}
-  - {fileID: 11400000, guid: 6656a920e13f4282bd6c5bf341e4f80e, type: 2}
+  - {fileID: 11400000, guid: b17c97711ac74ae99d90d2676026a0c5, type: 2}
   - {fileID: 11400000, guid: a1006b0b1d0241429c5efd9e997f27e2, type: 2}
   - {fileID: 11400000, guid: b1111111111111111111111111111111, type: 2}
   - {fileID: 11400000, guid: c2222222222222222222222222222222, type: 2}
