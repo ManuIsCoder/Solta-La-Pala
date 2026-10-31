@@ -975,29 +975,14 @@ namespace SoltaLaPala.Minijuegos
             textoInstrucciones.color = new Color(0.9f, 0.9f, 0.9f, 1f);
             textoInstrucciones.text = "Selecciona una herramienta y manten presionado sobre la hoja para revelar.";
 
-            // Botón Salir
-            GameObject objBtnSalir = new GameObject("BotonSalir", typeof(RectTransform), typeof(Image), typeof(Button));
-            objBtnSalir.transform.SetParent(panelHerramientas.transform, false);
-            RectTransform rtSalir = objBtnSalir.GetComponent<RectTransform>();
-            rtSalir.anchorMin = new Vector2(0.1f, 0.04f);
-            rtSalir.anchorMax = new Vector2(0.9f, 0.04f);
-            rtSalir.pivot = new Vector2(0.5f, 0);
-            rtSalir.sizeDelta = new Vector2(0, 38);
-
-            Image imgSalir = objBtnSalir.GetComponent<Image>();
-            imgSalir.color = new Color(0.6f, 0.2f, 0.2f, 1f);
-            botonSalir = objBtnSalir.GetComponent<Button>();
-
-            GameObject objTxtSalir = new GameObject("TextoSalir", typeof(RectTransform), typeof(Text));
-            objTxtSalir.transform.SetParent(objBtnSalir.transform, false);
-            ConstructorUI.Estirar(objTxtSalir.GetComponent<RectTransform>());
-            Text txtSalir = objTxtSalir.GetComponent<Text>();
-            txtSalir.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-            txtSalir.fontSize = 15;
-            txtSalir.fontStyle = FontStyle.Bold;
-            txtSalir.alignment = TextAnchor.MiddleCenter;
-            txtSalir.color = Color.white;
-            txtSalir.text = "Salir (Esc)";
+            botonSalir = ConstructorUI.CrearBotonSalir(
+                panelHerramientas.transform,
+                "Salir (Esc)",
+                new Vector2(0.1f, 0.04f),
+                new Vector2(0.9f, 0.04f),
+                new Vector2(0.5f, 0f),
+                Vector2.zero,
+                new Vector2(0f, 38f));
 
             // 4. Cursor flotante de herramienta centrado
             GameObject objCursor = new GameObject("CursorHerramienta", typeof(RectTransform), typeof(Image));

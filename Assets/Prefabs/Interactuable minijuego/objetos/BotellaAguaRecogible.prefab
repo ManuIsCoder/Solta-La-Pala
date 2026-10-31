@@ -1,0 +1,126 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &6711627008612905645
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: e8f7123e309ea634ca9c6e806971a043, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: e8f7123e309ea634ca9c6e806971a043, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: e8f7123e309ea634ca9c6e806971a043, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: e8f7123e309ea634ca9c6e806971a043, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.7071067
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: e8f7123e309ea634ca9c6e806971a043, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: e8f7123e309ea634ca9c6e806971a043, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: e8f7123e309ea634ca9c6e806971a043, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: e8f7123e309ea634ca9c6e806971a043, type: 3}
+      propertyPath: m_Name
+      value: BotellaAguaRecogible
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: e8f7123e309ea634ca9c6e806971a043, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5318310794556985756}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: e8f7123e309ea634ca9c6e806971a043, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3460172634969962413}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: e8f7123e309ea634ca9c6e806971a043, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8855868291930349243}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: e8f7123e309ea634ca9c6e806971a043, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2215532124501470943}
+  m_SourcePrefab: {fileID: 100100000, guid: e8f7123e309ea634ca9c6e806971a043, type: 3}
+--- !u!1 &5901145862754996220 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: e8f7123e309ea634ca9c6e806971a043, type: 3}
+  m_PrefabInstance: {fileID: 6711627008612905645}
+  m_PrefabAsset: {fileID: 0}
+--- !u!65 &5318310794556985756
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5901145862754996220}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.2, y: 0.35, z: 0.2}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &3460172634969962413
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5901145862754996220}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e32406c235fd1e4c81c9ab3ba4cd9ae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SoltaLaPala.Interaction.ResaltadoInteractuable
+  colorSilueta: {r: 1, g: 1, b: 1, a: 1}
+  grosor: 0.025
+  renderers: []
+--- !u!114 &8855868291930349243
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5901145862754996220}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61f7a9c45dbf7244d8a4a4b2b5dbb1b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SoltaLaPala.Guardado.IdentificadorObjeto
+  id: BotellaAguaPickup
+--- !u!114 &2215532124501470943
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5901145862754996220}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b42f1a5b9596ad4590f60c0f96576bb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SoltaLaPala.Interaction.ObjetoRecogible
+  item: {fileID: 11400000, guid: 7250c78ef2dc39e4e9d068c5770d5f50, type: 2}

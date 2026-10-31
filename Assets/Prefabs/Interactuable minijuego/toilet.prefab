@@ -74,6 +74,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 1f191d6ed35fca140a44e6a67eba594c, type: 3}
       insertIndex: -1
       addedObject: {fileID: 295076023001991061}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 1f191d6ed35fca140a44e6a67eba594c, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8481506855554977971}
   m_SourcePrefab: {fileID: 100100000, guid: 1f191d6ed35fca140a44e6a67eba594c, type: 3}
 --- !u!1 &1284660059908897084 stripped
 GameObject:
@@ -111,3 +114,24 @@ MonoBehaviour:
   tipoMinijuego: 4
   textoInteraccion: '[E] Usar'
   minijuegoDirecto: {fileID: 0}
+--- !u!65 &8481506855554977971
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1284660059908897084}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 10.045829, y: 9.494, z: 6.5799994}
+  m_Center: {x: 5.0229144, y: 4.747, z: 3.2899997}

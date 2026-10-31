@@ -134,6 +134,54 @@ namespace SoltaLaPala.Menus
             return boton;
         }
 
+        public static Button CrearBotonSalir(Transform padre, string etiqueta,
+            Vector2 anchorMin, Vector2 anchorMax, Vector2 pivot, Vector2 posicion, Vector2 tamano)
+        {
+            GameObject objeto = new GameObject("BotonSalir", typeof(RectTransform), typeof(Image), typeof(Button));
+            objeto.transform.SetParent(padre, false);
+
+            RectTransform rect = objeto.GetComponent<RectTransform>();
+            rect.anchorMin = anchorMin;
+            rect.anchorMax = anchorMax;
+            rect.pivot = pivot;
+            rect.anchoredPosition = posicion;
+            rect.sizeDelta = tamano;
+
+            Button boton = objeto.GetComponent<Button>();
+            ConfigurarBotonSalir(boton, etiqueta);
+            return boton;
+        }
+
+        public static void ConfigurarBotonSalir(Button boton, string etiqueta)
+        {
+            if (boton == null) return;
+
+            Image imagen = boton.GetComponent<Image>();
+            if (imagen != null)
+            {
+                imagen.color = new Color(0.6f, 0.2f, 0.2f, 1f);
+                boton.targetGraphic = imagen;
+            }
+
+            boton.colors = ColoresBoton();
+            Text texto = boton.GetComponentInChildren<Text>(true);
+            if (texto == null)
+            {
+                GameObject objetoTexto = new GameObject("TextoSalir", typeof(RectTransform), typeof(Text));
+                objetoTexto.transform.SetParent(boton.transform, false);
+                texto = objetoTexto.GetComponent<Text>();
+                Estirar(texto.GetComponent<RectTransform>());
+            }
+
+            texto.font = Fuente;
+            texto.fontSize = 15;
+            texto.fontStyle = FontStyle.Bold;
+            texto.alignment = TextAnchor.MiddleCenter;
+            texto.color = Color.white;
+            texto.text = etiqueta;
+            texto.raycastTarget = false;
+        }
+
         public static Slider CrearSlider(string nombre, Transform padre, float valorInicial,
             float minimo, float maximo, Vector2 posicion, Vector2 tamano, Action<float> alCambiar)
         {
