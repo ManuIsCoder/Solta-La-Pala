@@ -45,6 +45,9 @@ namespace SoltaLaPala.Minijuegos
         public string ObtenerTextoInteraccion()
         {
             if (estado == EstadoInteractuable.Desactivado) return string.Empty;
+            if (tipoMinijuego == ModoMinijuegoInteractuable.DestaparBaño
+                && !(InventarioJugador.DelJugador()?.TieneItem("Destapador") ?? false))
+                return "Necesitas el destapador";
             return !string.IsNullOrEmpty(textoInteraccion) ? textoInteraccion : $"[E] Usar {tipoMinijuego}";
         }
 
@@ -64,6 +67,10 @@ namespace SoltaLaPala.Minijuegos
             if (!PuedeInteractuar()) return;
 
             var inv = quienInteractua.GetComponent<InventarioJugador>();
+            if (tipoMinijuego == ModoMinijuegoInteractuable.DestaparBaño
+                && (inv == null || !inv.TieneItem("Destapador")))
+                return;
+
             MinijuegoBase minijuego = ObtenerMinijuego();
 
             if (minijuego != null)

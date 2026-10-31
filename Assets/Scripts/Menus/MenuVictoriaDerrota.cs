@@ -71,7 +71,11 @@ namespace SoltaLaPala.Menus
         {
             if (titulo != null)
             {
-                titulo.text = fueVictoria ? "SABOTAJE COMPLETADO" : "TE DESCUBRIERON";
+                EstadoPartida estado = EstadoPartida.Instancia;
+                bool descubierto = !fueVictoria && estado != null && estado.Sospecha >= estado.SospechaMaxima;
+                titulo.text = fueVictoria
+                    ? "SABOTAJE COMPLETADO"
+                    : descubierto ? "TE DESCUBRIERON" : "NO HAS HECHO SUFICIENTE SABOTAJE";
                 titulo.fontSize = 40;
                 titulo.color = fueVictoria ? ConstructorUI.ColorExito : ConstructorUI.ColorFallo;
             }
@@ -79,7 +83,12 @@ namespace SoltaLaPala.Menus
             if (textoDetalle != null)
             {
                 textoDetalle.text = string.IsNullOrEmpty(detalleActual)
-                    ? (fueVictoria ? "Nadie sospecho nada." : "La sospecha llego al limite.")
+                    ? (fueVictoria
+                        ? "Nadie sospechó nada."
+                        : EstadoPartida.Instancia != null
+                            && EstadoPartida.Instancia.Sospecha >= EstadoPartida.Instancia.SospechaMaxima
+                            ? "La sospecha llegó al límite."
+                            : "No has hecho suficiente sabotaje.")
                     : detalleActual;
             }
 

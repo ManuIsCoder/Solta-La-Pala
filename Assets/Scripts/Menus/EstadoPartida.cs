@@ -238,6 +238,19 @@ namespace SoltaLaPala.Menus
             RegistrarSabotaje(0, cantidad);
         }
 
+        public void EstablecerSospecha(int valor)
+        {
+            if (PartidaTerminada)
+            {
+                return;
+            }
+
+            sospecha = Mathf.Clamp(valor, 0, sospechaMaxima);
+            sospechaAcumulada = sospecha;
+            AlCambiarContadores?.Invoke(impacto, sospecha);
+            ComprobarFinal();
+        }
+
         public void ReducirSospecha(int cantidad)
         {
             if (PartidaTerminada || cantidad <= 0)
@@ -269,7 +282,7 @@ namespace SoltaLaPala.Menus
             }
 
             TerminarPartida(false,
-                $"Se acabo el tiempo con {impacto}/{impactoObjetivo} de impacto. No hiciste suficiente.");
+                "No has hecho suficiente sabotaje.");
         }
 
         private void DispararDialogoDeCaptura()

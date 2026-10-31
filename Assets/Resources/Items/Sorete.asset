@@ -16,5 +16,8 @@ MonoBehaviour:
   nombre: Sorete
   icono: {fileID: 21300000, guid: 6e892925452e20b409bcc5c63dc61dc0, type: 3}
   prefabEnMano: {fileID: 919132149155446097, guid: 96815a13096a81546ad4a5877b379d65, type: 3}
+  prefabEnSuelo: {fileID: 100100000, guid: e9b794b257ed4ea2a13322ecf68d9c19, type: 3}
+  congelarRotacionAlSoltar: 1
+  noSePuedeSoltar: 1
   descripcion: 
   esSospechoso: 1

@@ -12,6 +12,9 @@ namespace SoltaLaPala.Inventory
         public string nombre;
         public Sprite icono;
         public GameObject prefabEnMano;
+        public GameObject prefabEnSuelo;
+        public bool congelarRotacionAlSoltar;
+        public bool noSePuedeSoltar;
         [TextArea] public string descripcion;
 
         [Tooltip("Si es true, llevar este item en la mano levantará sospechas si un NPC te ve.")]

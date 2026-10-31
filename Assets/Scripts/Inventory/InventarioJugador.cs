@@ -196,7 +196,7 @@ namespace SoltaLaPala.Inventory
 
         public void SoltarItemSeleccionado()
         {
-            if (ItemSeleccionado == null)
+            if (ItemSeleccionado == null || ItemSeleccionado.noSePuedeSoltar)
             {
                 return;
             }
@@ -210,9 +210,37 @@ namespace SoltaLaPala.Inventory
             Transform camara = Camera.main != null ? Camera.main.transform : transform;
             Vector3 direccionLanzamiento = camara.forward;
             Vector3 posicionAparicion = transform.position + Vector3.up * 1.0f + direccionLanzamiento * 0.8f;
+            bool prefabMundo = itemASoltar.prefabEnSuelo != null;
 
             GameObject objetoSuelo;
-            if (itemASoltar.prefabEnMano != null)
+            if (prefabMundo)
+            {
+                objetoSuelo = Instantiate(itemASoltar.prefabEnSuelo);
+                objetoSuelo.transform.position = posicionAparicion;
+
+                Collider colliderPrefab = objetoSuelo.GetComponent<Collider>();
+                if (colliderPrefab != null)
+                {
+                    Vector3 origenRayo = posicionAparicion + Vector3.up * 2f;
+                    RaycastHit[] impactos = Physics.RaycastAll(
+                        origenRayo, Vector3.down, 8f, ~0, QueryTriggerInteraction.Ignore);
+
+                    float distanciaCercana = float.MaxValue;
+                    foreach (RaycastHit impacto in impactos)
+                    {
+                        if (impacto.transform == transform || impacto.transform.IsChildOf(transform)
+                            || impacto.transform.IsChildOf(objetoSuelo.transform))
+                            continue;
+
+                        if (impacto.distance < distanciaCercana)
+                        {
+                            distanciaCercana = impacto.distance;
+                            objetoSuelo.transform.position = impacto.point + Vector3.up * colliderPrefab.bounds.extents.y;
+                        }
+                    }
+                }
+            }
+            else if (itemASoltar.prefabEnMano != null)
             {
                 objetoSuelo = Instantiate(itemASoltar.prefabEnMano, posicionAparicion, Quaternion.identity);
             }
@@ -237,20 +265,26 @@ namespace SoltaLaPala.Inventory
             {
                 col = objetoSuelo.AddComponent<BoxCollider>();
             }
-            else if (col is MeshCollider mc)
+            else if (!prefabMundo && col is MeshCollider mc)
             {
                 mc.convex = true;
             }
             col.enabled = true;
 
-            Rigidbody rb = objetoSuelo.GetComponent<Rigidbody>();
-            if (rb == null)
+            if (!prefabMundo)
             {
-                rb = objetoSuelo.AddComponent<Rigidbody>();
+                Rigidbody rb = objetoSuelo.GetComponent<Rigidbody>();
+                if (rb == null)
+                {
+                    rb = objetoSuelo.AddComponent<Rigidbody>();
+                }
+                rb.isKinematic = false;
+                rb.detectCollisions = true;
+                if (itemASoltar.congelarRotacionAlSoltar)
+                    rb.constraints |= RigidbodyConstraints.FreezeRotation;
+                if (itemASoltar.prefabEnSuelo == null)
+                    rb.AddForce(direccionLanzamiento * 2.5f + Vector3.up * 1.2f, ForceMode.VelocityChange);
             }
-            rb.isKinematic = false;
-            rb.detectCollisions = true;
-            rb.AddForce(direccionLanzamiento * 2.5f + Vector3.up * 1.2f, ForceMode.VelocityChange);
 
             if (objetoSuelo.GetComponent<ObjetoSoltado>() == null)
             {

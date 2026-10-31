@@ -79,9 +79,11 @@ namespace SoltaLaPala.Interaction
                 if (hit.transform == transform || hit.transform.IsChildOf(transform)) continue;
 
                 IInteractuable interactuable = hit.collider.GetComponentInParent<IInteractuable>();
-                if (interactuable != null && interactuable.PuedeInteractuar())
+                if (interactuable != null
+                    && EstaDentroDelAlcance(interactuable)
+                    && interactuable.PuedeInteractuar())
                 {
-                    float dist = Vector3.Distance(origen, hit.point);
+                    float dist = Vector3.Distance(transform.position, interactuable.Transform.position);
                     if (dist < menorDistancia)
                     {
                         menorDistancia = dist;
@@ -131,10 +133,19 @@ namespace SoltaLaPala.Interaction
 
         private void IntentarInteractuar()
         {
-            if (objetivoActual != null && objetivoActual.PuedeInteractuar())
+            if (objetivoActual != null
+                && EstaDentroDelAlcance(objetivoActual)
+                && objetivoActual.PuedeInteractuar())
             {
                 objetivoActual.Interactuar(gameObject);
             }
+        }
+
+        private bool EstaDentroDelAlcance(IInteractuable objetivo)
+        {
+            return objetivo != null
+                && objetivo.Transform != null
+                && Vector3.Distance(transform.position, objetivo.Transform.position) <= alcance;
         }
 
         public void BloquearInteraccion(bool bloqueado)

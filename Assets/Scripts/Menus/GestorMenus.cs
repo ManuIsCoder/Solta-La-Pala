@@ -77,9 +77,11 @@ namespace SoltaLaPala.Menus
                     return;
                 }
 
-                if (SoltaLaPala.Minijuegos.GestorMinijuego.Instancia != null && SoltaLaPala.Minijuegos.GestorMinijuego.Instancia.MinijuegoActivo)
+                SoltaLaPala.Minijuegos.GestorMinijuego gestorMinijuego =
+                    SoltaLaPala.Minijuegos.GestorMinijuego.Instancia;
+                if (gestorMinijuego != null && gestorMinijuego.MinijuegoActivo)
                 {
-                    return;
+                    gestorMinijuego.ForzarCierre();
                 }
 
                 Abrir(PantallaMenu.Pausa);
