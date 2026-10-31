@@ -1,0 +1,137 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &7085230644363276389
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 134433975845496270}
+  - component: {fileID: 6697341268780105861}
+  - component: {fileID: 888533128396950973}
+  - component: {fileID: 6919734096596764178}
+  - component: {fileID: 3932544156465479385}
+  - component: {fileID: 8888763429641477585}
+  m_Layer: 0
+  m_Name: Jugador
+  m_TagString: Player
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &134433975845496270
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7085230644363276389}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!143 &6697341268780105861
+CharacterController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7085230644363276389}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Height: 2
+  m_Radius: 0.4
+  m_SlopeLimit: 45
+  m_StepOffset: 0.3
+  m_SkinWidth: 0.08
+  m_MinMoveDistance: 0.001
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &888533128396950973
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7085230644363276389}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3097b23714fb9964697d4b6f25ddf902, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SoltaLaPala.Personajes.ModeloPersonaje
+  prefabModelo: {fileID: 436720362232972239, guid: 5c07b2698e297b2449fa6cb81105fc28, type: 3}
+  altura: 0
+  sentado: 0
+  ocultarCapsula: 1
+  ocultarEnPrimeraPersona: 1
+--- !u!114 &6919734096596764178
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7085230644363276389}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c2ae195db094b6e439064456624812ed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SoltaLaPala.Player.MovimientoJugador
+  velocidadCaminar: 4
+  velocidadCorrer: 7
+  suavizadoRotacion: 0.1
+  gravedad: -20
+  camaraJugador: {fileID: 0}
+--- !u!114 &3932544156465479385
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7085230644363276389}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3bc3a3b6f9be76a48a8999290c7ee4f4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SoltaLaPala.Inventory.InventarioJugador
+  anclaMano: {fileID: 0}
+  offsetMano: {x: 0.35, y: 1.2, z: 0.6}
+  rotacionMano: {x: 0, y: 0, z: 0}
+  escalaEnMano: 1
+  amplitudFlotado: 0.04
+  velocidadFlotado: 1.5
+  offsetEnHueso: {x: 0.08, y: 0.02, z: 0}
+  rotacionEnHueso: {x: 0, y: 0, z: 0}
+--- !u!114 &8888763429641477585
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7085230644363276389}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b0916c26713aced479230f921bef7641, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SoltaLaPala.Interaction.InteractorJugador
+  alcance: 4
+  radio: 0.6
+  alturaOrigen: 1.2
+  capasInteractuables:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  transformCamara: {fileID: 0}
+  interfazTexto: {fileID: 0}

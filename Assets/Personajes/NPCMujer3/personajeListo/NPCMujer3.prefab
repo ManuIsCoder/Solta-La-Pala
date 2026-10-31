@@ -1,0 +1,154 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &4919250749963266463
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2489728979373832907}
+  - component: {fileID: 3149182340461321951}
+  - component: {fileID: 1746913148522593646}
+  - component: {fileID: 5566000749536809199}
+  - component: {fileID: 9053684482862967366}
+  - component: {fileID: 3117308049551376072}
+  - component: {fileID: 8086373558682846451}
+  m_Layer: 0
+  m_Name: NPCMujer3
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2489728979373832907
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4919250749963266463}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!136 &3149182340461321951
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4919250749963266463}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.3
+  m_Height: 2
+  m_Direction: 1
+  m_Center: {x: 0, y: 1, z: 0}
+--- !u!114 &1746913148522593646
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4919250749963266463}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3097b23714fb9964697d4b6f25ddf902, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SoltaLaPala.Personajes.ModeloPersonaje
+  prefabModelo: {fileID: 3295584405328115804, guid: 53c91ebb78f1c4247964d17a03a263ae, type: 3}
+  altura: 0
+  sentado: 0
+  ocultarCapsula: 0
+  ocultarEnPrimeraPersona: 1
+--- !u!114 &5566000749536809199
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4919250749963266463}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e32406c235fd1e4c81c9ab3ba4cd9ae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SoltaLaPala.Interaction.ResaltadoInteractuable
+  colorSilueta: {r: 1, g: 1, b: 1, a: 1}
+  grosor: 0.025
+  renderers: []
+--- !u!114 &9053684482862967366
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4919250749963266463}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 98bf9d037f8177c4db08bdb234d7a545, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SoltaLaPala.Dialogue.DialogoNPC
+  nombre: N P C Mujer3
+  id: NPCMujer3
+  tipoActual: 1
+  voz: 1
+  sonidoToz: 1
+  tosCadaMinimo: 14
+  tosCadaMaximo: 24
+--- !u!114 &3117308049551376072
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4919250749963266463}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47c58750317f6214e9e0d8646ee6e605, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SoltaLaPala.NPC.DetectorVisionNPC
+  distanciaVision: 10
+  anguloVision: 70
+  capasObstaculos:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  ojos: {fileID: 0}
+  tiempoEntreDetecciones: 5
+  fraccionDistanciaCercana: 0.4
+  sospechaAlVerteLejos: 3
+  sospechaAlVerteCerca: 8
+--- !u!114 &8086373558682846451
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4919250749963266463}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 458f6e9558349bc4c90a7fe018027b94, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SoltaLaPala.NPC.PatrullaNPC
+  ruta: {fileID: 0}
+  velocidad: 1.8
+  velocidadGiro: 360
+  distanciaLlegada: 0.15
+  esperaEnPunto: 1
+  esperaTrasPerderte: 2
+  velocidadGiroVigilando: 540
