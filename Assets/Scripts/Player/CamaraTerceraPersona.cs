@@ -1,5 +1,6 @@
 using SoltaLaPala.Guardado;
 using SoltaLaPala.Menus;
+using SoltaLaPala.Personajes;
 using UnityEngine;
 
 namespace SoltaLaPala.Player
@@ -29,8 +30,10 @@ namespace SoltaLaPala.Player
         public float suavizadoSeguimiento = 0.05f;
 
         [Header("Primera persona")]
-        [Tooltip("Altura de los ojos del PJ, para la vista en primera persona.")]
+        [Tooltip("Altura de los ojos del PJ si el modelo no tiene hueso de cabeza.")]
         public Vector3 offsetPrimeraPersona = new Vector3(0f, 0.55f, 0.15f);
+        [Tooltip("Posicion de los ojos respecto de la altura de la cabeza, en los ejes del jugador.")]
+        public Vector3 offsetOjos = new Vector3(0f, 0.1f, 0.12f);
         [Tooltip("Limites de la mirada vertical en primera persona.")]
         public float pitchMinimoPrimeraPersona = -75f;
         public float pitchMaximoPrimeraPersona = 75f;
@@ -47,6 +50,9 @@ namespace SoltaLaPala.Player
         private float pitchInicial;
         private bool camaraBloqueada;
         private Vector3 velocidadSeguimiento;
+        private Vector3 offsetCabeza;
+        private bool cabezaMedida;
+        private readonly RaycastHit[] impactos = new RaycastHit[16];
 
         public bool EnPrimeraPersona { get; private set; }
 
@@ -167,11 +173,16 @@ namespace SoltaLaPala.Player
                 return;
             }
 
-            posicionDeseada = ResolverColision(posicionDeseada);
-
-            transform.position = suavizadoSeguimiento > 0f
-                ? Vector3.SmoothDamp(transform.position, posicionDeseada, ref velocidadSeguimiento, suavizadoSeguimiento)
-                : posicionDeseada;
+            if (ResolverColision(ref posicionDeseada) || suavizadoSeguimiento <= 0f)
+            {
+                transform.position = posicionDeseada;
+                velocidadSeguimiento = Vector3.zero;
+            }
+            else
+            {
+                transform.position = Vector3.SmoothDamp(transform.position, posicionDeseada,
+                    ref velocidadSeguimiento, suavizadoSeguimiento);
+            }
 
             transform.rotation = Quaternion.Euler(pitch, yaw, 0f);
         }
@@ -205,30 +216,72 @@ namespace SoltaLaPala.Player
 
         private Vector3 ObtenerPivote()
         {
-            if (EnPrimeraPersona){
-                return objetivo.position + objetivo.TransformDirection(offsetPrimeraPersona);
+            if (EnPrimeraPersona)
+            {
+                Vector3 offset = MedirAlturaCabeza() ? offsetCabeza : offsetPrimeraPersona;
+                return objetivo.position + objetivo.TransformDirection(offset);
             }
 
             return objetivo.position + offsetObjetivo;
         }
 
-        private Vector3 ResolverColision(Vector3 posicionDeseada)
+        private bool MedirAlturaCabeza()
+        {
+            if (cabezaMedida)
+            {
+                return true;
+            }
+
+            ModeloPersonaje modelo = objetivo.GetComponent<ModeloPersonaje>();
+            Transform cabeza = modelo != null ? modelo.BuscarHueso(ModeloPersonaje.HuesoCabeza) : null;
+            if (cabeza == null)
+            {
+                return false;
+            }
+
+            float altura = objetivo.InverseTransformPoint(cabeza.position).y;
+            offsetCabeza = new Vector3(offsetOjos.x, altura + offsetOjos.y, offsetOjos.z);
+            cabezaMedida = true;
+            return true;
+        }
+
+        private bool ResolverColision(ref Vector3 posicionDeseada)
         {
             if (capasColision == 0)
             {
-                return posicionDeseada;
+                return false;
             }
 
             Vector3 pivote = ObtenerPivote();
             Vector3 haciaCamara = posicionDeseada - pivote;
-
-            if (Physics.SphereCast(pivote, margenColision, haciaCamara.normalized, out RaycastHit impacto,
-                    haciaCamara.magnitude, capasColision, QueryTriggerInteraction.Ignore))
+            float largo = haciaCamara.magnitude;
+            if (largo < 0.001f)
             {
-                return pivote + haciaCamara.normalized * impacto.distance;
+                return false;
             }
 
-            return posicionDeseada;
+            Vector3 direccion = haciaCamara / largo;
+            int cantidad = Physics.SphereCastNonAlloc(pivote, margenColision, direccion, impactos,
+                largo, capasColision, QueryTriggerInteraction.Ignore);
+
+            float masCercano = largo;
+            for (int i = 0; i < cantidad; i++)
+            {
+                if (impactos[i].transform.IsChildOf(objetivo))
+                {
+                    continue;
+                }
+
+                masCercano = Mathf.Min(masCercano, impactos[i].distance);
+            }
+
+            if (masCercano >= largo)
+            {
+                return false;
+            }
+
+            posicionDeseada = pivote + direccion * masCercano;
+            return true;
         }
 
         public void BloquearCamara(bool bloqueado)
@@ -285,7 +338,12 @@ namespace SoltaLaPala.Player
 
             Vector3 destino = CalcularPosicionDeseada();
 
-            transform.position = EnPrimeraPersona ? destino : ResolverColision(destino);
+            if (!EnPrimeraPersona)
+            {
+                ResolverColision(ref destino);
+            }
+
+            transform.position = destino;
             transform.rotation = Quaternion.Euler(pitch, yaw, 0f);
 
             velocidadSeguimiento = Vector3.zero;

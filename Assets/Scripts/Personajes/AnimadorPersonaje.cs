@@ -1,3 +1,4 @@
+using SoltaLaPala.Menus;
 using UnityEngine;
 
 namespace SoltaLaPala.Personajes
@@ -60,9 +61,13 @@ namespace SoltaLaPala.Personajes
                 ActualizarReferencia();
             }
 
+            bool enPausa = GestorMenus.Instancia != null && GestorMenus.Instancia.HayMenuAbierto;
+            animator.speed = enPausa ? 0f : 1f;
+
             float delta = Time.unscaledDeltaTime;
-            if (delta <= 0f)
+            if (enPausa || delta <= 0f)
             {
+                posicionAnterior = referencia.position;
                 return;
             }
 

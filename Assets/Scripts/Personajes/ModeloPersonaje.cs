@@ -8,6 +8,7 @@ namespace SoltaLaPala.Personajes
     {
         public const string HuesoManoDerecha = "Bip001 R Hand001";
         public const string HuesoManoIzquierda = "Bip001 L Hand001";
+        public const string HuesoCabeza = "Bip001 Head001";
 
         [Tooltip("Prefab de Resources/Personajes (Jugador, NPCHombre1, NPCMujer1, ...).")]
         public GameObject prefabModelo;
