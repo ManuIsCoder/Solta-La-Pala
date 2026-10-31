@@ -16,5 +16,8 @@ MonoBehaviour:
   nombre: Tenedor
   icono: {fileID: 21300000, guid: 0d8dd13417640e248b083a2970ed1cc8, type: 3}
   prefabEnMano: {fileID: 1888825742580848, guid: a8cf6bad2ef01124cb887bfd34ed94d9, type: 3}
+  prefabEnSuelo: {fileID: 548084126963287393, guid: 51277b3e9830ccb4f888326327607776, type: 3}
+  congelarRotacionAlSoltar: 0
+  noSePuedeSoltar: 0
   descripcion: Un tenedor metalico. No deberia meterse a un microondas.
   esSospechoso: 1
