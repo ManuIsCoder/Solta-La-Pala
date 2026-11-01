@@ -533,12 +533,17 @@ namespace SoltaLaPala.Minijuegos
 
         private void Completar()
         {
+            CompletarTareaNivel();
+
             int impacto = sabotajeCometido ? 3 : 1;
             int sospecha = sabotajeCometido ? 10 : 0;
 
             if (EstadoPartida.Instancia != null)
             {
-                EstadoPartida.Instancia.RegistrarSabotaje(impacto, sospecha);
+                EstadoPartida.Instancia.RegistrarSabotaje(
+                    impacto,
+                    sospecha,
+                    sabotajeCometido ? "Archivos de la empresa borrados" : null);
             }
 
             Debug.Log($"[MinijuegoBorrarDatos] Tarea completada. Sabotaje: {sabotajeCometido}. Impacto: {impacto}, Sospecha: {sospecha}");

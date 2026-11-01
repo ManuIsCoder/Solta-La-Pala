@@ -56,6 +56,32 @@ namespace SoltaLaPala.Inventory
 
         private void OnEnable()
         {
+            SuscribirseAlInventario();
+        }
+
+        private void OnDisable()
+        {
+            DesuscribirseDelInventario();
+        }
+
+        public void AsignarInventario(InventarioJugador nuevoInventario)
+        {
+            if (inventario == nuevoInventario)
+            {
+                return;
+            }
+
+            DesuscribirseDelInventario();
+            inventario = nuevoInventario;
+
+            if (isActiveAndEnabled)
+            {
+                SuscribirseAlInventario();
+            }
+        }
+
+        private void SuscribirseAlInventario()
+        {
             if (inventario == null)
             {
                 return;
@@ -72,7 +98,7 @@ namespace SoltaLaPala.Inventory
             RefrescarSeleccion(inventario.SlotSeleccionado);
         }
 
-        private void OnDisable()
+        private void DesuscribirseDelInventario()
         {
             if (inventario == null)
             {

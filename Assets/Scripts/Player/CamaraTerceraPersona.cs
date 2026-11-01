@@ -139,6 +139,11 @@ namespace SoltaLaPala.Player
             uiExternasAbiertas = Mathf.Max(0, uiExternasAbiertas + (abierta ? 1 : -1));
         }
 
+        public static void RestablecerUisAbiertas()
+        {
+            uiExternasAbiertas = 0;
+        }
+
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ReiniciarEstadoEstatico()
         {

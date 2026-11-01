@@ -413,7 +413,12 @@ namespace SoltaLaPala.Minijuegos
             int sospecha = esSabotaje ? 7 : 0;
 
             if (EstadoPartida.Instancia != null)
-                EstadoPartida.Instancia.RegistrarSabotaje(impacto, sospecha);
+                EstadoPartida.Instancia.RegistrarSabotaje(
+                    impacto,
+                    sospecha,
+                    esSabotaje ? "Planta de la oficina marchitada" : null);
+
+            CompletarTareaNivel();
 
             if (esSabotaje)
                 Inventario?.QuitarItem(idEnergetica);

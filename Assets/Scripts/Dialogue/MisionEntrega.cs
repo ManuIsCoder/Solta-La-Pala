@@ -117,11 +117,12 @@ namespace SoltaLaPala.Dialogue
             SeSaboteo = opcion.esSabotaje;
 
             DialogoNPC dialogo = GetComponent<DialogoNPC>();
+            GetComponent<TareaNivel>()?.Completar();
             dialogo?.AlCompletarEncargo();
 
             MostrarRespuesta(dialogo, opcion.esSabotaje);
 
-            AplicarRecompensa(opcion.esSabotaje);
+            AplicarRecompensa(opcion.esSabotaje, dialogo != null ? dialogo.nombre : name);
 
             return true;
         }
@@ -150,7 +151,7 @@ namespace SoltaLaPala.Dialogue
             GestorDialogos.Instancia.MostrarFraseSuelta(dialogo, frase);
         }
 
-        private void AplicarRecompensa(bool esSabotaje)
+        private void AplicarRecompensa(bool esSabotaje, string nombreNpc)
         {
             EstadoPartida estado = EstadoPartida.Instancia;
 
@@ -161,7 +162,10 @@ namespace SoltaLaPala.Dialogue
 
             if (esSabotaje)
             {
-                estado.RegistrarSabotaje(impactoPorSabotaje, sospechaPorSabotaje);
+                estado.RegistrarSabotaje(
+                    impactoPorSabotaje,
+                    sospechaPorSabotaje,
+                    $"Encargo de {nombreNpc}");
 
                 Debug.Log($"[MisionEntrega] {name}: cambiazo colado. " +
                           $"Impacto +{impactoPorSabotaje}, sospecha +{sospechaPorSabotaje}.");

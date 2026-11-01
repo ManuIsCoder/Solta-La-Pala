@@ -15923,7 +15923,7 @@ MonoBehaviour:
   spritePanelOpciones: {fileID: 0}
   spriteBarraSeleccionada: {fileID: 0}
   tamanoBase: {x: 490, y: 284}
-  escala: 1
+  escala: 0.75
   offsetPanel: {x: 0, y: 0}
   espacioEntreLineasOpciones: 6
   tamanoFuenteOpciones: 17

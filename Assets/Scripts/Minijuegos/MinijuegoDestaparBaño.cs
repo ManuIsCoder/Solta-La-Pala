@@ -365,6 +365,7 @@ namespace SoltaLaPala.Minijuegos
             if (EstadoPartida.Instancia != null)
                 EstadoPartida.Instancia.RegistrarSabotaje(1, 0);
 
+            CompletarTareaNivel();
             Inventario?.QuitarItem(idDestapador);
 
             DatosItem sorete = Resources.Load<DatosItem>("Items/" + idSoreteResultante);

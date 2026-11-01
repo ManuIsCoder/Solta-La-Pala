@@ -35,7 +35,7 @@ namespace SoltaLaPala.Menus
             {
                 Enganchar(botonPrincipal, () => MostrarPaso(partida: true));
                 Enganchar(botonNuevaPartida, EmpezarNuevaPartida);
-                Enganchar(botonContinuarPartida, () => Gestor?.CargarPartidaGuardada());
+                Enganchar(botonContinuarPartida, AbrirSeleccionNiveles);
             }
         }
 
@@ -46,13 +46,32 @@ namespace SoltaLaPala.Menus
 
             if (partida && botonContinuarPartida != null)
             {
-                botonContinuarPartida.interactable = GuardadoPartida.Existe();
+                botonContinuarPartida.interactable = HayContinuacionDisponible();
             }
         }
 
         private void EmpezarNuevaPartida()
         {
             ProgresoNiveles.Reiniciar();
+            Gestor?.ReiniciarYJugar();
+        }
+
+        private void AbrirSeleccionNiveles()
+        {
+            if (HayContinuacionDisponible())
+            {
+                Gestor?.Abrir(PantallaMenu.SeleccionNiveles);
+            }
+        }
+
+        private static bool HayContinuacionDisponible()
+        {
+            return GuardadoPartida.Existe() || ProgresoNiveles.NivelMaximoDesbloqueado > 1;
+        }
+
+        private void EmpezarNivelInicial()
+        {
+            ProgresoNiveles.NivelActual = 1;
             Gestor?.ReiniciarYJugar();
         }
 
@@ -137,7 +156,7 @@ namespace SoltaLaPala.Menus
                 return;
             }
 
-            bool hayGuardado = GuardadoPartida.Existe();
+            bool hayGuardado = HayContinuacionDisponible();
 
             if (etiquetaPrincipal != null)
             {
@@ -148,11 +167,11 @@ namespace SoltaLaPala.Menus
 
             if (hayGuardado)
             {
-                botonPrincipal.onClick.AddListener(() => Gestor?.CargarPartidaGuardada());
+                botonPrincipal.onClick.AddListener(AbrirSeleccionNiveles);
             }
             else
             {
-                botonPrincipal.onClick.AddListener(() => Gestor?.EmpezarJuego());
+                botonPrincipal.onClick.AddListener(EmpezarNivelInicial);
             }
         }
     }

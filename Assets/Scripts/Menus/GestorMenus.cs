@@ -2,8 +2,10 @@ using System.Collections.Generic;
 using SoltaLaPala.Dialogue;
 using SoltaLaPala.Guardado;
 using SoltaLaPala.Interaction;
+using SoltaLaPala.Inventory;
 using SoltaLaPala.Player;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace SoltaLaPala.Menus
 {
@@ -53,6 +55,14 @@ namespace SoltaLaPala.Menus
 
         private void Start()
         {
+            if (ProgresoNiveles.ConsumirInicioTrasCarga())
+            {
+                CerrarTodo();
+                EstadoPartida.Instancia?.ReiniciarNivel();
+                EstadoPartida.Instancia?.EmpezarNivel();
+                return;
+            }
+
             if (abrirMenuPrincipalAlArrancar)
             {
                 Abrir(PantallaMenu.Principal);
@@ -134,9 +144,31 @@ namespace SoltaLaPala.Menus
 
         public void ReiniciarYJugar()
         {
-            EstadoPartida.Instancia?.ReiniciarNivel();
-            GuardadoPartida.Borrar();
+            string escena = ProgresoNiveles.ObtenerEscena(ProgresoNiveles.NivelActual);
+            if (string.IsNullOrEmpty(escena))
+            {
+                Debug.LogError($"[Menus] No existe una escena para el nivel {ProgresoNiveles.NivelActual}.");
+                return;
+            }
 
+            if (SceneManager.GetActiveScene().name != escena)
+            {
+                if (!Application.CanStreamedLevelBeLoaded(escena))
+                {
+                    Debug.LogError($"[Menus] La escena '{escena}' no está incluida en la configuración de compilación.");
+                    return;
+                }
+
+                GuardadoPartida.Borrar();
+                CerrarTodo();
+                InventarioJugador.DelJugador()?.Vaciar();
+                ProgresoNiveles.MarcarInicioTrasCarga();
+                SceneManager.LoadScene(escena);
+                return;
+            }
+
+            GuardadoPartida.Borrar();
+            EstadoPartida.Instancia?.ReiniciarNivel();
             EmpezarJuego();
         }
 
@@ -277,22 +309,36 @@ namespace SoltaLaPala.Menus
 
         public void MostrarVictoria(string detalle = null)
         {
+            menuResultados?.ConfigurarFinal(true, detalle);
             if (menuVictoriaDerrota != null)
             {
                 menuVictoriaDerrota.Configurar(true, detalle);
             }
 
-            Abrir(PantallaMenu.Victoria);
+            CerrarTodo();
+            Abrir(PantallaMenu.Resultados);
         }
 
         public void MostrarDerrota(string detalle = null)
         {
+            menuResultados?.ConfigurarFinal(false, detalle);
             if (menuVictoriaDerrota != null)
             {
                 menuVictoriaDerrota.Configurar(false, detalle);
             }
 
-            Abrir(PantallaMenu.Derrota);
+            CerrarTodo();
+            Abrir(PantallaMenu.Resultados);
+        }
+
+        public void ContinuarDesdeResultados()
+        {
+            PantallaMenu pantallaFinal = menuResultados != null && menuResultados.FueVictoria
+                ? PantallaMenu.Victoria
+                : PantallaMenu.Derrota;
+
+            CerrarTodo();
+            Abrir(pantallaFinal);
         }
 
         private void OnDestroy()

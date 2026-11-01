@@ -1,4 +1,5 @@
 using SoltaLaPala.Interaction;
+using SoltaLaPala.Menus;
 using UnityEngine;
 
 namespace SoltaLaPala.Dialogue
@@ -29,6 +30,7 @@ namespace SoltaLaPala.Dialogue
         public Transform Transform => transform;
 
         private MisionEntrega mision;
+        private TareaNivel tareaNivel;
 
         private bool yaEscuchoElEncargo;
 
@@ -37,6 +39,7 @@ namespace SoltaLaPala.Dialogue
         private void Awake()
         {
             mision = GetComponent<MisionEntrega>();
+            tareaNivel = GetComponent<TareaNivel>();
             tipoInicial = tipoActual;
 
             if (GetComponent<SonidosNPC>() == null)
@@ -51,9 +54,17 @@ namespace SoltaLaPala.Dialogue
             yaEscuchoElEncargo = false;
         }
 
+        public void EstablecerTipoDialogoInicial(TipoDialogo tipo)
+        {
+            tipoInicial = tipo;
+            tipoActual = tipo;
+            yaEscuchoElEncargo = false;
+        }
+
         public string ObtenerTextoInteraccion()
         {
-            if (mision != null && mision.HayEntregaPosible())
+            MisionEntrega misionActual = ObtenerMision();
+            if (misionActual != null && misionActual.HayEntregaPosible())
             {
                 return $"[E] Entregar a {nombre}";
             }
@@ -66,6 +77,16 @@ namespace SoltaLaPala.Dialogue
             if (GestorDialogos.Instancia != null && GestorDialogos.Instancia.DialogoActivo)
                 return false;
 
+            if (tareaNivel == null)
+            {
+                tareaNivel = GetComponent<TareaNivel>();
+            }
+
+            if (tareaNivel != null)
+            {
+                return true;
+            }
+
             return CargadorDialogos.TieneDialogo(id, tipoActual) || CargadorDialogos.TieneDialogo(id, TipoDialogo.Perpetuo);
         }
 
@@ -76,10 +97,35 @@ namespace SoltaLaPala.Dialogue
                 return;
             }
 
-            if (EncargoPendiente() && yaEscuchoElEncargo)
+            if (tareaNivel == null)
             {
-                if (MenuEntrega.Instancia != null && mision.HayEntregaPosible()
-                    && MenuEntrega.Instancia.Abrir(mision))
+                tareaNivel = GetComponent<TareaNivel>();
+            }
+
+            if (tareaNivel != null && !tareaNivel.Aceptada)
+            {
+                tareaNivel.Aceptar();
+                GestorDialogos.Instancia.MostrarFraseSuelta(this, tareaNivel.ObtenerDialogo());
+                return;
+            }
+
+            if (tareaNivel != null && tareaNivel.Completada)
+            {
+                GestorDialogos.Instancia.MostrarFraseSuelta(this, tareaNivel.ObtenerDialogo());
+                return;
+            }
+
+            MisionEntrega misionActual = ObtenerMision();
+            if (tareaNivel != null && misionActual == null)
+            {
+                GestorDialogos.Instancia.MostrarFraseSuelta(this, tareaNivel.ObtenerDialogo());
+                return;
+            }
+
+            if (EncargoPendiente(misionActual) && yaEscuchoElEncargo)
+            {
+                if (MenuEntrega.Instancia != null && misionActual.HayEntregaPosible()
+                    && MenuEntrega.Instancia.Abrir(misionActual))
                 {
                     return;
                 }
@@ -95,9 +141,19 @@ namespace SoltaLaPala.Dialogue
             GestorDialogos.Instancia.EmpezarDialogo(this, tipoActual);
         }
 
-        private bool EncargoPendiente()
+        private bool EncargoPendiente(MisionEntrega misionActual)
         {
-            return mision != null && !mision.Completada && tipoActual == TipoDialogo.Mision;
+            return misionActual != null && !misionActual.Completada && tipoActual == TipoDialogo.Mision;
+        }
+
+        private MisionEntrega ObtenerMision()
+        {
+            if (mision == null)
+            {
+                mision = GetComponent<MisionEntrega>();
+            }
+
+            return mision;
         }
 
         public void AlCompletarEncargo()
@@ -118,7 +174,8 @@ namespace SoltaLaPala.Dialogue
 
         public void AlTerminarDialogo(TipoDialogo tipoTerminado)
         {
-            if (tipoTerminado == TipoDialogo.Mision && mision != null && !mision.Completada)
+            MisionEntrega misionActual = ObtenerMision();
+            if (tipoTerminado == TipoDialogo.Mision && misionActual != null && !misionActual.Completada)
             {
                 yaEscuchoElEncargo = true;
                 return;

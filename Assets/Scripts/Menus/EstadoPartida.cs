@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using SoltaLaPala.Dialogue;
 using SoltaLaPala.Guardado;
 using SoltaLaPala.Interaction;
@@ -11,6 +12,14 @@ using UnityEngine;
 
 namespace SoltaLaPala.Menus
 {
+    [Serializable]
+    public class RegistroTareaSaboteada
+    {
+        public string tarea;
+        public int impacto;
+        public bool testigo;
+    }
+
     public class EstadoPartida : MonoBehaviour, IGuardable
     {
         public static EstadoPartida Instancia { get; private set; }
@@ -35,6 +44,10 @@ namespace SoltaLaPala.Menus
         [SerializeField] private int impacto;
         [SerializeField] private int sospecha;
         [SerializeField] private float tiempoRestante;
+        private readonly List<RegistroTareaSaboteada> tareasSaboteadas =
+            new List<RegistroTareaSaboteada>();
+        private bool requiereMisionDiscurso;
+        private bool misionDiscursoCompletada;
 
         public event Action<int, int> AlCambiarContadores;
 
@@ -46,12 +59,18 @@ namespace SoltaLaPala.Menus
         public int Sospecha => sospecha;
         public int ImpactoObjetivo => impactoObjetivo;
         public int SospechaMaxima => sospechaMaxima;
+        public IReadOnlyList<RegistroTareaSaboteada> TareasSaboteadas => tareasSaboteadas;
+        public bool HuboTestigo { get; private set; }
 
         public float TiempoRestante => tiempoRestante;
 
         public bool PartidaTerminada { get; private set; }
 
         public bool PartidaEnCurso { get; private set; }
+
+        public int MisionesPendientes => ObtenerMisionesPendientes();
+        public int MisionesEntregaPendientes => ObtenerMisionesEntregaPendientes();
+        public bool RequiereMisionDiscurso => requiereMisionDiscurso;
 
         private void Awake()
         {
@@ -71,6 +90,28 @@ namespace SoltaLaPala.Menus
             AlEmpezarNivel?.Invoke();
         }
 
+        public void ConfigurarMisionDiscurso(bool requerida)
+        {
+            requiereMisionDiscurso = requerida;
+            misionDiscursoCompletada = false;
+        }
+
+        public bool CompletarMisionDiscurso()
+        {
+            if (!requiereMisionDiscurso)
+            {
+                return true;
+            }
+
+            if (ObtenerMisionesEntregaPendientes() > 0)
+            {
+                return false;
+            }
+
+            misionDiscursoCompletada = true;
+            return true;
+        }
+
         public void ReiniciarNivel()
         {
             Reiniciar();
@@ -85,6 +126,7 @@ namespace SoltaLaPala.Menus
             ReiniciarNpcs();
             ReiniciarJugador();
             ReiniciarMinijuegos();
+            ReiniciarTareas();
         }
 
         private static void ReiniciarMinijuegos()
@@ -111,6 +153,15 @@ namespace SoltaLaPala.Menus
                      FindObjectsByType<MisionEntrega>(FindObjectsInactive.Include, FindObjectsSortMode.None))
             {
                 mision.ReiniciarEncargo();
+            }
+        }
+
+        private static void ReiniciarTareas()
+        {
+            foreach (TareaNivel tarea in
+                     FindObjectsByType<TareaNivel>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+            {
+                tarea.Reiniciar();
             }
         }
 
@@ -165,15 +216,20 @@ namespace SoltaLaPala.Menus
 
         private void ActualizarSospechaContinua()
         {
+            if (!EsJugadorSospechoso())
+            {
+                return;
+            }
+
+            bool alguienLoVe = HayNPCViendoAlJugador();
+            HuboTestigo |= alguienLoVe;
+
             var visionHud = IndicadorVisionHUD.Instancia;
             if (visionHud == null || visionHud.EstadoActual == DetectorVisionNPC.EstadoVision.SinVer)
             {
                 return;
             }
-            if (!EsJugadorSospechoso())
-            {
-                return;
-            }
+
             float velocidad = (visionHud.EstadoActual == DetectorVisionNPC.EstadoVision.VeCerca)
                 ? velocidadSospechaCerca
                 : velocidadSospechaLejos;
@@ -212,7 +268,7 @@ namespace SoltaLaPala.Menus
             }
         }
 
-        public void RegistrarSabotaje(int impactoGanado, int sospechaGanada)
+        public void RegistrarSabotaje(int impactoGanado, int sospechaGanada, string tarea = null)
         {
             if (PartidaTerminada)
             {
@@ -222,6 +278,18 @@ namespace SoltaLaPala.Menus
             impacto += impactoGanado;
             sospecha = Mathf.Max(0, sospecha + sospechaGanada);
             sospechaAcumulada = sospecha;
+
+            bool testigo = HayNPCViendoAlJugador();
+            HuboTestigo |= testigo;
+            if (impactoGanado > 0 && !string.IsNullOrWhiteSpace(tarea))
+            {
+                tareasSaboteadas.Add(new RegistroTareaSaboteada
+                {
+                    tarea = tarea,
+                    impacto = impactoGanado,
+                    testigo = testigo
+                });
+            }
 
             AlCambiarContadores?.Invoke(impacto, sospecha);
 
@@ -274,15 +342,150 @@ namespace SoltaLaPala.Menus
 
         private void ResolverFinalPorTiempo()
         {
-            if (impacto >= impactoObjetivo)
+            int misionesPendientes = ObtenerMisionesPendientes();
+            if (impacto >= impactoObjetivo && misionesPendientes == 0)
             {
                 TerminarPartida(true,
                     $"Se acabo la jornada. Impacto {impacto}/{impactoObjetivo}: saliste sin levantar sospechas.");
                 return;
             }
 
-            TerminarPartida(false,
-                "No has hecho suficiente sabotaje.");
+            string detalle = misionesPendientes > 0
+                ? $"Te faltan {misionesPendientes} misiones por completar."
+                : "No has hecho suficiente sabotaje.";
+            TerminarPartida(false, detalle);
+        }
+
+        private int ObtenerMisionesPendientes()
+        {
+            int pendientes = ObtenerMisionesEntregaPendientesSinTarea()
+                + ObtenerTareasPendientes();
+            bool discursoTieneTarea = TieneTarea(nameof(MinijuegoDiscurso));
+            if (requiereMisionDiscurso && !misionDiscursoCompletada && !discursoTieneTarea)
+            {
+                pendientes++;
+            }
+
+            return pendientes;
+        }
+
+        private static int ObtenerMisionesEntregaPendientesSinTarea()
+        {
+            int pendientes = 0;
+            MisionEntrega[] misiones = FindObjectsByType<MisionEntrega>(
+                FindObjectsInactive.Include, FindObjectsSortMode.None);
+
+            foreach (MisionEntrega mision in misiones)
+            {
+                if (mision != null && !mision.Completada && mision.GetComponent<TareaNivel>() == null)
+                {
+                    pendientes++;
+                }
+            }
+
+            return pendientes;
+        }
+
+        private static int ObtenerMisionesEntregaPendientes()
+        {
+            int pendientes = 0;
+            MisionEntrega[] misiones = FindObjectsByType<MisionEntrega>(
+                FindObjectsInactive.Include, FindObjectsSortMode.None);
+
+            foreach (MisionEntrega mision in misiones)
+            {
+                if (mision != null && !mision.Completada)
+                {
+                    pendientes++;
+                }
+            }
+
+            return pendientes;
+        }
+
+        private static int ObtenerTareasPendientes()
+        {
+            int pendientes = 0;
+            TareaNivel[] tareas = FindObjectsByType<TareaNivel>(
+                FindObjectsInactive.Include, FindObjectsSortMode.None);
+
+            foreach (TareaNivel tarea in tareas)
+            {
+                if (tarea != null && !tarea.Completada)
+                {
+                    pendientes++;
+                }
+            }
+
+            return pendientes;
+        }
+
+        private static bool TieneTarea(string id)
+        {
+            TareaNivel[] tareas = FindObjectsByType<TareaNivel>(
+                FindObjectsInactive.Include, FindObjectsSortMode.None);
+            foreach (TareaNivel tarea in tareas)
+            {
+                if (tarea != null && tarea.Id == id)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public bool CompletarTareaNivel(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+            {
+                return false;
+            }
+
+            bool completada = false;
+            TareaNivel[] tareas = FindObjectsByType<TareaNivel>(
+                FindObjectsInactive.Include, FindObjectsSortMode.None);
+            foreach (TareaNivel tarea in tareas)
+            {
+                if (tarea != null && tarea.Id == id)
+                {
+                    completada |= tarea.Completar();
+                }
+            }
+
+            return completada;
+        }
+
+        public bool EstaCompletaTarea(string id)
+        {
+            TareaNivel[] tareas = FindObjectsByType<TareaNivel>(
+                FindObjectsInactive.Include, FindObjectsSortMode.None);
+            foreach (TareaNivel tarea in tareas)
+            {
+                if (tarea != null && tarea.Id == id)
+                {
+                    return tarea.Completada;
+                }
+            }
+
+            return false;
+        }
+
+        private static bool HayNPCViendoAlJugador()
+        {
+            DetectorVisionNPC[] detectores =
+                FindObjectsByType<DetectorVisionNPC>(FindObjectsSortMode.None);
+
+            foreach (DetectorVisionNPC detector in detectores)
+            {
+                if (detector != null && detector.isActiveAndEnabled
+                    && detector.Estado != DetectorVisionNPC.EstadoVision.SinVer)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private void DispararDialogoDeCaptura()
@@ -324,9 +527,21 @@ namespace SoltaLaPala.Menus
 
         public void TerminarPartida(bool victoria, string detalle = null)
         {
+            IntentarTerminarPartida(victoria, detalle);
+        }
+
+        public bool IntentarTerminarPartida(bool victoria, string detalle = null)
+        {
             if (PartidaTerminada)
             {
-                return;
+                return false;
+            }
+
+            if (victoria && ObtenerMisionesPendientes() > 0)
+            {
+                Debug.LogWarning(
+                    $"[EstadoPartida] No se puede ganar todavía: quedan {ObtenerMisionesPendientes()} misiones pendientes.");
+                return false;
             }
 
             PartidaTerminada = true;
@@ -345,7 +560,7 @@ namespace SoltaLaPala.Menus
             if (GestorMenus.Instancia == null)
             {
                 Debug.LogWarning("[EstadoPartida] No hay GestorMenus en la escena, no se puede mostrar el final.");
-                return;
+                return true;
             }
 
             if (victoria)
@@ -356,6 +571,8 @@ namespace SoltaLaPala.Menus
             {
                 GestorMenus.Instancia.MostrarDerrota(detalle);
             }
+
+            return true;
         }
 
         public void Reiniciar()
@@ -364,6 +581,9 @@ namespace SoltaLaPala.Menus
             sospecha = 0;
             sospechaAcumulada = sospecha;
             tiempoRestante = duracionNivel;
+            tareasSaboteadas.Clear();
+            HuboTestigo = false;
+            misionDiscursoCompletada = false;
             PartidaTerminada = false;
 
             AccionSospechosaEnCurso = false;

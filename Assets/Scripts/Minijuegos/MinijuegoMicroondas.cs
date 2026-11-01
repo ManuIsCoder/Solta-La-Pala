@@ -106,11 +106,16 @@ namespace SoltaLaPala.Minijuegos
 
         private void Completar()
         {
+            CompletarTareaNivel();
+
             int impacto = tenedorAdentro ? 3 : 1;
             int sospecha = tenedorAdentro ? 8 : 0;
 
             if (EstadoPartida.Instancia != null)
-                EstadoPartida.Instancia.RegistrarSabotaje(impacto, sospecha);
+                EstadoPartida.Instancia.RegistrarSabotaje(
+                    impacto,
+                    sospecha,
+                    tenedorAdentro ? "Comida de la oficina arruinada" : null);
 
             if (Inventario != null)
             {

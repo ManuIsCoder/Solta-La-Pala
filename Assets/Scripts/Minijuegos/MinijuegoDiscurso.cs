@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using SoltaLaPala.Menus;
 using SoltaLaPala.Inventory;
+using SoltaLaPala.Tutorial;
 
 namespace SoltaLaPala.Minijuegos
 {
@@ -144,16 +145,56 @@ namespace SoltaLaPala.Minijuegos
             }
 
             bool esSabotaje = indiceTarjeta == 2;
+            EstadoPartida estado = EstadoPartida.Instancia;
+
+            if (esSabotaje && estado != null && estado.MisionesEntregaPendientes > 0)
+            {
+                if (textoTemaSeleccionado != null)
+                {
+                    textoTemaSeleccionado.text =
+                        $"Completa las {estado.MisionesEntregaPendientes} misiones de entrega antes de ganar. Pulsa Salir para continuar.";
+                }
+
+                yield break;
+            }
+
+            if (esSabotaje && estado != null && !estado.CompletarMisionDiscurso())
+            {
+                if (textoTemaSeleccionado != null)
+                {
+                    textoTemaSeleccionado.text = "Completa la misión de la pala antes de dar el discurso.";
+                }
+
+                yield break;
+            }
+
             int impacto = esSabotaje ? 3 : 1;
 
-            if (EstadoPartida.Instancia != null)
+            if (estado != null)
             {
                 if (esSabotaje)
                 {
-                    int mitadTramoAmarillo = Mathf.RoundToInt(EstadoPartida.Instancia.SospechaMaxima * 0.65f);
-                    EstadoPartida.Instancia.EstablecerSospecha(mitadTramoAmarillo);
+                    int mitadTramoAmarillo = Mathf.RoundToInt(estado.SospechaMaxima * 0.65f);
+                    estado.EstablecerSospecha(mitadTramoAmarillo);
                 }
-                EstadoPartida.Instancia.RegistrarSabotaje(impacto, 0);
+                estado.RegistrarSabotaje(
+                    impacto, 0, esSabotaje ? "Discurso saboteado" : null);
+                if (esSabotaje)
+                {
+                    estado.CompletarTareaNivel(nameof(MinijuegoDiscurso));
+                }
+            }
+
+            bool partidaTerminada = estado == null || estado.IntentarTerminarPartida(
+                esSabotaje,
+                esSabotaje
+                    ? "El poema a la milanesa conquistó al público. ¡Ganaste el nivel!"
+                    : "El discurso no convenció al público. Perdiste el nivel.");
+
+            if (!partidaTerminada)
+            {
+                Salir();
+                yield break;
             }
 
             if (esSabotaje)
@@ -161,11 +202,6 @@ namespace SoltaLaPala.Minijuegos
             else
                 Inventario?.QuitarItem(idTarjetas);
 
-            EstadoPartida.Instancia?.TerminarPartida(
-                esSabotaje,
-                esSabotaje
-                    ? "El poema a la milanesa conquistó al público. ¡Ganaste el nivel!"
-                    : "El discurso no convenció al público. Perdiste el nivel.");
             Salir();
         }
 

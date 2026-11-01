@@ -1,6 +1,6 @@
 # Recordatorio del encargo. Sale cuando vuelves sin nada que entregar.
-Sigo esperando esa pala, eh.
-Que no tengo todo el dia.
+Sigo esperando la pala del cobertizo.
+La necesito antes de que termine el día.
 # Respuestas que bajan la sospecha.
-> Perdon, me entretuvieron en otra oficina. | -15 | Bueno, pero apresurate.
-> Ya casi la tengo. | -5
+> Perdón, me entretuvieron en otra oficina. | -15 | Bueno, pero apúrate.
+> Ya casi la tengo. | -5 | Eso espero.

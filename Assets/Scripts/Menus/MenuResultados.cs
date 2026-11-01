@@ -1,4 +1,4 @@
-using System.Text;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -8,99 +8,181 @@ namespace SoltaLaPala.Menus
     {
         protected override int OrdenPantalla => 150;
 
-        private Text textoPartidaActual;
-        private Text textoHistorial;
+        private readonly List<Text[]> filas = new List<Text[]>();
+        private Text textoImpactoTotal;
+        private Text textoSospechaTotal;
+        private Text textoDetalle;
+        private bool fueVictoria;
+        private string detalleActual;
+
+        public bool FueVictoria => fueVictoria;
 
         protected override void Construir(Transform raiz)
         {
-            GameObject panelFondo = CrearFondoYPanel(raiz, new Vector2(760f, 680f));
-            Transform padre = panelFondo.transform;
+            RecursosUI recursos = RecursosUI.Instancia;
+            Image fondo = ConstructorUI.CrearImagenPantalla(
+                "FondoResultados", raiz, recursos != null ? recursos.fondoResultados : null);
+            if (fondo.sprite == null)
+            {
+                fondo.color = ConstructorUI.ColorPanel;
+            }
 
-            CrearTitulo(padre, "RESULTADOS", 760f);
+            textoImpactoTotal = CrearTextoColumna("ImpactoTotal", raiz,
+                new Vector2(-445f, -300f), new Vector2(360f, 64f), 38);
+            textoSospechaTotal = CrearTextoColumna("SospechaTotal", raiz,
+                new Vector2(445f, -300f), new Vector2(360f, 64f), 38);
+            textoDetalle = CrearTextoColumna("DetalleFinal", raiz,
+                new Vector2(0f, -160f), new Vector2(1050f, 38f), 18);
 
-            ConstructorUI.CrearTexto("SubtituloActual", padre, "PARTIDA ACTUAL",
-                24, TextAnchor.MiddleCenter, new Vector2(0f, -110f), new Vector2(660f, 30f))
-                .color = ConstructorUI.ColorAcento;
+            for (int i = 0; i < 10; i++)
+            {
+                filas.Add(new[]
+                {
+                    CrearTextoColumna($"Tarea{i}", raiz, Vector2.zero, new Vector2(700f, 72f), 26),
+                    CrearTextoColumna($"Testigo{i}", raiz, Vector2.zero, new Vector2(300f, 72f), 26),
+                    CrearTextoColumna($"Impacto{i}", raiz, Vector2.zero, new Vector2(300f, 72f), 26),
+                    CrearTextoColumna($"Sospecha{i}", raiz, Vector2.zero, new Vector2(300f, 72f), 26)
+                });
+            }
 
-            textoPartidaActual = ConstructorUI.CrearTexto("Actual", padre, "",
-                22, TextAnchor.UpperLeft, new Vector2(0f, -155f), new Vector2(620f, 130f));
-            textoPartidaActual.lineSpacing = 1.4f;
+            Button botonContinuar = ConstructorUI.CrearBoton("BotonContinuar", raiz, "",
+                new Vector2(0f, -1010f), new Vector2(520f, 68f),
+                () => Gestor?.ContinuarDesdeResultados());
+            ConfigurarBotonConSprite(botonContinuar,
+                recursos != null ? recursos.botonContinuar : null);
+        }
 
-            ConstructorUI.CrearTexto("SubtituloHistorial", padre, "POR NIVEL",
-                24, TextAnchor.MiddleCenter, new Vector2(0f, -310f), new Vector2(660f, 30f))
-                .color = ConstructorUI.ColorAcento;
-
-            textoHistorial = ConstructorUI.CrearTexto("Historial", padre, "",
-                20, TextAnchor.UpperLeft, new Vector2(0f, -355f), new Vector2(620f, 200f));
-            textoHistorial.lineSpacing = 1.4f;
-
-            ConstructorUI.CrearBoton("BotonVolver", padre, "Volver",
-                new Vector2(0f, -600f), new Vector2(260f, 56f), () => Gestor?.Volver());
+        public void ConfigurarFinal(bool victoria, string detalle)
+        {
+            AsegurarConstruida();
+            fueVictoria = victoria;
+            detalleActual = detalle;
+            Refrescar();
         }
 
         protected override void AlMostrar()
         {
-            RefrescarPartidaActual();
-            RefrescarHistorial();
+            Refrescar();
         }
 
-        private void RefrescarPartidaActual()
+        private void Refrescar()
         {
-            if (textoPartidaActual == null)
-            {
-                return;
-            }
-
             EstadoPartida estado = EstadoPartida.Instancia;
-
-            if (estado == null)
-            {
-                textoPartidaActual.text = "No hay ninguna partida en curso.";
-                textoPartidaActual.color = ConstructorUI.ColorTextoApagado;
-                return;
-            }
-
-            textoPartidaActual.color = ConstructorUI.ColorTexto;
-
-            StringBuilder sb = new StringBuilder();
-            sb.AppendLine($"Nivel: {ProgresoNiveles.NivelActual}");
-            sb.AppendLine($"Impacto: {estado.Impacto} / {estado.ImpactoObjetivo}");
-            sb.AppendLine($"Sospecha: {estado.Sospecha} / {estado.SospechaMaxima}");
-
-            textoPartidaActual.text = sb.ToString();
-        }
-
-        private void RefrescarHistorial()
-        {
-            if (textoHistorial == null)
+            if (textoImpactoTotal == null || textoSospechaTotal == null)
             {
                 return;
             }
 
-            StringBuilder sb = new StringBuilder();
+            textoImpactoTotal.text = estado != null ? estado.Impacto.ToString() : "-";
+            textoSospechaTotal.text = "-";
 
-            for (int nivel = 1; nivel <= ProgresoNiveles.CantidadNiveles; nivel++)
+            List<RegistroTareaSaboteada> tareas = estado != null
+                ? new List<RegistroTareaSaboteada>(estado.TareasSaboteadas)
+                : new List<RegistroTareaSaboteada>();
+
+            if (tareas.Count == 0)
             {
-                if (!ProgresoNiveles.EstaDesbloqueado(nivel))
+                tareas.Add(new RegistroTareaSaboteada
                 {
-                    sb.AppendLine($"Nivel {nivel}:  bloqueado");
+                    tarea = "Ninguna tarea malograda",
+                    impacto = 0,
+                    testigo = estado != null && estado.HuboTestigo
+                });
+            }
+
+            if (textoDetalle != null)
+            {
+                textoDetalle.text = detalleActual ?? "";
+            }
+
+            int filasVisibles = Mathf.Min(tareas.Count, filas.Count);
+            float altoTabla = filasVisibles > 5 ? 420f : 480f;
+            float altoFila = Mathf.Min(96f, altoTabla / filasVisibles);
+            float primerCentroY = filasVisibles > 5 ? -570f : -565f;
+            int impactoRestante = 0;
+            bool huboTestigoEnRestantes = false;
+
+            for (int i = filas.Count - 1; i < tareas.Count; i++)
+            {
+                impactoRestante += tareas[i].impacto;
+                huboTestigoEnRestantes |= tareas[i].testigo;
+            }
+
+            for (int i = 0; i < filas.Count; i++)
+            {
+                Text[] fila = filas[i];
+                bool visible = i < filasVisibles;
+                foreach (Text texto in fila)
+                {
+                    texto.gameObject.SetActive(visible);
+                }
+
+                if (!visible)
+                {
                     continue;
                 }
 
-                int impacto = ProgresoNiveles.ObtenerImpacto(nivel);
-                int sospecha = ProgresoNiveles.ObtenerSospecha(nivel);
+                bool filaAdicional = i == filas.Count - 1 && tareas.Count > filas.Count;
+                RegistroTareaSaboteada registro = tareas[i];
+                float y = primerCentroY - i * altoFila;
+                int tamanoFuente = Mathf.Clamp(Mathf.RoundToInt(altoFila * 0.28f), 16, 26);
 
-                if (impacto == 0 && sospecha == 0)
+                fila[0].rectTransform.anchoredPosition = new Vector2(-480f, y);
+                fila[1].rectTransform.anchoredPosition = new Vector2(100f, y);
+                fila[2].rectTransform.anchoredPosition = new Vector2(420f, y);
+                fila[3].rectTransform.anchoredPosition = new Vector2(745f, y);
+
+                foreach (Text texto in fila)
                 {
-                    sb.AppendLine($"Nivel {nivel}:  sin jugar");
+                    texto.rectTransform.sizeDelta = new Vector2(
+                        texto.rectTransform.sizeDelta.x, Mathf.Min(72f, altoFila));
+                }
+
+                if (filaAdicional)
+                {
+                    fila[0].text = $"Y {tareas.Count - filas.Count + 1} tareas mas";
+                    fila[1].text = huboTestigoEnRestantes ? "Si" : "No";
+                    fila[2].text = impactoRestante.ToString();
                 }
                 else
                 {
-                    sb.AppendLine($"Nivel {nivel}:  impacto {impacto}  ·  sospecha {sospecha}");
+                    fila[0].text = registro.tarea;
+                    fila[1].text = registro.testigo ? "Si" : "No";
+                    fila[2].text = registro.impacto.ToString();
+                }
+
+                fila[3].text = "-";
+                foreach (Text texto in fila)
+                {
+                    texto.fontSize = tamanoFuente;
                 }
             }
+        }
 
-            textoHistorial.text = sb.ToString();
+        private static Text CrearTextoColumna(string nombre, Transform padre, Vector2 posicion,
+            Vector2 tamano, int tamanoFuente)
+        {
+            Text texto = ConstructorUI.CrearTexto(nombre, padre, "", tamanoFuente,
+                TextAnchor.MiddleCenter, posicion, tamano);
+            texto.color = Color.black;
+            texto.fontStyle = FontStyle.Bold;
+            texto.raycastTarget = false;
+            return texto;
+        }
+
+        private static void ConfigurarBotonConSprite(Button boton, Sprite sprite)
+        {
+            Image imagen = boton.GetComponent<Image>();
+            imagen.sprite = sprite;
+            imagen.color = sprite != null ? Color.white : ConstructorUI.ColorBoton;
+            imagen.preserveAspect = sprite != null;
+
+            Text etiqueta = boton.GetComponentInChildren<Text>();
+            if (etiqueta != null)
+            {
+                etiqueta.text = sprite != null ? "" : "Continuar";
+                etiqueta.gameObject.SetActive(sprite == null);
+            }
         }
     }
 }

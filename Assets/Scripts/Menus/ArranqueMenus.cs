@@ -2,7 +2,9 @@ using SoltaLaPala.Dialogue;
 using SoltaLaPala.Guardado;
 using SoltaLaPala.Inventory;
 using SoltaLaPala.Personajes;
+using SoltaLaPala.Player;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace SoltaLaPala.Menus
 {
@@ -10,6 +12,19 @@ namespace SoltaLaPala.Menus
     {
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void Arrancar()
+        {
+            SceneManager.sceneLoaded -= AlCargarEscena;
+            SceneManager.sceneLoaded += AlCargarEscena;
+            AsegurarServiciosDeEscena();
+        }
+
+        private static void AlCargarEscena(Scene escena, LoadSceneMode modo)
+        {
+            CamaraTerceraPersona.RestablecerUisAbiertas();
+            AsegurarServiciosDeEscena();
+        }
+
+        private static void AsegurarServiciosDeEscena()
         {
             if (Object.FindAnyObjectByType<GestorMusica>() == null)
             {
@@ -83,6 +98,18 @@ namespace SoltaLaPala.Menus
                 objeto.AddComponent<SoltaLaPala.Tutorial.PanelTareasHUD>();
             }
 
+            if (Object.FindAnyObjectByType<InterfazDialogo>() == null)
+            {
+                GameObject objeto = new GameObject("CanvasDialogo");
+                objeto.AddComponent<InterfazDialogo>();
+            }
+
+            if (Object.FindAnyObjectByType<GestorDialogos>() == null)
+            {
+                GameObject objeto = new GameObject("GestorDialogos");
+                objeto.AddComponent<GestorDialogos>();
+            }
+
             if (Object.FindAnyObjectByType<SoltaLaPala.Sabotaje.MenuSabotajeTaza>() == null)
             {
                 GameObject objeto = new GameObject("MenuSabotajeTaza");
@@ -91,6 +118,7 @@ namespace SoltaLaPala.Menus
 
             AsegurarModeloJugador();
             AsegurarInventario();
+            ConfiguradorNivel1.Configurar();
         }
 
         private static void AsegurarModeloJugador()
@@ -125,11 +153,14 @@ namespace SoltaLaPala.Menus
                 }
             }
 
-            if (Object.FindAnyObjectByType<InterfazInventario>() == null)
+            InterfazInventario interfaz = Object.FindAnyObjectByType<InterfazInventario>();
+            if (interfaz == null)
             {
                 GameObject objeto = new GameObject("InterfazInventario");
-                objeto.AddComponent<InterfazInventario>();
+                interfaz = objeto.AddComponent<InterfazInventario>();
             }
+
+            interfaz.AsignarInventario(InventarioJugador.DelJugador());
         }
     }
 }

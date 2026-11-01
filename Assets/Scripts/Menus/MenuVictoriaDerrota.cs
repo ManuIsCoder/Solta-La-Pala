@@ -1,5 +1,3 @@
-using System.Text;
-using SoltaLaPala.Guardado;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,147 +7,109 @@ namespace SoltaLaPala.Menus
     {
         protected override int OrdenPantalla => 160;
 
-        private Text titulo;
-        private Text textoDetalle;
-        private Text textoMarcador;
+        private Image fondo;
         private Button botonSiguiente;
-
+        private Button botonReintentar;
+        private Button botonMenu;
         private bool fueVictoria;
-        private string detalleActual;
 
         protected override void Construir(Transform raiz)
         {
-            GameObject panelFondo = CrearFondoYPanel(raiz, new Vector2(640f, 600f));
-            Transform padre = panelFondo.transform;
+            fondo = ConstructorUI.CrearImagenPantalla("FondoFinal", raiz, null, true);
 
-            titulo = CrearTitulo(padre, "VICTORIA", 640f);
+            botonSiguiente = ConstructorUI.CrearBoton("BotonSiguiente", raiz, "",
+                new Vector2(0f, -988f), new Vector2(650f, 92f), IrAlSiguienteNivel);
+            botonReintentar = ConstructorUI.CrearBoton("BotonReintentar", raiz, "",
+                new Vector2(0f, -988f), new Vector2(650f, 92f), ReintentarNivel);
+            botonMenu = ConstructorUI.CrearBoton("BotonMenu", raiz, "",
+                new Vector2(0f, -1000f), new Vector2(520f, 78f), VolverAlMenu);
 
-            textoDetalle = ConstructorUI.CrearTexto("Detalle", padre, "",
-                22, TextAnchor.MiddleCenter, new Vector2(0f, -120f), new Vector2(540f, 70f));
-            textoDetalle.color = ConstructorUI.ColorTextoApagado;
-
-            textoMarcador = ConstructorUI.CrearTexto("Marcador", padre, "",
-                24, TextAnchor.MiddleCenter, new Vector2(0f, -210f), new Vector2(540f, 90f));
-            textoMarcador.lineSpacing = 1.4f;
-
-            Vector2 tamanoBoton = new Vector2(380f, 58f);
-            float y = -330f;
-            const float salto = 72f;
-
-            botonSiguiente = ConstructorUI.CrearBoton("BotonSiguiente", padre, "Siguiente nivel",
-                new Vector2(0f, y), tamanoBoton, IrAlSiguienteNivel);
-            y -= salto;
-
-            ConstructorUI.CrearBoton("BotonReintentar", padre, "Reintentar nivel",
-                new Vector2(0f, y), tamanoBoton, ReintentarNivel);
-            y -= salto;
-
-            ConstructorUI.CrearBoton("BotonNiveles", padre, "Seleccionar nivel",
-                new Vector2(0f, y), tamanoBoton, () => AbrirDesdeFinal(PantallaMenu.SeleccionNiveles));
-            y -= salto;
-
-            ConstructorUI.CrearBoton("BotonMenuPrincipal", padre, "Menu principal",
-                new Vector2(0f, y), tamanoBoton, () => AbrirDesdeFinal(PantallaMenu.Principal));
+            RecursosUI recursos = RecursosUI.Instancia;
+            ConfigurarBoton(botonSiguiente,
+                recursos != null ? recursos.botonSiguienteNivel : null, "Siguiente nivel");
+            ConfigurarBoton(botonReintentar,
+                recursos != null ? recursos.botonReintentarNivel : null, "Reintentar nivel");
+            ConfigurarBoton(botonMenu,
+                recursos != null ? recursos.botonContinuar : null, "Volver al menu");
+            botonMenu.gameObject.SetActive(false);
         }
 
         public void Configurar(bool victoria, string detalle)
         {
             AsegurarConstruida();
-
             fueVictoria = victoria;
-            detalleActual = detalle;
 
-            Refrescar();
-        }
-
-        protected override void AlMostrar()
-        {
-            Refrescar();
-        }
-
-        private void Refrescar()
-        {
-            if (titulo != null)
-            {
-                EstadoPartida estado = EstadoPartida.Instancia;
-                bool descubierto = !fueVictoria && estado != null && estado.Sospecha >= estado.SospechaMaxima;
-                titulo.text = fueVictoria
-                    ? "SABOTAJE COMPLETADO"
-                    : descubierto ? "TE DESCUBRIERON" : "NO HAS HECHO SUFICIENTE SABOTAJE";
-                titulo.fontSize = 40;
-                titulo.color = fueVictoria ? ConstructorUI.ColorExito : ConstructorUI.ColorFallo;
-            }
-
-            if (textoDetalle != null)
-            {
-                textoDetalle.text = string.IsNullOrEmpty(detalleActual)
-                    ? (fueVictoria
-                        ? "Nadie sospechó nada."
-                        : EstadoPartida.Instancia != null
-                            && EstadoPartida.Instancia.Sospecha >= EstadoPartida.Instancia.SospechaMaxima
-                            ? "La sospecha llegó al límite."
-                            : "No has hecho suficiente sabotaje.")
-                    : detalleActual;
-            }
-
-            if (textoMarcador != null)
-            {
-                textoMarcador.text = ArmarMarcador();
-            }
+            RecursosUI recursos = RecursosUI.Instancia;
+            fondo.sprite = recursos == null
+                ? null
+                : victoria ? recursos.fondoVictoria : recursos.fondoDerrota;
+            fondo.color = fondo.sprite != null ? Color.white : ConstructorUI.ColorFondoPantalla;
 
             if (botonSiguiente != null)
             {
-                bool hayMas = ProgresoNiveles.NivelActual < ProgresoNiveles.CantidadNiveles;
-                botonSiguiente.gameObject.SetActive(fueVictoria && hayMas);
+                botonSiguiente.gameObject.SetActive(victoria
+                    && ProgresoNiveles.NivelActual < ProgresoNiveles.CantidadNiveles);
             }
-        }
 
-        private static string ArmarMarcador()
-        {
-            EstadoPartida estado = EstadoPartida.Instancia;
-            int nivel = ProgresoNiveles.NivelActual;
-
-            StringBuilder sb = new StringBuilder();
-            sb.AppendLine($"Nivel {nivel}");
-
-            if (estado != null)
+            if (botonReintentar != null)
             {
-                sb.AppendLine($"Impacto: {estado.Impacto}   Sospecha: {estado.Sospecha}");
-            }
-            else
-            {
-                sb.AppendLine($"Impacto: {ProgresoNiveles.ObtenerImpacto(nivel)}   Sospecha: {ProgresoNiveles.ObtenerSospecha(nivel)}");
+                botonReintentar.gameObject.SetActive(!victoria);
             }
 
-            return sb.ToString();
+            if (botonMenu != null)
+            {
+                botonMenu.gameObject.SetActive(victoria
+                    && ProgresoNiveles.NivelActual >= ProgresoNiveles.CantidadNiveles);
+            }
         }
 
         private void IrAlSiguienteNivel()
         {
-            int siguiente = Mathf.Min(ProgresoNiveles.NivelActual + 1, ProgresoNiveles.CantidadNiveles);
-            ProgresoNiveles.NivelActual = siguiente;
+            if (!fueVictoria || ProgresoNiveles.NivelActual >= ProgresoNiveles.CantidadNiveles)
+            {
+                return;
+            }
 
-            Debug.Log($"[Menus] Empezando nivel {siguiente}.");
+            ProgresoNiveles.NivelActual++;
+            Debug.Log($"[Menus] Empezando nivel {ProgresoNiveles.NivelActual}.");
             Gestor?.ReiniciarYJugar();
         }
 
         private void ReintentarNivel()
         {
+            if (fueVictoria)
+            {
+                return;
+            }
+
             Debug.Log($"[Menus] Reintentando nivel {ProgresoNiveles.NivelActual}.");
             Gestor?.ReiniciarYJugar();
         }
 
-        private void AbrirDesdeFinal(PantallaMenu pantalla)
+        private void VolverAlMenu()
         {
             if (Gestor == null)
             {
                 return;
             }
 
-            EstadoPartida.Instancia?.ReiniciarNivel();
-
             Gestor.CerrarTodo();
-            Gestor.Abrir(pantalla);
+            Gestor.Abrir(PantallaMenu.Principal);
+        }
+
+        private static void ConfigurarBoton(Button boton, Sprite sprite, string etiqueta)
+        {
+            Image imagen = boton.GetComponent<Image>();
+            imagen.sprite = sprite;
+            imagen.color = sprite != null ? Color.white : ConstructorUI.ColorBoton;
+            imagen.preserveAspect = sprite != null;
+
+            Text texto = boton.GetComponentInChildren<Text>();
+            if (texto != null)
+            {
+                texto.text = sprite != null ? "" : etiqueta;
+                texto.gameObject.SetActive(sprite == null);
+            }
         }
     }
 }

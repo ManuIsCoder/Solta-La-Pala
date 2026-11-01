@@ -339,6 +339,8 @@ namespace SoltaLaPala.Minijuegos
 
         private void FinalizarImpresion()
         {
+            CompletarTareaNivel();
+
             procesoEnMarcha = false;
             minijuegoTerminado = true;
 
@@ -356,7 +358,7 @@ namespace SoltaLaPala.Minijuegos
 
                 if (!aplicarPuntajeAlEntregarAlNPC && EstadoPartida.Instancia != null)
                 {
-                    EstadoPartida.Instancia.RegistrarSabotaje(3, 15);
+                    EstadoPartida.Instancia.RegistrarSabotaje(3, 15, "Fotocopia saboteada");
                 }
 
                 Debug.LogWarning("[MinijuegoFotocopiar] ¡Carpeta saboteada generada! El impacto y la sospecha se aplicarán al entregársela al jefe.");

@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using SoltaLaPala.Dialogue;
 using SoltaLaPala.Menus;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace SoltaLaPala.Tutorial
@@ -15,6 +16,7 @@ namespace SoltaLaPala.Tutorial
         [Tooltip("Nombre del GameObject con MisionEntrega correspondiente a cada tarea " +
                  "(en el mismo orden que 'tareas'). Dejar vacío si la tarea no tiene misión asociada.")]
         public string[] idMisionesAsociadas;
+        public string[] idTareasAsociadas;
 
         [Header("Visibilidad")]
         public bool ocultarConMenusAbiertos = true;
@@ -46,7 +48,7 @@ namespace SoltaLaPala.Tutorial
         [Range(0f, 150f)]
         public float offsetHorizontalTareas = 76.67f;
 
-        [Header("Plegar / Ocultar con Tab")]
+        [Header("Abrir / Cerrar misiones con Tab")]
         [Tooltip("Cantidad de píxeles que quedan visibles del panel a la izquierda cuando está oculto.")]
         [Range(10f, 100f)]
         public float anchoVisibleAlOcultar = 40f;
@@ -70,18 +72,30 @@ namespace SoltaLaPala.Tutorial
         {
             if (tareas == null || tareas.Length == 0)
             {
-                tareas = new string[]
+                if (SceneManager.GetActiveScene().name == "nivel 1")
                 {
-                    "Hablar con Recepcionista [E]",
-                    "Entregar encargo a Recepcionista",
-                    "Sabotear el café de la oficina"
-                };
-                idMisionesAsociadas = new string[]
+                    tareas = new[]
+                    {
+                        "Entrega la pala a Mario",
+                        "Completa el discurso saboteado en la computadora"
+                    };
+                    idMisionesAsociadas = new[] { "Mario", "" };
+                }
+                else
                 {
-                    "",
-                    "Recepcionista",
-                    ""
-                };
+                    tareas = new[]
+                    {
+                        "Hablar con Recepcionista [E]",
+                        "Entregar encargo a Recepcionista",
+                        "Sabotear el café de la oficina"
+                    };
+                    idMisionesAsociadas = new[]
+                    {
+                        "",
+                        "Recepcionista",
+                        ""
+                    };
+                }
             }
 
             completadas = new bool[tareas.Length];
@@ -102,6 +116,26 @@ namespace SoltaLaPala.Tutorial
         {
             if (_estadoSuscrito != null)
                 _estadoSuscrito.AlEmpezarNivel -= MostrarPanel;
+        }
+
+        public void ConfigurarTareas(string[] nombres, string[] ids)
+        {
+            tareas = nombres ?? System.Array.Empty<string>();
+            idTareasAsociadas = ids ?? System.Array.Empty<string>();
+            idMisionesAsociadas = new string[tareas.Length];
+            completadas = new bool[tareas.Length];
+
+            if (_canvas != null)
+            {
+                Destroy(_canvas.gameObject);
+            }
+
+            textosEntradas.Clear();
+            lineasTachado.Clear();
+            lineasTachado2.Clear();
+            ConstruirUI();
+            _canvas.enabled = _estadoSuscrito != null && _estadoSuscrito.PartidaEnCurso;
+            ActualizarPanel();
         }
 
         private void Update()
@@ -176,6 +210,14 @@ namespace SoltaLaPala.Tutorial
             for (int i = 0; i < tareas.Length; i++)
             {
                 if (completadas[i]) continue;
+
+                if (idTareasAsociadas != null && i < idTareasAsociadas.Length
+                    && !string.IsNullOrEmpty(idTareasAsociadas[i])
+                    && _estadoSuscrito.EstaCompletaTarea(idTareasAsociadas[i]))
+                {
+                    MarcarTareaCompletada(i);
+                    continue;
+                }
 
                 if (idMisionesAsociadas != null &&
                     i < idMisionesAsociadas.Length &&

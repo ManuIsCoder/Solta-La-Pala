@@ -12,6 +12,8 @@ namespace SoltaLaPala.Menus
 
         public static int NivelActual { get; set; } = 1;
 
+        private static bool iniciarNivelAlCargarEscena;
+
         public static int NivelMaximoDesbloqueado
         {
             get => Mathf.Clamp(PlayerPrefs.GetInt(PrefNivelMaximo, 1), 1, CantidadNiveles);
@@ -35,6 +37,25 @@ namespace SoltaLaPala.Menus
         public static void CompletarNivel(int nivel)
         {
             NivelMaximoDesbloqueado = nivel + 1;
+        }
+
+        public static string ObtenerEscena(int nivel)
+        {
+            return nivel >= 1 && nivel <= CantidadNiveles
+                ? $"nivel {nivel}"
+                : null;
+        }
+
+        public static void MarcarInicioTrasCarga()
+        {
+            iniciarNivelAlCargarEscena = true;
+        }
+
+        public static bool ConsumirInicioTrasCarga()
+        {
+            bool iniciar = iniciarNivelAlCargarEscena;
+            iniciarNivelAlCargarEscena = false;
+            return iniciar;
         }
 
         public static void GuardarResultado(int nivel, int impacto, int sospecha)

@@ -61,9 +61,10 @@ namespace SoltaLaPala.Tutorial
                     datos.pasos = new PasoTutorial[]
                     {
                         new PasoTutorial { texto = "Usa WASD para moverte y el mouse para mirar. Mantén Shift para correr.", condicion = CondicionPaso.SoloManual },
-                        new PasoTutorial { texto = "Habla con la Recepcionista [E] para recibir tu encargo.", condicion = CondicionPaso.SoloManual },
-                        new PasoTutorial { texto = "Consigue la Pala o Palita y entrégasela a la Recepcionista.", condicion = CondicionPaso.AlCompletarMision, idMisionAsociada = "Recepcionista" },
-                        new PasoTutorial { texto = "Sabotea las tazas de café sin que los compañeros te descubran.", condicion = CondicionPaso.SoloManual }
+                        new PasoTutorial { texto = "Habla con los personajes para que te asignen misiones.", condicion = CondicionPaso.SoloManual },
+                        new PasoTutorial { texto = "Abre o cierra el panel de misiones con Tab. Debes completar todas para pasar de nivel.", condicion = CondicionPaso.SoloManual },
+                        new PasoTutorial { texto = "Arruina las tareas para sumar Impacto sin llenar la barra de Sospecha.", condicion = CondicionPaso.SoloManual },
+                        new PasoTutorial { texto = "El ojo de abajo indica si algun personaje te esta viendo.", condicion = CondicionPaso.SoloManual }
                     };
                 }
             }

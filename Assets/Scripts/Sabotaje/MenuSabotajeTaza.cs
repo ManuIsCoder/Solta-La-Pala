@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using SoltaLaPala.Dialogue;
 using SoltaLaPala.Guardado;
 using SoltaLaPala.Interaction;
 using SoltaLaPala.Menus;
@@ -31,7 +32,7 @@ namespace SoltaLaPala.Sabotaje
         public Vector2 tamanoBase = new Vector2(490f, 284f);
 
         [Range(0.5f, 2.5f)]
-        public float escala = 1.0f;
+        public float escala = 0.75f;
 
         [Tooltip("Offset horizontal y vertical del panel en pantalla.")]
         public Vector2 offsetPanel = Vector2.zero;
@@ -120,7 +121,8 @@ namespace SoltaLaPala.Sabotaje
                 rtPanel.anchorMax = new Vector2(0.5f, 0.5f);
                 rtPanel.pivot     = new Vector2(0.5f, 0.5f);
                 rtPanel.anchoredPosition = offsetPanel;
-                rtPanel.sizeDelta        = tamanoBase * escala;
+                rtPanel.sizeDelta        = tamanoBase;
+                panel.transform.localScale = Vector3.one * escala;
             }
 
             Image imgFondo = panel.GetComponent<Image>();
@@ -261,6 +263,10 @@ namespace SoltaLaPala.Sabotaje
                 panel.SetActive(true);
                 ResaltarOpcion(0);
             }
+
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+            Time.timeScale = 0f;
         }
 
         public void Cancelar()
@@ -277,13 +283,17 @@ namespace SoltaLaPala.Sabotaje
                 RectTransform rtPanel = panel.GetComponent<RectTransform>();
                 if (rtPanel != null)
                 {
-                    Vector2 tamanoDeseado = tamanoBase * escala;
+                    Vector2 tamanoDeseado = tamanoBase;
                     if (rtPanel.sizeDelta != tamanoDeseado)
                         rtPanel.sizeDelta = tamanoDeseado;
 
                     if (rtPanel.anchoredPosition != offsetPanel)
                         rtPanel.anchoredPosition = offsetPanel;
                 }
+
+                Vector3 escalaDeseada = Vector3.one * escala;
+                if (panel.transform.localScale != escalaDeseada)
+                    panel.transform.localScale = escalaDeseada;
 
                 VerticalLayoutGroup columna = panel.GetComponent<VerticalLayoutGroup>();
                 if (columna != null && !Mathf.Approximately(columna.spacing, espacioEntreLineasOpciones))
@@ -347,6 +357,17 @@ namespace SoltaLaPala.Sabotaje
                 Cursor.lockState = CursorLockMode.None;
                 Cursor.visible = true;
             }
+
+            if (GestorMenus.Instancia != null)
+            {
+                GestorMenus.Instancia.RefrescarTiempo();
+            }
+            else
+            {
+                bool hayDialogo = GestorDialogos.Instancia != null
+                    && GestorDialogos.Instancia.DialogoActivo;
+                Time.timeScale = hayDialogo ? 0f : 1f;
+            }
         }
 
         private void ElegirOpcion(string nombreCafe, int impacto, int sospecha)
@@ -374,7 +395,8 @@ namespace SoltaLaPala.Sabotaje
 
             if (EstadoPartida.Instancia != null)
             {
-                EstadoPartida.Instancia.RegistrarSabotaje(impacto, sospecha);
+                EstadoPartida.Instancia.RegistrarSabotaje(
+                    impacto, sospecha, $"Taza de cafe: {nombreCafe}");
             }
 
             if (GestorGuardado.Instancia != null)

@@ -50,6 +50,11 @@ namespace SoltaLaPala.Menus
             sb.AppendLine($"Los objetos con los que puedes interactuar se marcan con un borde blanco. Acercate y presiona {Tecla(AccionJuego.Interactuar)}.");
             sb.AppendLine();
 
+            sb.AppendLine("MISIONES");
+            sb.AppendLine("Habla con los personajes para que te asignen misiones.");
+            sb.AppendLine("Abre o cierra el panel de misiones con [Tab]. Debes completar todas las misiones para pasar de nivel.");
+            sb.AppendLine();
+
             sb.AppendLine("INVENTARIO");
             sb.AppendLine($"Tienes 3 espacios. Recoge objetos con {Tecla(AccionJuego.Interactuar)} y cambia el seleccionado con {Tecla(AccionJuego.Slot1)}, {Tecla(AccionJuego.Slot2)} y {Tecla(AccionJuego.Slot3)}.");
             sb.AppendLine();
@@ -59,11 +64,12 @@ namespace SoltaLaPala.Menus
             sb.AppendLine();
 
             sb.AppendLine("SABOTAJE");
-            sb.AppendLine("Al sabotear eliges como hacerlo. Las opciones mas bestias dan mas Impacto pero disparan la Sospecha, asi que mide el riesgo.");
+            sb.AppendLine("Arruina las tareas para sumar Impacto, pero hazlo sin llenar la barra de Sospecha.");
+            sb.AppendLine("Al sabotear eliges como hacerlo. Las opciones mas bestias dan mas Impacto, pero tambien levantan mas sospechas.");
             sb.AppendLine();
 
             sb.AppendLine("VIGILANCIA");
-            sb.AppendLine("Los NPC tienen un cono de vision. No sabotees mientras te miran.");
+            sb.AppendLine("El ojo que aparece abajo indica si algun personaje te esta viendo. No sabotees mientras te miran.");
             sb.AppendLine();
 
             sb.AppendLine($"Presiona {Tecla(AccionJuego.Pausa)} en cualquier momento para pausar.");

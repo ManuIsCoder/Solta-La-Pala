@@ -61,7 +61,17 @@ namespace SoltaLaPala.Minijuegos
             minijuegoActual = null;
 
             OcultarHud(false);
-            controlJugador.Bloquear(false);
+
+            bool menuAbierto = GestorMenus.Instancia != null
+                && GestorMenus.Instancia.HayMenuAbierto;
+            controlJugador.Bloquear(menuAbierto);
+
+            if (menuAbierto)
+            {
+                Cursor.lockState = CursorLockMode.None;
+                Cursor.visible = true;
+                GestorMenus.Instancia.RefrescarTiempo();
+            }
         }
 
         private void OcultarHud(bool ocultar)

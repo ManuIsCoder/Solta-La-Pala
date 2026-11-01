@@ -59,6 +59,22 @@ namespace SoltaLaPala.Menus
             return fondo;
         }
 
+        public static Image CrearImagenPantalla(string nombre, Transform padre, Sprite sprite,
+            bool preservarAspecto = false)
+        {
+            GameObject objeto = new GameObject(nombre);
+            objeto.transform.SetParent(padre, false);
+
+            RectTransform rect = objeto.AddComponent<RectTransform>();
+            Estirar(rect);
+
+            Image imagen = objeto.AddComponent<Image>();
+            imagen.sprite = sprite;
+            imagen.preserveAspect = preservarAspecto;
+            imagen.raycastTarget = false;
+            return imagen;
+        }
+
         public static GameObject CrearPanel(string nombre, Transform padre, Vector2 tamano)
         {
             GameObject panel = CrearImagen(nombre, padre, ColorPanel);

@@ -106,7 +106,10 @@ namespace SoltaLaPala.Dialogue
 
         private void Awake()
         {
-            if (panel == null) panel = gameObject;
+            if (panel == null || textoNombre == null || textoDialogo == null)
+            {
+                ConstruirInterfazSiFalta();
+            }
 
             spriteCajaDialogo       = CargarSprite(spriteCajaDialogo,       "Sprites/UI/paneles/Caja de dialogo vacia");
             spritePanelOpciones     = CargarSprite(spritePanelOpciones,     "Sprites/UI/paneles/Panel de seleccionar una opcion");
@@ -179,6 +182,86 @@ namespace SoltaLaPala.Dialogue
             }
 
             Cerrar();
+        }
+
+        private void ConstruirInterfazSiFalta()
+        {
+            Canvas canvas = GetComponent<Canvas>();
+            if (canvas == null)
+            {
+                canvas = GetComponentInParent<Canvas>();
+            }
+
+            if (canvas == null)
+            {
+                canvas = gameObject.AddComponent<Canvas>();
+            }
+
+            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            canvas.sortingOrder = 80;
+
+            CanvasScaler escalador = canvas.GetComponent<CanvasScaler>();
+            if (escalador == null)
+            {
+                escalador = canvas.gameObject.AddComponent<CanvasScaler>();
+            }
+
+            escalador.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            escalador.referenceResolution = new Vector2(1920f, 1080f);
+            escalador.matchWidthOrHeight = 0.5f;
+
+            if (canvas.GetComponent<GraphicRaycaster>() == null)
+            {
+                canvas.gameObject.AddComponent<GraphicRaycaster>();
+            }
+
+            if (panel == null)
+            {
+                panel = ConstructorUI.CrearPanel("PanelDialogo", canvas.transform, tamanoBaseCaja);
+                RectTransform rectPanel = panel.GetComponent<RectTransform>();
+                rectPanel.anchorMin = new Vector2(0.5f, 0f);
+                rectPanel.anchorMax = new Vector2(0.5f, 0f);
+                rectPanel.pivot = new Vector2(0.5f, 0f);
+                rectPanel.anchoredPosition = offsetCajaDialogo;
+            }
+
+            if (textoNombre == null)
+            {
+                textoNombre = ConstructorUI.CrearTexto("NombreNPC", panel.transform, "",
+                    tamanoFuenteNombre, TextAnchor.MiddleCenter,
+                    new Vector2(76f, -28f), new Vector2(383f, 76f));
+            }
+            textoNombre.rectTransform.anchorMin = new Vector2(0f, 1f);
+            textoNombre.rectTransform.anchorMax = new Vector2(0f, 1f);
+            textoNombre.rectTransform.pivot = new Vector2(0f, 1f);
+
+            if (textoDialogo == null)
+            {
+                textoDialogo = ConstructorUI.CrearTexto("TextoDialogo", panel.transform, "",
+                    tamanoFuenteDialogo, TextAnchor.MiddleLeft,
+                    Vector2.zero, Vector2.zero);
+            }
+            textoDialogo.rectTransform.anchorMin = Vector2.zero;
+            textoDialogo.rectTransform.anchorMax = Vector2.one;
+            textoDialogo.rectTransform.offsetMin = new Vector2(76f, 35f);
+            textoDialogo.rectTransform.offsetMax = new Vector2(-76f, -115f);
+
+            if (indicadorContinuar == null)
+            {
+                Text indicador = ConstructorUI.CrearTexto("IndicadorContinuar", panel.transform, "▼",
+                    20, TextAnchor.MiddleCenter, new Vector2(-46f, 23f), new Vector2(40f, 32f));
+                indicador.raycastTarget = false;
+                indicadorContinuar = indicador.gameObject;
+            }
+
+            RectTransform rectIndicador = indicadorContinuar.GetComponent<RectTransform>();
+            if (rectIndicador != null)
+            {
+                rectIndicador.anchorMin = new Vector2(1f, 0f);
+                rectIndicador.anchorMax = new Vector2(1f, 0f);
+                rectIndicador.pivot = new Vector2(1f, 0f);
+                rectIndicador.anchoredPosition = new Vector2(-46f, 23f);
+            }
         }
 
         private void Update()

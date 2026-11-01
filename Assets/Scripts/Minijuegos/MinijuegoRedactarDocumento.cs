@@ -519,6 +519,7 @@ namespace SoltaLaPala.Minijuegos
 
             // Revelar completamente el arte correspondiente para un acabado limpio y uniforme
             bool fueSabotaje = pixelesReveladosCrayola > 0;
+            CompletarTareaNivel();
             RevelarCompleto(fueSabotaje);
 
             if (barraProgreso != null) barraProgreso.value = 1f;
@@ -534,7 +535,7 @@ namespace SoltaLaPala.Minijuegos
 
                 if (EstadoPartida.Instancia != null)
                 {
-                    EstadoPartida.Instancia.RegistrarSabotaje(3, 10);
+                    EstadoPartida.Instancia.RegistrarSabotaje(3, 10, "Documento oficial adulterado");
                 }
 
                 if (Inventario != null)

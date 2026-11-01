@@ -1,7 +1,7 @@
 # Charla de una sola vez. Al acabar pasa a Perpetuo.
-Vaya dia llevo.
-Tu no seras de por aqui, verdad?
+Vaya día llevo. No paro de recibir paquetes.
+¿Tú no serás la persona nueva de la oficina?
 # Respuestas del jugador a la frase de arriba (ver formato en Perpetuo.txt).
-> Soy nuevo, empece hoy. | -5 | Ah, bienvenido entonces.
-> Vengo a arreglar la cafetera. | 0
-> Eso no es asunto tuyo. | +10 | Uy, que humos...
+> Sí, empecé hoy. | -5 | ¡Ah, bienvenido! Justo necesito una mano.
+> Vengo a ayudar con el encargo. | 0 | Perfecto, te explico lo que necesito.
+> Eso no es asunto tuyo. | +10 | Uy, qué carácter...

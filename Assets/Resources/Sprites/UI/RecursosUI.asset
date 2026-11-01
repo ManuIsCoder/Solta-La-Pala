@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 70f03d732e074cdbb7913df95e098b71, type: 3}
+  m_Name: RecursosUI
+  m_EditorClassIdentifier: Assembly-CSharp::SoltaLaPala.Menus.RecursosUI
+  fondoNiveles: {fileID: 21300000, guid: 6334fa1995d6d0843929ae0dae87f200, type: 3}
+  panelesNivel:
+  - {fileID: 21300000, guid: d6dcaea228ed40b42bdc5eabddb3f9fd, type: 3}
+  - {fileID: 21300000, guid: 6637aaa83d1915c4fa0794700b84db03, type: 3}
+  - {fileID: 21300000, guid: 72276201dfadbf24c98cff556071094b, type: 3}
+  - {fileID: 21300000, guid: d7cdeafdb0a785e47a1a7c1578b6ff99, type: 3}
+  bloqueoNivel: {fileID: 21300000, guid: a8792c6849887154ba61e4f37e6c01f1, type: 3}
+  posicionPrimerBotonNivel: {x: 0, y: -110}
+  separacionBotonesNivel: 137
+  tamanoBotonNivel: {x: 1180, y: 118}
+  fondoResultados: {fileID: 21300000, guid: ad87e6ec26a504041b6e6793d5e589dd, type: 3}
+  fondoVictoria: {fileID: 21300000, guid: 8eb6a6793adc3ff488973f3ade44b016, type: 3}
+  fondoDerrota: {fileID: 21300000, guid: f8cb51a818d291f4f87c5c1e82b6dcd2, type: 3}
+  botonContinuar: {fileID: 21300000, guid: 4e815236055726f429cd972525e6e763, type: 3}
+  botonSiguienteNivel: {fileID: 21300000, guid: 5d5b426afb17b2a49995a6bf77eff9ff, type: 3}
+  botonReintentarNivel: {fileID: 21300000, guid: 530c1ee9bc29b7f4aaa00871b0035aa7, type: 3}
