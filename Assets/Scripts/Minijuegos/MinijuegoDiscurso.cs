@@ -4,7 +4,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using SoltaLaPala.Menus;
 using SoltaLaPala.Inventory;
-using SoltaLaPala.Tutorial;
 
 namespace SoltaLaPala.Minijuegos
 {
@@ -43,11 +42,15 @@ namespace SoltaLaPala.Minijuegos
         {
             bool tieneTarjetas = modoPrueba || (Inventario != null && Inventario.TieneItem(idTarjetas));
             bool tieneSabotaje = modoPrueba || (Inventario != null && Inventario.TieneItem(idTarjetaSabotaje));
+            bool misionCompletada = EstadoPartida.Instancia != null
+                && EstadoPartida.Instancia.EstaCompletaTarea(nameof(MinijuegoDiscurso));
             tarjetaElegida = -1;
             discursoEnCurso = false;
 
             if (textoTemaSeleccionado != null)
-                textoTemaSeleccionado.text = "Selecciona una tarjeta para el discurso...";
+                textoTemaSeleccionado.text = misionCompletada
+                    ? "Esta misión ya fue completada."
+                    : "Selecciona una tarjeta para el discurso...";
 
             if (botonDarDiscurso != null)
             {
@@ -62,9 +65,9 @@ namespace SoltaLaPala.Minijuegos
                 botonSalir.onClick.AddListener(Salir);
             }
 
-            ConfigurarBotonTarjeta(tarjetaTrabajo1, 0, tieneTarjetas, "Estrategia Financiera Q4");
-            ConfigurarBotonTarjeta(tarjetaTrabajo2, 1, tieneTarjetas, "Optimización de Recursos");
-            ConfigurarBotonTarjeta(tarjetaDisparate, 2, tieneSabotaje, "Poema a la Milanesa (Disparate)");
+            ConfigurarBotonTarjeta(tarjetaTrabajo1, 0, tieneTarjetas && !misionCompletada, "Estrategia Financiera Q4");
+            ConfigurarBotonTarjeta(tarjetaTrabajo2, 1, tieneTarjetas && !misionCompletada, "Optimización de Recursos");
+            ConfigurarBotonTarjeta(tarjetaDisparate, 2, tieneSabotaje && !misionCompletada, "Poema a la Milanesa (Disparate)");
         }
 
         private void ConfigurarBotonTarjeta(Button boton, int indice, bool interactuable, string titulo)
@@ -77,6 +80,12 @@ namespace SoltaLaPala.Minijuegos
 
         public void SeleccionarTarjeta(int indice, string titulo)
         {
+            if (EstadoPartida.Instancia != null
+                && EstadoPartida.Instancia.EstaCompletaTarea(nameof(MinijuegoDiscurso)))
+            {
+                return;
+            }
+
             tarjetaElegida = indice;
             if (textoTemaSeleccionado != null)
                 textoTemaSeleccionado.text = $"Discurso seleccionado: {titulo}";
@@ -87,7 +96,12 @@ namespace SoltaLaPala.Minijuegos
 
         public void DarDiscurso()
         {
-            if (tarjetaElegida == -1 || discursoEnCurso) return;
+            if (tarjetaElegida == -1 || discursoEnCurso
+                || (EstadoPartida.Instancia != null
+                    && EstadoPartida.Instancia.EstaCompletaTarea(nameof(MinijuegoDiscurso))))
+            {
+                return;
+            }
 
             discursoEnCurso = true;
             if (botonDarDiscurso != null) botonDarDiscurso.interactable = false;
@@ -147,24 +161,23 @@ namespace SoltaLaPala.Minijuegos
             bool esSabotaje = indiceTarjeta == 2;
             EstadoPartida estado = EstadoPartida.Instancia;
 
-            if (esSabotaje && estado != null && estado.MisionesEntregaPendientes > 0)
+            if (esSabotaje && estado != null
+                && estado.EstaCompletaTarea(nameof(MinijuegoDiscurso)))
             {
-                if (textoTemaSeleccionado != null)
-                {
-                    textoTemaSeleccionado.text =
-                        $"Completa las {estado.MisionesEntregaPendientes} misiones de entrega antes de ganar. Pulsa Salir para continuar.";
-                }
+                Salir();
+                yield break;
+            }
 
+            if (esSabotaje && estado != null
+                && !estado.CompletarTareaNivel(nameof(MinijuegoDiscurso)))
+            {
+                Salir();
                 yield break;
             }
 
             if (esSabotaje && estado != null && !estado.CompletarMisionDiscurso())
             {
-                if (textoTemaSeleccionado != null)
-                {
-                    textoTemaSeleccionado.text = "Completa la misión de la pala antes de dar el discurso.";
-                }
-
+                Salir();
                 yield break;
             }
 
@@ -172,24 +185,21 @@ namespace SoltaLaPala.Minijuegos
 
             if (estado != null)
             {
-                if (esSabotaje)
-                {
-                    int mitadTramoAmarillo = Mathf.RoundToInt(estado.SospechaMaxima * 0.65f);
-                    estado.EstablecerSospecha(mitadTramoAmarillo);
-                }
                 estado.RegistrarSabotaje(
-                    impacto, 0, esSabotaje ? "Discurso saboteado" : null);
-                if (esSabotaje)
-                {
-                    estado.CompletarTareaNivel(nameof(MinijuegoDiscurso));
-                }
+                    impacto, esSabotaje ? 10 : 0, esSabotaje ? "Discurso saboteado" : null);
             }
 
-            bool partidaTerminada = estado == null || estado.IntentarTerminarPartida(
-                esSabotaje,
-                esSabotaje
-                    ? "El poema a la milanesa conquistó al público. ¡Ganaste el nivel!"
-                    : "El discurso no convenció al público. Perdiste el nivel.");
+            bool partidaTerminada = estado == null;
+            if (estado != null && !esSabotaje)
+            {
+                partidaTerminada = estado.IntentarTerminarPartida(
+                    false, "El discurso no convenció al público. Perdiste el nivel.");
+            }
+            else if (estado != null && estado.EstaCompletaTarea("EntregaPala"))
+            {
+                partidaTerminada = estado.IntentarTerminarPartida(
+                    true, "El poema a la milanesa conquistó al público. ¡Ganaste el nivel!");
+            }
 
             if (!partidaTerminada)
             {

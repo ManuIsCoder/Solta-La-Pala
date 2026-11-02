@@ -18,6 +18,7 @@ namespace SoltaLaPala.Interaction
 
         private IInteractuable objetivoActual;
         private bool interaccionBloqueada;
+        private RaycastHit[] impactos = new RaycastHit[16];
 
         private void Awake()
         {
@@ -68,14 +69,26 @@ namespace SoltaLaPala.Interaction
                 ? transformCamara.forward
                 : transform.forward;
 
-            RaycastHit[] hits = Physics.SphereCastAll(
-                new Ray(origen, direccion), radio, alcance, capasInteractuables);
+            int cantidadHits;
+            while (true)
+            {
+                cantidadHits = Physics.SphereCastNonAlloc(
+                    new Ray(origen, direccion), radio, impactos, alcance, capasInteractuables);
+
+                if (cantidadHits < impactos.Length)
+                {
+                    break;
+                }
+
+                impactos = new RaycastHit[impactos.Length * 2];
+            }
 
             IInteractuable mejor = null;
             float menorDistancia = float.MaxValue;
 
-            foreach (var hit in hits)
+            for (int i = 0; i < cantidadHits; i++)
             {
+                RaycastHit hit = impactos[i];
                 if (hit.transform == transform || hit.transform.IsChildOf(transform)) continue;
 
                 IInteractuable interactuable = hit.collider.GetComponentInParent<IInteractuable>();

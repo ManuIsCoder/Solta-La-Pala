@@ -33,6 +33,7 @@ namespace SoltaLaPala.Dialogue
         private TareaNivel tareaNivel;
 
         private bool yaEscuchoElEncargo;
+        private bool usarDialogoTareaEnMision;
 
         private TipoDialogo tipoInicial;
 
@@ -59,6 +60,11 @@ namespace SoltaLaPala.Dialogue
             tipoInicial = tipo;
             tipoActual = tipo;
             yaEscuchoElEncargo = false;
+        }
+
+        public void UsarDialogoTareaEnMision()
+        {
+            usarDialogoTareaEnMision = true;
         }
 
         public string ObtenerTextoInteraccion()
@@ -116,6 +122,19 @@ namespace SoltaLaPala.Dialogue
             }
 
             MisionEntrega misionActual = ObtenerMision();
+            if (usarDialogoTareaEnMision && tareaNivel != null && misionActual != null)
+            {
+                if (misionActual.HayEntregaPosible()
+                    && MenuEntrega.Instancia != null
+                    && MenuEntrega.Instancia.Abrir(misionActual))
+                {
+                    return;
+                }
+
+                GestorDialogos.Instancia.MostrarFraseSuelta(this, tareaNivel.ObtenerDialogo());
+                return;
+            }
+
             if (tareaNivel != null && misionActual == null)
             {
                 GestorDialogos.Instancia.MostrarFraseSuelta(this, tareaNivel.ObtenerDialogo());

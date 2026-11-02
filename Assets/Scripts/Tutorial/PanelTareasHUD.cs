@@ -77,9 +77,18 @@ namespace SoltaLaPala.Tutorial
                     tareas = new[]
                     {
                         "Entrega la pala a Mario",
-                        "Completa el discurso saboteado en la computadora"
+                        "Elige un discurso para la oficina"
                     };
                     idMisionesAsociadas = new[] { "Mario", "" };
+                }
+                else if (SceneManager.GetActiveScene().name == "nivel 2")
+                {
+                    tareas = new[]
+                    {
+                        "Calienta y entrega el sándwich a Lucía",
+                        "Descarta los archivos de la laptop del escritorio con la foto del gato"
+                    };
+                    idMisionesAsociadas = new[] { "", "" };
                 }
                 else
                 {
@@ -251,6 +260,23 @@ namespace SoltaLaPala.Tutorial
                 float margenIzqActual = offsetHorizontalTareas * escala;
                 float anchoTextoActual = _panelRect.sizeDelta.x - (margenIzqActual * 2f);
                 ActualizarTachado(indice, anchoTextoActual);
+            }
+        }
+
+        public void MarcarTareaCompletada(string id)
+        {
+            if (string.IsNullOrEmpty(id) || idTareasAsociadas == null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < idTareasAsociadas.Length; i++)
+            {
+                if (idTareasAsociadas[i] == id)
+                {
+                    MarcarTareaCompletada(i);
+                    return;
+                }
             }
         }
 

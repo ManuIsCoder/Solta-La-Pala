@@ -31,6 +31,7 @@ namespace SoltaLaPala.Minijuegos
         public string idCarpetaSaboteadaResultado = "CarpetaSaboteada";
         [Tooltip("Si es true, la sospecha e impacto se aplican al entregar la carpeta al NPC de la misión, no en la computadora.")]
         public bool aplicarPuntajeAlEntregarAlNPC = true;
+        public bool completarTareaAlEntregarAlNPC;
 
         [Header("Sprites y Gráficos")]
         public Sprite spriteFondoComputadora;
@@ -190,6 +191,38 @@ namespace SoltaLaPala.Minijuegos
         {
             BuscarImpresoraSiEsNecesario();
 
+            if (impresora != null && impresora.ResultadoPendienteDeRetiro)
+            {
+                if (imagenIconoEstado != null)
+                {
+                    imagenIconoEstado.gameObject.SetActive(true);
+                    imagenIconoEstado.sprite = spriteIconoInforme;
+                    imagenIconoEstado.color = Color.white;
+                }
+
+                if (textoMensajePrincipal != null)
+                {
+                    textoMensajePrincipal.text = "<color=#55FF88><b>✔ IMPRESIÓN COMPLETA</b></color>";
+                }
+
+                if (textoSubmensajeInstruccion != null)
+                {
+                    textoSubmensajeInstruccion.text =
+                        "La carpeta ya está lista.\n\n" +
+                        "<size=17><color=#55CCFF><b>➔ Interactúa con la impresora para retirar el documento</b></color></size>\n\n" +
+                        "Se guardará directamente en tu inventario.";
+                }
+
+                if (botonImprimir != null)
+                {
+                    botonImprimir.interactable = false;
+                    Text textoBoton = botonImprimir.GetComponentInChildren<Text>();
+                    if (textoBoton != null) textoBoton.text = "RESULTADO LISTO";
+                }
+
+                return;
+            }
+
             // Detectar si hay documento (por referencia directa a la impresora o por estado global estático o modo prueba)
             var estadoDoc = ImpresoraInteractuable.EstadoDocumentoImpresora.Vacio;
             if (impresora != null && impresora.documentoCargado != ImpresoraInteractuable.EstadoDocumentoImpresora.Vacio)
@@ -339,7 +372,10 @@ namespace SoltaLaPala.Minijuegos
 
         private void FinalizarImpresion()
         {
-            CompletarTareaNivel();
+            if (!completarTareaAlEntregarAlNPC)
+            {
+                CompletarTareaNivel();
+            }
 
             procesoEnMarcha = false;
             minijuegoTerminado = true;
@@ -354,7 +390,7 @@ namespace SoltaLaPala.Minijuegos
                 // SABOTAJE
                 resultadoExito = false;
                 mensajeVentanaFinal = "¡Fotocopia completada!\nHas fotocopiado la foto de Chiqui Tapia en lugar de los informes.\n\n" +
-                                     "<b>➔ Recoge la Carpeta saboteada de la impresora y llévasela al jefe.</b>";
+                                     "<b>➔ Interactúa con la impresora para retirar la carpeta y entrégasela a quien te encargó la tarea.</b>";
 
                 if (!aplicarPuntajeAlEntregarAlNPC && EstadoPartida.Instancia != null)
                 {
@@ -368,7 +404,7 @@ namespace SoltaLaPala.Minijuegos
                 // ÉXITO LEGÍTIMO
                 resultadoExito = true;
                 mensajeVentanaFinal = "Informes oficiales fotocopiados con éxito.\n\n" +
-                                     "<b>➔ Recoge la Carpeta con los informes de la impresora y llévasela al jefe.</b>";
+                                     "<b>➔ Interactúa con la impresora para retirar la carpeta y entrégasela a quien te encargó la tarea.</b>";
 
                 if (!aplicarPuntajeAlEntregarAlNPC && EstadoPartida.Instancia != null)
                 {
@@ -382,6 +418,7 @@ namespace SoltaLaPala.Minijuegos
             if (impresora != null)
             {
                 impresora.ExpulsarCarpeta(fueSabotaje);
+                ActualizarPantallaSegunEstadoImpresora();
             }
             else
             {

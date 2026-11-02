@@ -79,6 +79,7 @@ namespace SoltaLaPala.Minijuegos
         private bool yaInicializado = false;
         private bool minijuegoTerminado = false;
         private bool resultadoExito = false;
+        private bool finalizacionRegistrada;
         private string mensajeVentanaFinal = "";
 
         protected override void AlIniciar()
@@ -157,6 +158,7 @@ namespace SoltaLaPala.Minijuegos
             minijuegoTerminado = false;
             yaInicializado = false;
             sabotajeCometido = false;
+            finalizacionRegistrada = false;
             archivosIndebidosBorrados = 0;
             mensajeVentanaFinal = "";
             resultadoExito = false;
@@ -312,6 +314,7 @@ namespace SoltaLaPala.Minijuegos
                 minijuegoTerminado = true;
                 resultadoExito = false;
                 mensajeVentanaFinal = "Base de datos de empresa perjudicada";
+                RegistrarFinalizacionTarea();
 
                 BloquearInteraccionesArchivos();
 
@@ -346,6 +349,7 @@ namespace SoltaLaPala.Minijuegos
                 minijuegoTerminado = true;
                 resultadoExito = true;
                 mensajeVentanaFinal = "Limpieza de computadora terminada";
+                RegistrarFinalizacionTarea();
 
                 BloquearInteraccionesArchivos();
 
@@ -533,8 +537,19 @@ namespace SoltaLaPala.Minijuegos
 
         private void Completar()
         {
-            CompletarTareaNivel();
+            RegistrarFinalizacionTarea();
+            Salir();
+        }
 
+        private void RegistrarFinalizacionTarea()
+        {
+            if (finalizacionRegistrada)
+            {
+                return;
+            }
+
+            finalizacionRegistrada = true;
+            CompletarTareaNivel();
             int impacto = sabotajeCometido ? 3 : 1;
             int sospecha = sabotajeCometido ? 10 : 0;
 
@@ -547,8 +562,6 @@ namespace SoltaLaPala.Minijuegos
             }
 
             Debug.Log($"[MinijuegoBorrarDatos] Tarea completada. Sabotaje: {sabotajeCometido}. Impacto: {impacto}, Sospecha: {sospecha}");
-
-            Salir();
         }
 
         private void ActualizarTextos()

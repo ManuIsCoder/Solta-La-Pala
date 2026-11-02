@@ -117,7 +117,18 @@ namespace SoltaLaPala.Dialogue
             SeSaboteo = opcion.esSabotaje;
 
             DialogoNPC dialogo = GetComponent<DialogoNPC>();
-            GetComponent<TareaNivel>()?.Completar();
+            TareaNivel tarea = GetComponent<TareaNivel>();
+            if (tarea != null)
+            {
+                if (EstadoPartida.Instancia != null)
+                {
+                    EstadoPartida.Instancia.CompletarTareaNivel(tarea.Id);
+                }
+                else
+                {
+                    tarea.Completar();
+                }
+            }
             dialogo?.AlCompletarEncargo();
 
             MostrarRespuesta(dialogo, opcion.esSabotaje);

@@ -15,7 +15,7 @@ namespace SoltaLaPala.Minijuegos
     ///    - El documento se elimina inmediatamente de la mano / inventario.
     ///    - La impresora registra que tiene el documento cargado.
     /// 3. El jugador va a la computadora -> la computadora detecta el documento y deja IMPRIMIR.
-    /// 4. Al imprimir, la impresora expulsa físicamente la Carpeta resultante lista para agarrar con [E].
+    /// 4. Al imprimir, el resultado puede retirarse interactuando con la impresora o recogerse físicamente.
     /// </summary>
     [RequireComponent(typeof(ResaltadoInteractuable))]
     public class ImpresoraInteractuable : MonoBehaviour, IInteractuable
@@ -38,6 +38,8 @@ namespace SoltaLaPala.Minijuegos
 
         [Header("Interruptor del interactuable")]
         public EstadoSwitch estado = EstadoSwitch.Activado;
+        public bool retirarCarpetaAlInteractuar;
+        public bool bloquearDespuesDeColocarDocumento;
 
         [Header("Estado del Escáner")]
         [Tooltip("Documento actualmente cargado en la bandeja de escaneo de la impresora")]
@@ -65,6 +67,10 @@ namespace SoltaLaPala.Minijuegos
         public AudioClip clipExpulsarCarpeta;
 
         public Transform Transform => transform;
+        public bool ResultadoPendienteDeRetiro => carpetaPendienteDeRetiro != null;
+
+        private DatosItem carpetaPendienteDeRetiro;
+        private bool documentoYaColocado;
 
         private void Awake()
         {
@@ -157,8 +163,26 @@ namespace SoltaLaPala.Minijuegos
             if (estado == EstadoSwitch.Desactivado)
                 return string.Empty;
 
+            if (ResultadoPendienteDeRetiro)
+            {
+                return $"[E] Retirar {carpetaPendienteDeRetiro.nombre} de la impresora";
+            }
+
             var jugador = GameObject.FindGameObjectWithTag("Player");
             var inv = jugador != null ? jugador.GetComponent<InventarioJugador>() : null;
+
+            if (documentoCargado != EstadoDocumentoImpresora.Vacio)
+            {
+                string nombreDoc = (documentoCargado == EstadoDocumentoImpresora.FotoChiqui)
+                    ? "Foto de Chiqui"
+                    : "Informes";
+                return $"[E] Impresora lista ({nombreDoc}) -> Ve a la Computadora a Imprimir";
+            }
+
+            if (bloquearDespuesDeColocarDocumento && documentoYaColocado)
+            {
+                return "[E] Impresora (ya utilizada)";
+            }
 
             if (documentoCargado == EstadoDocumentoImpresora.Vacio)
             {
@@ -182,13 +206,8 @@ namespace SoltaLaPala.Minijuegos
 
                 return "[E] Impresora (Requiere Informes o Foto de Chiqui en mano)";
             }
-            else
-            {
-                string nombreDoc = (documentoCargado == EstadoDocumentoImpresora.FotoChiqui)
-                    ? "Foto de Chiqui"
-                    : "Informes";
-                return $"[E] Impresora lista ({nombreDoc}) -> Ve a la Computadora a Imprimir";
-            }
+
+            return string.Empty;
         }
 
         public bool PuedeInteractuar()
@@ -203,18 +222,51 @@ namespace SoltaLaPala.Minijuegos
         {
             if (estado == EstadoSwitch.Desactivado) return;
 
-            if (documentoCargado != EstadoDocumentoImpresora.Vacio)
-            {
-                Debug.Log("[Impresora] El documento ya está colocado en la impresora. Ve a la computadora para imprimir.");
-                return;
-            }
-
             var inv = quienInteractua != null ? quienInteractua.GetComponent<InventarioJugador>() : null;
             if (inv == null)
             {
                 var jugador = GameObject.FindGameObjectWithTag("Player");
                 if (jugador != null) inv = jugador.GetComponent<InventarioJugador>();
             }
+
+            if (ResultadoPendienteDeRetiro)
+            {
+                if (inv == null)
+                {
+                    Debug.LogError("[Impresora] No se encontró el inventario del jugador para retirar la carpeta.");
+                    return;
+                }
+
+                if (!inv.IntentarAgregarItem(carpetaPendienteDeRetiro))
+                {
+                    Debug.LogWarning("[Impresora] No hay espacio en el inventario para retirar la carpeta.");
+                    return;
+                }
+
+                string nombreCarpeta = carpetaPendienteDeRetiro.nombre;
+                carpetaPendienteDeRetiro = null;
+                if (audioSource != null && clipExpulsarCarpeta != null)
+                {
+                    audioSource.PlayOneShot(clipExpulsarCarpeta);
+                }
+
+                Debug.Log($"[Impresora] Se retiró '{nombreCarpeta}' y se guardó en el inventario.");
+                ActualizarTextoInteraccion();
+                return;
+            }
+
+            if (documentoCargado != EstadoDocumentoImpresora.Vacio)
+            {
+                Debug.Log("[Impresora] El documento ya está colocado en la impresora. Ve a la computadora para imprimir.");
+                return;
+            }
+
+            if (bloquearDespuesDeColocarDocumento && documentoYaColocado)
+            {
+                Debug.Log("[Impresora] Esta impresora ya fue utilizada en esta tarea.");
+                return;
+            }
+
             if (inv == null) return;
 
             // 1. Revisar primero si tiene el documento en la mano (slot seleccionado)
@@ -259,6 +311,7 @@ namespace SoltaLaPala.Minijuegos
         {
             documentoCargado = tipo;
             DocumentoCargadoGlobal = tipo;
+            documentoYaColocado = true;
 
             // ELIMINAR EL DOCUMENTO DEL INVENTARIO / MANO
             if (inv != null && slotAEliminar >= 0)
@@ -297,10 +350,40 @@ namespace SoltaLaPala.Minijuegos
 
         /// <summary>
         /// Lo llama MinijuegoFotocopiar al finalizar la impresión desde la computadora.
-        /// Expulsa físicamente la Carpeta delante de la impresora.
+        /// Deja la carpeta pendiente para retirarla con [E] o la expulsa físicamente.
         /// </summary>
         public void ExpulsarCarpeta(bool fueSabotaje)
         {
+            if (retirarCarpetaAlInteractuar)
+            {
+                string idItem = fueSabotaje ? idCarpetaSaboteada : idCarpeta;
+                carpetaPendienteDeRetiro = Resources.Load<DatosItem>("Items/" + idItem)
+                    ?? Resources.Load<DatosItem>(idItem);
+
+                if (carpetaPendienteDeRetiro == null)
+                {
+                    Debug.LogError($"[Impresora] No se encontró el resultado '{idItem}' en Resources.");
+                    return;
+                }
+
+                if (objetoVisualDocumentoEnEscaner != null)
+                {
+                    objetoVisualDocumentoEnEscaner.SetActive(false);
+                }
+
+                documentoCargado = EstadoDocumentoImpresora.Vacio;
+                DocumentoCargadoGlobal = EstadoDocumentoImpresora.Vacio;
+
+                if (audioSource != null && clipExpulsarCarpeta != null)
+                {
+                    audioSource.PlayOneShot(clipExpulsarCarpeta);
+                }
+
+                Debug.Log($"[Impresora] La carpeta '{carpetaPendienteDeRetiro.nombre}' está lista para retirarse con [E].");
+                ActualizarTextoInteraccion();
+                return;
+            }
+
             if (objetoVisualDocumentoEnEscaner != null)
             {
                 objetoVisualDocumentoEnEscaner.SetActive(false);
@@ -310,6 +393,28 @@ namespace SoltaLaPala.Minijuegos
             DocumentoCargadoGlobal = EstadoDocumentoImpresora.Vacio;
 
             StartCoroutine(RutinaExpulsarCarpeta(fueSabotaje));
+        }
+
+        public void ReiniciarImpresora()
+        {
+            documentoCargado = EstadoDocumentoImpresora.Vacio;
+            DocumentoCargadoGlobal = EstadoDocumentoImpresora.Vacio;
+            carpetaPendienteDeRetiro = null;
+            documentoYaColocado = false;
+
+            if (objetoVisualDocumentoEnEscaner != null)
+            {
+                objetoVisualDocumentoEnEscaner.SetActive(false);
+            }
+        }
+
+        private void ActualizarTextoInteraccion()
+        {
+            InteractorJugador interactor = FindFirstObjectByType<InteractorJugador>();
+            if (interactor != null && interactor.interfazTexto != null)
+            {
+                interactor.interfazTexto.Mostrar(ObtenerTextoInteraccion());
+            }
         }
 
         private IEnumerator RutinaExpulsarCarpeta(bool fueSabotaje)

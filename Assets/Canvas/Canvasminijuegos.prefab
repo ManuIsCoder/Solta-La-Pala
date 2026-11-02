@@ -3244,7 +3244,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -6952,12 +6952,12 @@ RectTransform:
   - {fileID: 3273164569185931221}
   - {fileID: 4208551812189727735}
   - {fileID: 3113082436322744851}
-  - {fileID: 4716637632700901172}
   - {fileID: 8359490257654339262}
   - {fileID: 9145538415891610086}
   - {fileID: 5388509121170035556}
   - {fileID: 6023231130356455148}
   - {fileID: 4039221667226103245}
+  - {fileID: 4716637632700901172}
   m_Father: {fileID: 6388684312693187880}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -6979,7 +6979,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SoltaLaPala.Minijuegos.MinijuegoMicroondas
   panelRaiz: {fileID: 8561410422190652880}
   idComida: Sandwich
-  idPlato: PlatoComida
   idTenedor: Tenedor
   idComidaCaliente: SandwichCaliente
   imagenFondo: {fileID: 3531020162128741299}
@@ -6989,7 +6988,8 @@ MonoBehaviour:
   barraCalentado: {fileID: 1512562747265983907}
   particulasHumo: {fileID: 3644813762301010664}
   velocidadCalentado: 0.15
-  modoPrueba: 1
+  desplazamientoPuertaAbierta: -250
+  modoPrueba: 0
 --- !u!1 &8574154597919986991
 GameObject:
   m_ObjectHideFlags: 0

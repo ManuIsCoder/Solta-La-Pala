@@ -1,5 +1,6 @@
 using SoltaLaPala.Interaction;
 using SoltaLaPala.Inventory;
+using SoltaLaPala.Menus;
 using UnityEngine;
 
 namespace SoltaLaPala.Minijuegos
@@ -45,6 +46,7 @@ namespace SoltaLaPala.Minijuegos
         public string ObtenerTextoInteraccion()
         {
             if (estado == EstadoInteractuable.Desactivado) return string.Empty;
+            if (TareaMicroondasCompleta()) return string.Empty;
             if (tipoMinijuego == ModoMinijuegoInteractuable.DestaparBaño
                 && !(InventarioJugador.DelJugador()?.TieneItem("Destapador") ?? false))
                 return "Necesitas el destapador";
@@ -55,11 +57,19 @@ namespace SoltaLaPala.Minijuegos
         {
             // Si el switch está desactivado, no se puede jugar
             if (estado == EstadoInteractuable.Desactivado) return false;
+            if (TareaMicroondasCompleta()) return false;
 
             // No interactuar si ya hay un minijuego activo
             if (GestorMinijuego.Instancia != null && GestorMinijuego.Instancia.MinijuegoActivo) return false;
 
             return true;
+        }
+
+        private bool TareaMicroondasCompleta()
+        {
+            return tipoMinijuego == ModoMinijuegoInteractuable.Microondas
+                && EstadoPartida.Instancia != null
+                && EstadoPartida.Instancia.EstaCompletaTarea(nameof(MinijuegoMicroondas));
         }
 
         public void Interactuar(GameObject quienInteractua)

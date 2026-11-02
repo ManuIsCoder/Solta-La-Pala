@@ -8,7 +8,9 @@ using SoltaLaPala.Minijuegos;
 using SoltaLaPala.NPC;
 using SoltaLaPala.Player;
 using SoltaLaPala.Sabotaje;
+using SoltaLaPala.Tutorial;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace SoltaLaPala.Menus
 {
@@ -86,6 +88,7 @@ namespace SoltaLaPala.Menus
 
         public void EmpezarNivel()
         {
+            CamaraTerceraPersona.RestablecerUisAbiertas();
             PartidaEnCurso = true;
             AlEmpezarNivel?.Invoke();
         }
@@ -103,7 +106,7 @@ namespace SoltaLaPala.Menus
                 return true;
             }
 
-            if (ObtenerMisionesEntregaPendientes() > 0)
+            if (misionDiscursoCompletada)
             {
                 return false;
             }
@@ -120,6 +123,7 @@ namespace SoltaLaPala.Menus
 
             ObjetoSoltado.DestruirTodos();
             RegistroObjetosConsumidos.Instancia?.Limpiar();
+            ReiniciarImpresoras();
 
             ReiniciarMisiones();
             ReiniciarDialogos();
@@ -135,6 +139,16 @@ namespace SoltaLaPala.Menus
                      FindObjectsByType<MinijuegoBase>(FindObjectsInactive.Include, FindObjectsSortMode.None))
             {
                 minijuego.Reiniciar();
+            }
+        }
+
+        private static void ReiniciarImpresoras()
+        {
+            foreach (ImpresoraInteractuable impresora in
+                     FindObjectsByType<ImpresoraInteractuable>(
+                         FindObjectsInactive.Include, FindObjectsSortMode.None))
+            {
+                impresora.ReiniciarImpresora();
             }
         }
 
@@ -198,6 +212,18 @@ namespace SoltaLaPala.Menus
                 return;
             }
 
+            if (EsNivelConfigurado(SceneManager.GetActiveScene().name)
+                && HayTareasConfiguradas()
+                && ObtenerMisionesPendientes() == 0)
+            {
+                bool huboSabotaje = tareasSaboteadas.Count > 0;
+                string detalle = huboSabotaje
+                    ? "Completaste todas las tareas y arruinaste parte del trabajo."
+                    : "Completaste todas las tareas, pero no arruinaste nada. Perdiste el nivel.";
+                IntentarTerminarPartida(huboSabotaje, detalle);
+                return;
+            }
+
             tiempoRestante -= Time.deltaTime;
 
             if (tiempoRestante <= 0f)
@@ -212,6 +238,25 @@ namespace SoltaLaPala.Menus
             AlCambiarTiempo?.Invoke(tiempoRestante);
 
             ActualizarSospechaContinua();
+        }
+
+        private static bool EsNivelConfigurado(string nombreEscena)
+        {
+            for (int nivel = 1; nivel <= ProgresoNiveles.CantidadNiveles; nivel++)
+            {
+                if (nombreEscena == ProgresoNiveles.ObtenerEscena(nivel))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static bool HayTareasConfiguradas()
+        {
+            return FindObjectsByType<TareaNivel>(
+                FindObjectsInactive.Include, FindObjectsSortMode.None).Length > 0;
         }
 
         private void ActualizarSospechaContinua()
@@ -442,18 +487,33 @@ namespace SoltaLaPala.Menus
                 return false;
             }
 
-            bool completada = false;
+            bool tareaCompletada = false;
+            bool tareaEncontrada = false;
             TareaNivel[] tareas = FindObjectsByType<TareaNivel>(
                 FindObjectsInactive.Include, FindObjectsSortMode.None);
             foreach (TareaNivel tarea in tareas)
             {
                 if (tarea != null && tarea.Id == id)
                 {
-                    completada |= tarea.Completar();
+                    tareaEncontrada = true;
+                    tarea.Completar();
+                    tareaCompletada |= tarea.Completada;
                 }
             }
 
-            return completada;
+            if (!tareaEncontrada)
+            {
+                Debug.LogWarning($"[EstadoPartida] No se encontró una tarea configurada con el id '{id}'.");
+                return false;
+            }
+
+            if (tareaCompletada)
+            {
+                FindFirstObjectByType<PanelTareasHUD>(FindObjectsInactive.Include)
+                    ?.MarcarTareaCompletada(id);
+            }
+
+            return tareaCompletada;
         }
 
         public bool EstaCompletaTarea(string id)

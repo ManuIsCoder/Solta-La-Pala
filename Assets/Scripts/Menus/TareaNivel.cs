@@ -10,6 +10,7 @@ namespace SoltaLaPala.Menus
         [SerializeField, TextArea] private string dialogoSeguimiento;
         [SerializeField, TextArea] private string dialogoCompletado;
 
+        private bool aceptarAutomaticamente;
         private bool accionRealizada;
 
         public string Id => id;
@@ -18,15 +19,16 @@ namespace SoltaLaPala.Menus
         public bool Completada { get; private set; }
 
         public void Configurar(string idTarea, string nombre, string encargo,
-            string seguimiento, string completado)
+            string seguimiento, string completado, bool aceptarAlConfigurar = false)
         {
             id = idTarea;
             descripcion = nombre;
             dialogoEncargo = encargo;
             dialogoSeguimiento = seguimiento;
             dialogoCompletado = completado;
+            aceptarAutomaticamente = aceptarAlConfigurar;
             accionRealizada = false;
-            Aceptada = false;
+            Aceptada = aceptarAutomaticamente;
             Completada = false;
         }
 
@@ -38,9 +40,8 @@ namespace SoltaLaPala.Menus
 
         public bool Completar()
         {
-            if (!Aceptada || Completada)
+            if (Completada)
             {
-                accionRealizada = true;
                 return false;
             }
 
@@ -51,7 +52,7 @@ namespace SoltaLaPala.Menus
 
         public void Reiniciar()
         {
-            Aceptada = false;
+            Aceptada = aceptarAutomaticamente;
             Completada = false;
             accionRealizada = false;
         }

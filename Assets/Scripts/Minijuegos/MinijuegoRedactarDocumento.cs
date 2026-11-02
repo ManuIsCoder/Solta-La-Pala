@@ -77,6 +77,8 @@ namespace SoltaLaPala.Minijuegos
         public string idCrayolas = "Crayolas";
         public string idDocumento = "Documento";
         public string idDibujo = "Dibujo";
+        public bool aplicarPuntajeAlEntregarAlNPC;
+        public bool completarTareaAlEntregarAlNPC;
 
         [Header("Ajustes")]
         [Tooltip("Si es true, permite probar el minijuego sin requerir tener birome o crayolas en el inventario")]
@@ -519,7 +521,10 @@ namespace SoltaLaPala.Minijuegos
 
             // Revelar completamente el arte correspondiente para un acabado limpio y uniforme
             bool fueSabotaje = pixelesReveladosCrayola > 0;
-            CompletarTareaNivel();
+            if (!completarTareaAlEntregarAlNPC)
+            {
+                CompletarTareaNivel();
+            }
             RevelarCompleto(fueSabotaje);
 
             if (barraProgreso != null) barraProgreso.value = 1f;
@@ -531,9 +536,9 @@ namespace SoltaLaPala.Minijuegos
             {
                 // Resultado Sabotaje: dibujo infantil
                 resultadoExito = false;
-                mensajeVentanaFinal = "¡Has arruinado el documento oficial llenándolo con un dibujo de nene!\nUn informe así perjudica a la empresa.";
+                mensajeVentanaFinal = "¡Has arruinado el documento oficial llenándolo con un dibujo!\nEntrégale el resultado a quien te encargó la tarea.";
 
-                if (EstadoPartida.Instancia != null)
+                if (!aplicarPuntajeAlEntregarAlNPC && EstadoPartida.Instancia != null)
                 {
                     EstadoPartida.Instancia.RegistrarSabotaje(3, 10, "Documento oficial adulterado");
                 }
@@ -549,9 +554,9 @@ namespace SoltaLaPala.Minijuegos
             {
                 // Resultado Exitoso: informe prolijo con birome
                 resultadoExito = true;
-                mensajeVentanaFinal = "Limpieza de oficina: Has redactado el documento de la empresa con éxito.\nLa sospecha sobre ti ha disminuido.";
+                mensajeVentanaFinal = "Has redactado el documento de la empresa con éxito.\nEntrégaselo a quien te encargó la tarea para completar el encargo.";
 
-                if (EstadoPartida.Instancia != null)
+                if (!aplicarPuntajeAlEntregarAlNPC && EstadoPartida.Instancia != null)
                 {
                     EstadoPartida.Instancia.ReducirSospecha(15);
                 }
