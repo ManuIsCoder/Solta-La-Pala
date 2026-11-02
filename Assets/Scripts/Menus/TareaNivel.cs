@@ -9,23 +9,27 @@ namespace SoltaLaPala.Menus
         [SerializeField, TextArea] private string dialogoEncargo;
         [SerializeField, TextArea] private string dialogoSeguimiento;
         [SerializeField, TextArea] private string dialogoCompletado;
+        [SerializeField] private bool requeridaParaCompletarNivel = true;
 
         private bool aceptarAutomaticamente;
         private bool accionRealizada;
 
         public string Id => id;
         public string Descripcion => descripcion;
+        public bool RequeridaParaCompletarNivel => requeridaParaCompletarNivel;
         public bool Aceptada { get; private set; }
         public bool Completada { get; private set; }
 
         public void Configurar(string idTarea, string nombre, string encargo,
-            string seguimiento, string completado, bool aceptarAlConfigurar = false)
+            string seguimiento, string completado, bool aceptarAlConfigurar = false,
+            bool requeridaParaNivel = true)
         {
             id = idTarea;
             descripcion = nombre;
             dialogoEncargo = encargo;
             dialogoSeguimiento = seguimiento;
             dialogoCompletado = completado;
+            requeridaParaCompletarNivel = requeridaParaNivel;
             aceptarAutomaticamente = aceptarAlConfigurar;
             accionRealizada = false;
             Aceptada = aceptarAutomaticamente;

@@ -36,6 +36,7 @@ namespace SoltaLaPala.Dialogue
         [Header("Entrega")]
         [Tooltip("Si esta marcado, el objeto tiene que estar en la mano. Si no, basta con llevarlo encima.")]
         public bool debeEstarEnLaMano = false;
+        public string textoAccionEntrega = "Entregar";
 
         public bool Completada { get; private set; }
 

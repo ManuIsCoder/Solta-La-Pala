@@ -99,18 +99,21 @@ namespace SoltaLaPala.Menus
                 },
                 "nivel 4" => new[]
                 {
-                    new DatosTarea(nameof(MinijuegoCafetera), "Prepara el café de la oficina",
+                    new DatosTarea(nameof(MinijuegoCafetera), "Prepara el café para Diego",
                         "¿Puedes prepararme un café en la cafetera? Lo necesito para seguir trabajando.",
                         "¿Ya está listo el café?",
-                        "¡Gracias por el café!"),
-                    new DatosTarea(nameof(MinijuegoDestaparBaño), "Destapa el baño",
+                        "¡Gracias por el café!",
+                        "NPCHombre3"),
+                    new DatosTarea(nameof(MinijuegoDestaparBaño), "Destapa el baño para Valentina",
                         "El baño está tapado y nadie se está haciendo cargo. ¿Puedes destaparlo?",
                         "¿Pudiste arreglar el baño?",
-                        "¡Menos mal! Ya se puede usar el baño."),
-                    new DatosTarea(nameof(MinijuegoRegarPlanta), "Atiende la planta de la oficina",
+                        "¡Menos mal! Ya se puede usar el baño.",
+                        "NPCMujer3"),
+                    new DatosTarea(nameof(MinijuegoRegarPlanta), "Riega la planta para Sofía",
                         "La planta de la oficina necesita atención. ¿Puedes ocuparte de ella?",
                         "¿Cómo quedó la planta?",
-                        "Gracias, la planta ya está atendida.")
+                        "Gracias, la planta ya está atendida.",
+                        "NPCMujer1")
                 },
                 _ => Array.Empty<DatosTarea>()
             };
@@ -157,6 +160,15 @@ namespace SoltaLaPala.Menus
                 {
                     ConfigurarIdentidadNpcNivelTres(npc);
                 }
+            }
+            else if (escena == "nivel 4")
+            {
+                foreach (DialogoNPC npc in npcDisponibles)
+                {
+                    ConfigurarIdentidadNpcNivelCuatro(npc);
+                }
+
+                ConfigurarSospechaSabotajeNivelCuatro();
             }
 
             MinijuegoBase[] minijuegos = UnityEngine.Object.FindObjectsByType<MinijuegoBase>(
@@ -211,6 +223,11 @@ namespace SoltaLaPala.Menus
                 }
                 npcsAsignados.Add(npc);
                 ids.Add(tareas[i].id);
+            }
+
+            if (escena == "nivel 4")
+            {
+                ConfigurarRegaloSoreteNivelCuatro(npcDisponibles);
             }
 
             if (escena == "nivel 2")
@@ -270,6 +287,76 @@ namespace SoltaLaPala.Menus
             }
 
             npc.gameObject.name = npc.nombre;
+            npc.EstablecerTipoDialogoInicial(TipoDialogo.Mision);
+            npc.UsarDialogoTareaEnMision();
+        }
+
+        private static void ConfigurarIdentidadNpcNivelCuatro(DialogoNPC npc)
+        {
+            string nombre;
+            switch (npc.id)
+            {
+                case "NPCHombre3":
+                    nombre = "Diego";
+                    break;
+                case "NPCMujer3":
+                    nombre = "Valentina";
+                    break;
+                case "NPCMujer1":
+                    nombre = "Sofía";
+                    break;
+                case "NPCHombre4":
+                    nombre = "Tomás";
+                    break;
+                default:
+                    return;
+            }
+
+            npc.nombre = nombre;
+            npc.gameObject.name = nombre;
+            npc.EstablecerTipoDialogoInicial(TipoDialogo.Charla);
+        }
+
+        private static void ConfigurarSospechaSabotajeNivelCuatro()
+        {
+            int sospechaPorSabotaje = Mathf.CeilToInt(
+                (EstadoPartida.Instancia != null ? EstadoPartida.Instancia.SospechaMaxima : 100) * 0.2f);
+
+            MinijuegoCafetera cafetera = UnityEngine.Object.FindAnyObjectByType<MinijuegoCafetera>(
+                FindObjectsInactive.Include);
+            if (cafetera != null)
+            {
+                cafetera.sospechaSabotaje = sospechaPorSabotaje;
+            }
+
+            MinijuegoRegarPlanta planta = UnityEngine.Object.FindAnyObjectByType<MinijuegoRegarPlanta>(
+                FindObjectsInactive.Include);
+            if (planta != null)
+            {
+                planta.sospechaSabotaje = sospechaPorSabotaje;
+            }
+        }
+
+        private static void ConfigurarRegaloSoreteNivelCuatro(List<DialogoNPC> npcDisponibles)
+        {
+            DialogoNPC npc = npcDisponibles.Find(disponible => disponible.id == "NPCHombre4");
+            DatosItem sorete = Resources.Load<DatosItem>("Items/Sorete");
+            if (npc == null || sorete == null)
+            {
+                Debug.LogError("[Nivel 4] No se pudo configurar el regalo del sorete para NPCHombre4.");
+                return;
+            }
+
+            ConfigurarTarea(npc, new DatosTarea(
+                "RegalarSorete", "Regálale el sorete a Tomás",
+                "Cuando destapes el baño, ¿me regalarías el sorete que encuentres?",
+                "¿Encontraste el sorete para regalarme?",
+                "¡Gracias por el regalo! No preguntes para qué lo quiero.",
+                "NPCHombre4"), requeridaParaNivel: false);
+            ConfigurarMision(npc, sorete, "¡Gracias por el regalo! No preguntes para qué lo quiero.");
+            MisionEntrega mision = npc.GetComponent<MisionEntrega>();
+            mision.sospechaQueQuitaCumplir = 0;
+            mision.textoAccionEntrega = "Regalar";
             npc.EstablecerTipoDialogoInicial(TipoDialogo.Mision);
             npc.UsarDialogoTareaEnMision();
         }
@@ -338,7 +425,7 @@ namespace SoltaLaPala.Menus
         }
 
         private static void ConfigurarTarea(DialogoNPC npc, DatosTarea datos,
-            bool aceptarAutomaticamente = false)
+            bool aceptarAutomaticamente = false, bool requeridaParaNivel = true)
         {
             if (npc == null)
             {
@@ -353,7 +440,7 @@ namespace SoltaLaPala.Menus
             }
 
             tarea.Configurar(datos.id, datos.descripcion, datos.encargo,
-                datos.seguimiento, datos.completado, aceptarAutomaticamente);
+                datos.seguimiento, datos.completado, aceptarAutomaticamente, requeridaParaNivel);
         }
 
         private static void ConfigurarPanel(string[] ids)

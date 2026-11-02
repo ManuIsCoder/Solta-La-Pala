@@ -72,7 +72,7 @@ namespace SoltaLaPala.Dialogue
             MisionEntrega misionActual = ObtenerMision();
             if (misionActual != null && misionActual.HayEntregaPosible())
             {
-                return $"[E] Entregar a {nombre}";
+                return $"[E] {misionActual.textoAccionEntrega} a {nombre}";
             }
 
             return $"[E] Hablar con {nombre}";

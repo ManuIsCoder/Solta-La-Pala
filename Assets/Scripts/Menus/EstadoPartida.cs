@@ -456,7 +456,7 @@ namespace SoltaLaPala.Menus
 
             foreach (TareaNivel tarea in tareas)
             {
-                if (tarea != null && !tarea.Completada)
+                if (tarea != null && tarea.RequeridaParaCompletarNivel && !tarea.Completada)
                 {
                     pendientes++;
                 }

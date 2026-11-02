@@ -31,6 +31,7 @@ namespace SoltaLaPala.Minijuegos
         [Header("Ajustes")]
         public float velocidadDeLlenado = 0.2f;
         public float tiempoParticulas = 1.5f;
+        public int sospechaSabotaje = 5;
         [Tooltip("Activa esto para probar el minijuego sin requerir tener la taza o salero en el inventario")]
         public bool modoPrueba = false;
 
@@ -133,7 +134,7 @@ namespace SoltaLaPala.Minijuegos
             CompletarTareaNivel();
 
             int impacto = sabotajeSal ? 2 : 1;
-            int sospecha = sabotajeSal ? 5 : 0;
+            int sospecha = sabotajeSal ? sospechaSabotaje : 0;
 
             if (EstadoPartida.Instancia != null)
                 EstadoPartida.Instancia.RegistrarSabotaje(

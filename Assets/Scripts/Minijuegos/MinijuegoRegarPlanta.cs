@@ -38,6 +38,7 @@ namespace SoltaLaPala.Minijuegos
         [Range(0f, 90f)] public float inclinacionMaxima = 85f;
         public Color colorAgua = new Color(0.35f, 0.8f, 1f, 1f);
         public Color colorEnergetica = new Color(0.3f, 0.95f, 0.35f, 1f);
+        public int sospechaSabotaje = 7;
 
         private sealed class GotaUI
         {
@@ -410,7 +411,7 @@ namespace SoltaLaPala.Minijuegos
             }
 
             int impacto = esSabotaje ? 3 : 1;
-            int sospecha = esSabotaje ? 7 : 0;
+            int sospecha = esSabotaje ? sospechaSabotaje : 0;
 
             if (EstadoPartida.Instancia != null)
                 EstadoPartida.Instancia.RegistrarSabotaje(
