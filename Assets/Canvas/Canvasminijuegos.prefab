@@ -3220,7 +3220,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 880, y: 380}
+  m_SizeDelta: {x: 1200, y: 675}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6876285712846228680
 CanvasRenderer:
@@ -6988,7 +6988,7 @@ MonoBehaviour:
   barraCalentado: {fileID: 1512562747265983907}
   particulasHumo: {fileID: 3644813762301010664}
   velocidadCalentado: 0.15
-  desplazamientoPuertaAbierta: -250
+  desplazamientoPuertaAbierta: -320
   modoPrueba: 0
 --- !u!1 &8574154597919986991
 GameObject:

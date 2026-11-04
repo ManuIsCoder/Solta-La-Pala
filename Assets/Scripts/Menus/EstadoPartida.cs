@@ -19,6 +19,8 @@ namespace SoltaLaPala.Menus
     {
         public string tarea;
         public int impacto;
+        public int sospechaTarea;
+        public int sospechaObjeto;
         public bool testigo;
     }
 
@@ -45,9 +47,13 @@ namespace SoltaLaPala.Menus
         [Header("Estado actual")]
         [SerializeField] private int impacto;
         [SerializeField] private int sospecha;
+        [SerializeField] private int sospechaDeTareas;
+        [SerializeField] private int sospechaPorObjetos;
         [SerializeField] private float tiempoRestante;
         private readonly List<RegistroTareaSaboteada> tareasSaboteadas =
             new List<RegistroTareaSaboteada>();
+        private readonly Dictionary<DatosItem, string> etiquetasMisionPorItem =
+            new Dictionary<DatosItem, string>();
         private bool requiereMisionDiscurso;
         private bool misionDiscursoCompletada;
 
@@ -59,6 +65,8 @@ namespace SoltaLaPala.Menus
 
         public int Impacto => impacto;
         public int Sospecha => sospecha;
+        public int SospechaDeTareas => sospechaDeTareas;
+        public int SospechaPorObjetos => sospechaPorObjetos;
         public int ImpactoObjetivo => impactoObjetivo;
         public int SospechaMaxima => sospechaMaxima;
         public IReadOnlyList<RegistroTareaSaboteada> TareasSaboteadas => tareasSaboteadas;
@@ -216,7 +224,7 @@ namespace SoltaLaPala.Menus
                 && HayTareasConfiguradas()
                 && ObtenerMisionesPendientes() == 0)
             {
-                bool huboSabotaje = tareasSaboteadas.Count > 0;
+                bool huboSabotaje = tareasSaboteadas.Exists(registro => registro.impacto > 0);
                 string detalle = huboSabotaje
                     ? "Completaste todas las tareas y arruinaste parte del trabajo."
                     : "Completaste todas las tareas, pero no arruinaste nada. Perdiste el nivel.";
@@ -261,6 +269,13 @@ namespace SoltaLaPala.Menus
 
         private void ActualizarSospechaContinua()
         {
+            InventarioJugador inventario = InventarioJugador.DelJugador();
+            DatosItem itemSospechoso = inventario != null
+                && inventario.ItemSeleccionado != null
+                && inventario.ItemSeleccionado.esSospechoso
+                    ? inventario.ItemSeleccionado
+                    : null;
+
             if (!EsJugadorSospechoso())
             {
                 return;
@@ -282,7 +297,17 @@ namespace SoltaLaPala.Menus
             int nuevaSospecha = Mathf.Min(sospechaMaxima, Mathf.FloorToInt(sospechaAcumulada));
             if (nuevaSospecha != sospecha)
             {
+                int sospechaGanada = nuevaSospecha - sospecha;
                 sospecha = nuevaSospecha;
+                if (itemSospechoso != null)
+                {
+                    RegistrarSospechaPorObjeto(sospechaGanada, itemSospechoso);
+                }
+                else
+                {
+                    RegistrarSospechaDeTarea(sospechaGanada, "Accion sospechosa");
+                }
+
                 AlCambiarContadores?.Invoke(impacto, sospecha);
                 ComprobarFinal();
             }
@@ -326,19 +351,102 @@ namespace SoltaLaPala.Menus
 
             bool testigo = HayNPCViendoAlJugador();
             HuboTestigo |= testigo;
-            if (impactoGanado > 0 && !string.IsNullOrWhiteSpace(tarea))
+            if (sospechaGanada > 0)
             {
-                tareasSaboteadas.Add(new RegistroTareaSaboteada
-                {
-                    tarea = tarea,
-                    impacto = impactoGanado,
-                    testigo = testigo
-                });
+                sospechaDeTareas += sospechaGanada;
+            }
+
+            if ((impactoGanado > 0 && !string.IsNullOrWhiteSpace(tarea))
+                || sospechaGanada > 0)
+            {
+                RegistroTareaSaboteada registro = ObtenerRegistro(
+                    string.IsNullOrWhiteSpace(tarea) ? "Sospecha de tarea" : tarea);
+                registro.impacto += impactoGanado;
+                registro.sospechaTarea += Mathf.Max(0, sospechaGanada);
+                registro.testigo |= testigo;
             }
 
             AlCambiarContadores?.Invoke(impacto, sospecha);
 
             ComprobarFinal();
+        }
+
+        private void RegistrarSospechaDeTarea(int cantidad, string tarea)
+        {
+            if (cantidad <= 0)
+            {
+                return;
+            }
+
+            sospechaDeTareas += cantidad;
+            RegistroTareaSaboteada registro = ObtenerRegistro(tarea);
+            registro.sospechaTarea += cantidad;
+            registro.testigo |= HuboTestigo;
+        }
+
+        private void RegistrarSospechaPorObjeto(int cantidad, DatosItem item)
+        {
+            if (cantidad <= 0 || item == null)
+            {
+                return;
+            }
+
+            sospechaPorObjetos += cantidad;
+            RegistroTareaSaboteada registro = ObtenerRegistro(ObtenerEtiquetaMision(item));
+            registro.sospechaObjeto += cantidad;
+            registro.testigo = true;
+        }
+
+        private RegistroTareaSaboteada ObtenerRegistro(string tarea)
+        {
+            for (int i = 0; i < tareasSaboteadas.Count; i++)
+            {
+                if (tareasSaboteadas[i].tarea == tarea)
+                {
+                    return tareasSaboteadas[i];
+                }
+            }
+
+            RegistroTareaSaboteada registro = new RegistroTareaSaboteada
+            {
+                tarea = tarea,
+                testigo = HuboTestigo
+            };
+            tareasSaboteadas.Add(registro);
+            return registro;
+        }
+
+        private string ObtenerEtiquetaMision(DatosItem item)
+        {
+            if (etiquetasMisionPorItem.TryGetValue(item, out string etiqueta))
+            {
+                return etiqueta;
+            }
+
+            MisionEntrega[] misiones = FindObjectsByType<MisionEntrega>(
+                FindObjectsInactive.Include, FindObjectsSortMode.None);
+            foreach (MisionEntrega mision in misiones)
+            {
+                bool perteneceAMision = mision.itemCorrecto == item;
+                if (!perteneceAMision && mision.itemsSaboteados != null)
+                {
+                    perteneceAMision = Array.IndexOf(mision.itemsSaboteados, item) >= 0;
+                }
+
+                if (perteneceAMision)
+                {
+                    TareaNivel tarea = mision.GetComponent<TareaNivel>();
+                    etiqueta = tarea != null && !string.IsNullOrWhiteSpace(tarea.Descripcion)
+                        ? tarea.Descripcion
+                        : $"Encargo de {mision.name}";
+                    etiquetasMisionPorItem[item] = etiqueta;
+                    return etiqueta;
+                }
+            }
+
+            etiqueta = string.IsNullOrWhiteSpace(item.nombre) ? item.name : item.nombre;
+            etiquetasMisionPorItem[item] = etiqueta;
+            return etiqueta;
         }
 
         public void CambiarSospecha(int cantidad)
@@ -608,7 +716,7 @@ namespace SoltaLaPala.Menus
             PartidaEnCurso = false;
 
             int nivel = ProgresoNiveles.NivelActual;
-            ProgresoNiveles.GuardarResultado(nivel, impacto, sospecha);
+            ProgresoNiveles.GuardarResultado(nivel, sospechaDeTareas, sospechaPorObjetos);
 
             if (victoria)
             {
@@ -639,9 +747,12 @@ namespace SoltaLaPala.Menus
         {
             impacto = 0;
             sospecha = 0;
+            sospechaDeTareas = 0;
+            sospechaPorObjetos = 0;
             sospechaAcumulada = sospecha;
             tiempoRestante = duracionNivel;
             tareasSaboteadas.Clear();
+            etiquetasMisionPorItem.Clear();
             HuboTestigo = false;
             misionDiscursoCompletada = false;
             PartidaTerminada = false;
@@ -657,6 +768,8 @@ namespace SoltaLaPala.Menus
         {
             datos.impacto = impacto;
             datos.sospecha = sospecha;
+            datos.sospechaDeTareas = sospechaDeTareas;
+            datos.sospechaPorObjetos = sospechaPorObjetos;
             datos.tiempoRestante = tiempoRestante;
         }
 
@@ -664,6 +777,8 @@ namespace SoltaLaPala.Menus
         {
             impacto = datos.impacto;
             sospecha = datos.sospecha;
+            sospechaDeTareas = datos.sospechaDeTareas;
+            sospechaPorObjetos = datos.sospechaPorObjetos;
             sospechaAcumulada = sospecha;
 
             tiempoRestante = datos.tiempoRestante > 0f ? datos.tiempoRestante : duracionNivel;

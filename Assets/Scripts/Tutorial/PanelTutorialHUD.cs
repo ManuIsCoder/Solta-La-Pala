@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 using SoltaLaPala.Dialogue;
 using SoltaLaPala.Menus;
 
@@ -60,11 +61,11 @@ namespace SoltaLaPala.Tutorial
                     datos = ScriptableObject.CreateInstance<DatosTutorial>();
                     datos.pasos = new PasoTutorial[]
                     {
-                        new PasoTutorial { texto = "Usa WASD para moverte y el mouse para mirar. Mantén Shift para correr.", condicion = CondicionPaso.SoloManual },
+                        new PasoTutorial { texto = "Usa WASD para moverte y el mouse para mirar. Mantén Shift para correr.\nUsa las flechitas <- y -> para cambiar de slide.", condicion = CondicionPaso.SoloManual },
                         new PasoTutorial { texto = "Habla con los personajes para que te asignen misiones.", condicion = CondicionPaso.SoloManual },
                         new PasoTutorial { texto = "Abre o cierra el panel de misiones con Tab. Debes completar todas para pasar de nivel.", condicion = CondicionPaso.SoloManual },
                         new PasoTutorial { texto = "Arruina las tareas para sumar Impacto sin llenar la barra de Sospecha.", condicion = CondicionPaso.SoloManual },
-                        new PasoTutorial { texto = "El ojo de abajo indica si algun personaje te esta viendo.", condicion = CondicionPaso.SoloManual }
+                        new PasoTutorial { texto = "El ojo de abajo muestra si un NPC te ve: cerrado significa que nadie te ve, blanco que te ve desde lejos y rojo que te vio de cerca. Si eres sospechoso, estar a la vista aumenta la Sospecha; el rojo la aumenta mas rapido.", condicion = CondicionPaso.SoloManual }
                     };
                 }
             }
@@ -127,7 +128,8 @@ namespace SoltaLaPala.Tutorial
                 return;
             }
 
-            bool jugando = _estadoSuscrito != null
+            bool jugando = SceneManager.GetActiveScene().name == "nivel 1"
+                && _estadoSuscrito != null
                 && _estadoSuscrito.PartidaEnCurso
                 && (!ocultarConMenusAbiertos || GestorMenus.Instancia == null || !GestorMenus.Instancia.HayMenuAbierto);
 
@@ -189,6 +191,11 @@ namespace SoltaLaPala.Tutorial
 
         void MostrarPanel()
         {
+            if (SceneManager.GetActiveScene().name != "nivel 1")
+            {
+                return;
+            }
+
             _panelCerrado = false;
             if (_canvas != null)
                 _canvas.gameObject.SetActive(true);

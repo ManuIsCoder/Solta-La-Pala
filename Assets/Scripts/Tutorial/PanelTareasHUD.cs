@@ -76,7 +76,7 @@ namespace SoltaLaPala.Tutorial
                 {
                     tareas = new[]
                     {
-                        "Entrega la pala a Mario",
+                        "Entrega la pala",
                         "Elige un discurso para la oficina"
                     };
                     idMisionesAsociadas = new[] { "Mario", "" };
@@ -85,8 +85,8 @@ namespace SoltaLaPala.Tutorial
                 {
                     tareas = new[]
                     {
-                        "Calienta y entrega el sándwich a Lucía",
-                        "Descarta los archivos de la laptop del escritorio con la foto del gato"
+                        "Calienta y entrega el sándwich",
+                        "Descartar archivos obsoletos"
                     };
                     idMisionesAsociadas = new[] { "", "" };
                 }
@@ -95,7 +95,7 @@ namespace SoltaLaPala.Tutorial
                     tareas = new[]
                     {
                         "Hablar con Recepcionista [E]",
-                        "Entregar encargo a Recepcionista",
+                        "Entregar encargo",
                         "Sabotear el café de la oficina"
                     };
                     idMisionesAsociadas = new[]

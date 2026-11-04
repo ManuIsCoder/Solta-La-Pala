@@ -24,9 +24,8 @@ namespace SoltaLaPala.NPC
         public float velocidadGiro = 240f;
 
         [Header("Indicador visible")]
-        [Tooltip("Pelota pegada a la cabeza que gira con ella, para que se vea en el juego " +
-                 "hacia donde mira el NPC. Roja cuando te sigue, blanca cuando mira al frente.")]
-        public bool mostrarIndicador = true;
+        [Tooltip("Activa la esfera de depuración que muestra hacia dónde mira el NPC.")]
+        public bool mostrarIndicador = false;
 
         [Tooltip("Donde flota la pelota respecto a la cabeza. Z = hacia adelante.")]
         public Vector3 offsetIndicador = new Vector3(0f, 0f, 0.6f);

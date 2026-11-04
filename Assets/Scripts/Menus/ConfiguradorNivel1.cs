@@ -46,7 +46,7 @@ namespace SoltaLaPala.Menus
             ConfigurarMision(mario, pala, "¡Gracias! Justo lo que necesitaba.");
             EstadoPartida.Instancia?.ConfigurarMisionDiscurso(true);
             ConfigurarTarea(mario, new DatosTarea(
-                "EntregaPala", "Entrega la pala a Mario",
+                "EntregaPala", "Entrega la pala",
                 "Necesito una pala para arreglar la maceta de la oficina. ¿Me ayudas a conseguirla?",
                 "¿Pudiste encontrar la pala para arreglar la maceta?",
                 "¡Gracias! Ahora puedo arreglar la maceta."));
@@ -73,12 +73,12 @@ namespace SoltaLaPala.Menus
             {
                 "nivel 2" => new[]
                 {
-                    new DatosTarea(nameof(MinijuegoMicroondas), "Calienta y entrega el sándwich a Lucía",
+                    new DatosTarea(nameof(MinijuegoMicroondas), "Calienta y entrega el sándwich",
                         "¿Puedes calentarme un sándwich en el microondas y traérmelo cuando esté listo?",
                         "¿Ya está listo mi sándwich caliente?",
                         "¡Gracias por traerlo caliente!",
                         "NPCMujer1"),
-                    new DatosTarea(nameof(MinijuegoBorrarDatos), "Descarta los archivos de la laptop del escritorio con la foto del gato",
+                    new DatosTarea(nameof(MinijuegoBorrarDatos), "Descartar archivos obsoletos",
                         "Descarta los archivos de la laptop que está en el escritorio con la foto del gato. Solo borra los archivos personales.",
                         "¿Pudiste descartar los archivos personales de la laptop del escritorio con la foto del gato?",
                         "Perfecto, ya quedó ordenado el escritorio de la laptop.",
@@ -86,12 +86,12 @@ namespace SoltaLaPala.Menus
                 },
                 "nivel 3" => new[]
                 {
-                    new DatosTarea(nameof(MinijuegoFotocopiar), "Entrega la fotocopia a Ramiro",
+                    new DatosTarea(nameof(MinijuegoFotocopiar), "Entrega la fotocopia",
                         "Necesito una copia para la reunión. ¿Puedes usar la fotocopiadora y traerme el resultado?",
                         "¿Pudiste traerme la copia para la reunión?",
                         "Gracias por traerme la copia para la reunión.",
                         "NPCHombre1"),
-                    new DatosTarea(nameof(MinijuegoRedactarDocumento), "Entrega el documento a Clara",
+                    new DatosTarea(nameof(MinijuegoRedactarDocumento), "Entrega el documento",
                         "¿Puedes completar el documento que dejé en el papel del escritorio de al lado y traerme el resultado?",
                         "¿Pudiste traerme el documento del papel que dejé en el escritorio de al lado?",
                         "Gracias por traerme el documento; ya puedo enviarlo.",
@@ -99,21 +99,21 @@ namespace SoltaLaPala.Menus
                 },
                 "nivel 4" => new[]
                 {
-                    new DatosTarea(nameof(MinijuegoCafetera), "Prepara el café para Diego",
-                        "¿Puedes prepararme un café en la cafetera? Lo necesito para seguir trabajando.",
-                        "¿Ya está listo el café?",
-                        "¡Gracias por el café!",
-                        "NPCHombre3"),
-                    new DatosTarea(nameof(MinijuegoDestaparBaño), "Destapa el baño para Valentina",
+                    new DatosTarea(nameof(MinijuegoCafetera), "Prepara el café",
+                        "¿Podrías prepararme un café? Lo necesito para seguir trabajando.",
+                        "¿Ya está listo mi café?",
+                        "¡Gracias por prepararme el café!",
+                        "NPCMujer1"),
+                    new DatosTarea(nameof(MinijuegoDestaparBaño), "Destapa el baño",
                         "El baño está tapado y nadie se está haciendo cargo. ¿Puedes destaparlo?",
                         "¿Pudiste arreglar el baño?",
                         "¡Menos mal! Ya se puede usar el baño.",
                         "NPCMujer3"),
-                    new DatosTarea(nameof(MinijuegoRegarPlanta), "Riega la planta para Sofía",
+                    new DatosTarea(nameof(MinijuegoRegarPlanta), "Riega la planta",
                         "La planta de la oficina necesita atención. ¿Puedes ocuparte de ella?",
                         "¿Cómo quedó la planta?",
                         "Gracias, la planta ya está atendida.",
-                        "NPCMujer1")
+                        "NPCHombre3")
                 },
                 _ => Array.Empty<DatosTarea>()
             };
@@ -228,6 +228,7 @@ namespace SoltaLaPala.Menus
             if (escena == "nivel 4")
             {
                 ConfigurarRegaloSoreteNivelCuatro(npcDisponibles);
+                ids.Add("RegalarSorete");
             }
 
             if (escena == "nivel 2")
@@ -348,14 +349,15 @@ namespace SoltaLaPala.Menus
             }
 
             ConfigurarTarea(npc, new DatosTarea(
-                "RegalarSorete", "Regálale el sorete a Tomás",
-                "Cuando destapes el baño, ¿me regalarías el sorete que encuentres?",
-                "¿Encontraste el sorete para regalarme?",
-                "¡Gracias por el regalo! No preguntes para qué lo quiero.",
+                "RegalarSorete", "Entregar regalo al cumpleañero",
+                "Hoy es mi cumpleaños.\n¿Me has traído algún regalo?",
+                "¿Pudiste encontrar algún regalo?",
+                "¡Qué asco! ¿Este era mi regalo de cumpleaños?",
                 "NPCHombre4"), requeridaParaNivel: false);
-            ConfigurarMision(npc, sorete, "¡Gracias por el regalo! No preguntes para qué lo quiero.");
+            ConfigurarMision(npc, sorete, "¡Qué asco! ¿Este era mi regalo de cumpleaños?");
             MisionEntrega mision = npc.GetComponent<MisionEntrega>();
             mision.sospechaQueQuitaCumplir = 0;
+            mision.sospechaPorEntregaCorrecta = 10;
             mision.textoAccionEntrega = "Regalar";
             npc.EstablecerTipoDialogoInicial(TipoDialogo.Mision);
             npc.UsarDialogoTareaEnMision();

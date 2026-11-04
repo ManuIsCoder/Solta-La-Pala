@@ -272,7 +272,7 @@ namespace SoltaLaPala.Player
             float masCercano = largo;
             for (int i = 0; i < cantidad; i++)
             {
-                if (impactos[i].transform.IsChildOf(objetivo))
+                if (impactos[i].transform == objetivo || impactos[i].transform.IsChildOf(objetivo))
                 {
                     continue;
                 }

@@ -5,6 +5,8 @@ namespace SoltaLaPala.Dialogue
     [RequireComponent(typeof(DialogoNPC))]
     public class SonidosNPC : MonoBehaviour
     {
+        private const float MultiplicadorIntervaloTos = 2.5f;
+
         private DialogoNPC npc;
         private AudioSource fuenteVoz;
         private AudioSource fuenteTos;
@@ -142,11 +144,13 @@ namespace SoltaLaPala.Dialogue
         {
             if (primeraVez)
             {
-                proximaTos = Time.time + Random.Range(4f, 10f);
+                proximaTos = Time.time + Random.Range(4f, 10f) * MultiplicadorIntervaloTos;
             }
             else
             {
-                proximaTos = Time.time + Random.Range(npc.tosCadaMinimo, Mathf.Max(npc.tosCadaMinimo, npc.tosCadaMaximo));
+                proximaTos = Time.time + Random.Range(
+                    npc.tosCadaMinimo, Mathf.Max(npc.tosCadaMinimo, npc.tosCadaMaximo))
+                    * MultiplicadorIntervaloTos;
             }
         }
 

@@ -13,6 +13,8 @@ namespace SoltaLaPala.Guardado
         public int nivel = 1;
         public int impacto;
         public int sospecha;
+        public int sospechaDeTareas;
+        public int sospechaPorObjetos;
 
         public float tiempoRestante;
 

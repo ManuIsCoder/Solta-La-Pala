@@ -27,7 +27,7 @@ namespace SoltaLaPala.Minijuegos
         public float velocidadCalentado = 0.15f;
         [Tooltip("Activa esto para probar el minijuego sin requerir tener sándwich o tenedor en el inventario")]
         public bool modoPrueba = false;
-        public float desplazamientoPuertaAbierta = -250f;
+        public float desplazamientoPuertaAbierta = -320f;
 
         private readonly Dictionary<string, ArrastrableUI> iconosInventario =
             new Dictionary<string, ArrastrableUI>();
@@ -71,12 +71,31 @@ namespace SoltaLaPala.Minijuegos
             }
 
             imagenBase.raycastTarget = false;
-            Transform fondo = transform.Find("FondoCocina");
+            Transform fondo = imagenFondo != null
+                ? imagenFondo.transform
+                : transform.Find("FondoCocina");
             if (fondo != null)
             {
+                imagenFondo = fondo.GetComponent<Image>();
+                fondo.gameObject.SetActive(true);
                 fondo.SetAsFirstSibling();
                 imagenBase.transform.SetSiblingIndex(1);
             }
+            if (imagenFondo == null)
+            {
+                Debug.LogError("[MinijuegoMicroondas] Falta la imagen 'FondoCocina' en el panel.", this);
+                return;
+            }
+            Sprite spriteFondo = Resources.Load<Sprite>("Sprites/Minijuegos/fondo cocina");
+            if (spriteFondo == null)
+            {
+                Debug.LogError("[MinijuegoMicroondas] No se encontró el sprite Resources/Sprites/Minijuegos/fondo cocina.", this);
+                return;
+            }
+            imagenFondo.sprite = spriteFondo;
+            imagenFondo.color = Color.white;
+            imagenFondo.enabled = true;
+            imagenFondo.raycastTarget = false;
             posicionPuertaCerrada = rectPuerta.anchoredPosition;
             escalaPuertaCerrada = rectPuerta.localScale;
             puertaRecibeRaycastsDuranteArrastre = imagenPuerta.raycastTarget;
@@ -241,7 +260,7 @@ namespace SoltaLaPala.Minijuegos
         private void CrearZonasArrastre(Image imagenBase)
         {
             GameObject objetoInterior = CrearZona("ZonaInteriorMicroondas",
-                imagenBase.transform, new Vector2(-85f, -5f), new Vector2(220f, 175f));
+                imagenBase.transform, new Vector2(-35f, -5f), new Vector2(280f, 220f));
             zonaInterior = objetoInterior.GetComponent<ZonaObjetivoUI>();
             zonaInterior.AlSoltarObjeto += AlSoltarEnInterior;
 

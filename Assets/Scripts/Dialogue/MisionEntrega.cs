@@ -19,6 +19,8 @@ namespace SoltaLaPala.Dialogue
         [Header("Recompensa por cumplir")]
         [Tooltip("Cuanta sospecha te quita entregar lo correcto.")]
         public int sospechaQueQuitaCumplir = 10;
+        [Tooltip("Sospecha adicional que genera entregar correctamente este objeto.")]
+        public int sospechaPorEntregaCorrecta;
 
         [Header("Recompensa por sabotear")]
         [Tooltip("Impacto que da colarle el objeto equivocado.")]
@@ -184,10 +186,19 @@ namespace SoltaLaPala.Dialogue
                 return;
             }
 
+            if (sospechaPorEntregaCorrecta > 0)
+            {
+                estado.RegistrarSabotaje(
+                    0,
+                    sospechaPorEntregaCorrecta,
+                    $"Encargo de {nombreNpc}");
+            }
+
             estado.ReducirSospecha(sospechaQueQuitaCumplir);
 
             Debug.Log($"[MisionEntrega] {name}: encargo cumplido. " +
-                      $"Sospecha -{sospechaQueQuitaCumplir}.");
+                      $"Sospecha +{sospechaPorEntregaCorrecta}, " +
+                      $"-{sospechaQueQuitaCumplir}.");
         }
 
         private bool BuscarEntrega(out int slot, out bool esSabotaje)

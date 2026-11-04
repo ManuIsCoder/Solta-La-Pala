@@ -1,3 +1,4 @@
+using System;
 using SoltaLaPala.Interaction;
 using SoltaLaPala.Menus;
 using UnityEngine;
@@ -110,8 +111,11 @@ namespace SoltaLaPala.Dialogue
 
             if (tareaNivel != null && !tareaNivel.Aceptada)
             {
+                string dialogoInicial = tareaNivel.ObtenerDialogo();
                 tareaNivel.Aceptar();
-                GestorDialogos.Instancia.MostrarFraseSuelta(this, tareaNivel.ObtenerDialogo());
+                string[] frases = dialogoInicial.Split(
+                    new[] { "\r\n", "\n", "\r" }, StringSplitOptions.RemoveEmptyEntries);
+                GestorDialogos.Instancia.MostrarFrasesSueltas(this, frases);
                 return;
             }
 

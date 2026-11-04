@@ -172,7 +172,26 @@ namespace SoltaLaPala.Dialogue
 
         public void MostrarFraseSuelta(DialogoNPC npc, string frase)
         {
-            if (DialogoActivo || npc == null || string.IsNullOrWhiteSpace(frase))
+            MostrarFrasesSueltas(npc, frase);
+        }
+
+        public void MostrarFrasesSueltas(DialogoNPC npc, params string[] frases)
+        {
+            if (DialogoActivo || npc == null || frases == null)
+            {
+                return;
+            }
+
+            List<LineaDialogo> lineas = new List<LineaDialogo>();
+            foreach (string frase in frases)
+            {
+                if (!string.IsNullOrWhiteSpace(frase))
+                {
+                    lineas.Add(new LineaDialogo(frase.Trim()));
+                }
+            }
+
+            if (lineas.Count == 0)
             {
                 return;
             }
@@ -182,7 +201,7 @@ namespace SoltaLaPala.Dialogue
 
             fraseSuelta = true;
 
-            lineasActuales = new List<LineaDialogo> { new LineaDialogo(frase) };
+            lineasActuales = lineas;
             indiceLinea = 0;
             esperandoRespuesta = false;
             DialogoActivo = true;

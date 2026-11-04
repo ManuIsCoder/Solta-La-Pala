@@ -48,7 +48,23 @@ namespace SoltaLaPala.Menus{
 
         private void ObtenerSpritesFallback()
         {
-            if (spriteSinVer != null && spriteVeLejos != null && spriteVeCerca != null) return;
+            if (spriteSinVer == null)
+            {
+                spriteSinVer = Resources.Load<Sprite>("Sprites/Ojo cerrado");
+            }
+            if (spriteVeLejos == null)
+            {
+                spriteVeLejos = Resources.Load<Sprite>("Sprites/Ojo Viendo");
+            }
+            if (spriteVeCerca == null)
+            {
+                spriteVeCerca = Resources.Load<Sprite>("Sprites/Ojo alerta");
+            }
+
+            if (spriteSinVer != null && spriteVeLejos != null && spriteVeCerca != null)
+            {
+                return;
+            }
 
             IndicadorVisionNPC indicador = FindFirstObjectByType<IndicadorVisionNPC>();
             if (indicador != null)
@@ -101,31 +117,36 @@ namespace SoltaLaPala.Menus{
 
             if (estado == ultimoEstado) return;
             ultimoEstado = estado;
+
+            Sprite sprite;
+            Color color;
             switch (estado)
             {
                 case DetectorVisionNPC.EstadoVision.VeCerca:
-                    imagenOjo.sprite = spriteVeCerca != null ? spriteVeCerca : spriteVeLejos;
-                    imagenOjo.color = colorAlerta;
-                    imagenOjo.enabled = true;
+                    sprite = spriteVeCerca != null ? spriteVeCerca : spriteVeLejos;
+                    color = colorAlerta;
                     break;
                 case DetectorVisionNPC.EstadoVision.VeLejos:
-                    imagenOjo.sprite = spriteVeLejos;
-                    imagenOjo.color = colorNormal;
-                    imagenOjo.enabled = true;
+                    sprite = spriteVeLejos;
+                    color = colorNormal;
                     break;
                 default:
                     if (ocultarSiNoTeVe)
                     {
-                        imagenOjo.enabled = false;
+                        sprite = null;
+                        color = colorApagado;
                     }
                     else
                     {
-                        imagenOjo.sprite = spriteSinVer;
-                        imagenOjo.color = colorApagado;
-                        imagenOjo.enabled = (spriteSinVer != null);
+                        sprite = spriteSinVer;
+                        color = colorApagado;
                     }
                     break;
             }
+
+            imagenOjo.sprite = sprite;
+            imagenOjo.color = color;
+            imagenOjo.enabled = sprite != null;
         }
         private void ActualizarVisibilidadGeneral()
         {

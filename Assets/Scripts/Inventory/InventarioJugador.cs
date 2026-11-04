@@ -265,26 +265,24 @@ namespace SoltaLaPala.Inventory
             {
                 col = objetoSuelo.AddComponent<BoxCollider>();
             }
-            else if (!prefabMundo && col is MeshCollider mc)
-            {
-                mc.convex = true;
-            }
             col.enabled = true;
 
-            if (!prefabMundo)
+            Rigidbody rb = objetoSuelo.GetComponent<Rigidbody>();
+            if (rb == null)
             {
-                Rigidbody rb = objetoSuelo.GetComponent<Rigidbody>();
-                if (rb == null)
-                {
-                    rb = objetoSuelo.AddComponent<Rigidbody>();
-                }
-                rb.isKinematic = false;
-                rb.detectCollisions = true;
-                if (itemASoltar.congelarRotacionAlSoltar)
-                    rb.constraints |= RigidbodyConstraints.FreezeRotation;
-                if (itemASoltar.prefabEnSuelo == null)
-                    rb.AddForce(direccionLanzamiento * 2.5f + Vector3.up * 1.2f, ForceMode.VelocityChange);
+                rb = objetoSuelo.AddComponent<Rigidbody>();
             }
+            rb.isKinematic = false;
+            rb.useGravity = true;
+            rb.detectCollisions = true;
+            if (col is MeshCollider meshCollider)
+            {
+                meshCollider.convex = true;
+            }
+            if (itemASoltar.congelarRotacionAlSoltar)
+                rb.constraints |= RigidbodyConstraints.FreezeRotation;
+            if (itemASoltar.prefabEnSuelo == null)
+                rb.AddForce(direccionLanzamiento * 2.5f + Vector3.up * 1.2f, ForceMode.VelocityChange);
 
             if (objetoSuelo.GetComponent<ObjetoSoltado>() == null)
             {

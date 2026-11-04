@@ -331,7 +331,8 @@ namespace SoltaLaPala.Minijuegos
                 // Malograr aumenta la sospecha
                 if (EstadoPartida.Instancia != null)
                 {
-                    EstadoPartida.Instancia.RegistrarSabotaje(0, 15);
+                    EstadoPartida.Instancia.RegistrarSabotaje(
+                        0, 15, "Archivos de la empresa borrados");
                 }
 
                 Debug.LogWarning("[MinijuegoBorrarDatos] Minijuego malogrado: se borro un archivo de la empresa. Sospecha aumentada.");

@@ -28,9 +28,9 @@ namespace SoltaLaPala.Menus
             }
 
             textoImpactoTotal = CrearTextoColumna("ImpactoTotal", raiz,
-                new Vector2(-445f, -300f), new Vector2(360f, 64f), 38);
+                new Vector2(-150f, -275f), new Vector2(100f, 64f), 38);
             textoSospechaTotal = CrearTextoColumna("SospechaTotal", raiz,
-                new Vector2(445f, -300f), new Vector2(360f, 64f), 38);
+                new Vector2(735f, -275f), new Vector2(120f, 64f), 38);
             textoDetalle = CrearTextoColumna("DetalleFinal", raiz,
                 new Vector2(0f, -160f), new Vector2(1050f, 38f), 18);
 
@@ -73,8 +73,12 @@ namespace SoltaLaPala.Menus
                 return;
             }
 
-            textoImpactoTotal.text = estado != null ? estado.Impacto.ToString() : "-";
-            textoSospechaTotal.text = "-";
+            textoImpactoTotal.text = estado != null
+                ? (estado.SospechaDeTareas * 6).ToString()
+                : "-";
+            textoSospechaTotal.text = estado != null
+                ? (estado.SospechaPorObjetos * 6).ToString()
+                : "-";
 
             List<RegistroTareaSaboteada> tareas = estado != null
                 ? new List<RegistroTareaSaboteada>(estado.TareasSaboteadas)
@@ -86,6 +90,8 @@ namespace SoltaLaPala.Menus
                 {
                     tarea = "Ninguna tarea malograda",
                     impacto = 0,
+                    sospechaTarea = 0,
+                    sospechaObjeto = 0,
                     testigo = estado != null && estado.HuboTestigo
                 });
             }
@@ -99,12 +105,14 @@ namespace SoltaLaPala.Menus
             float altoTabla = filasVisibles > 5 ? 420f : 480f;
             float altoFila = Mathf.Min(96f, altoTabla / filasVisibles);
             float primerCentroY = filasVisibles > 5 ? -570f : -565f;
-            int impactoRestante = 0;
+            int sospechaTareaRestante = 0;
+            int sospechaObjetoRestante = 0;
             bool huboTestigoEnRestantes = false;
 
             for (int i = filas.Count - 1; i < tareas.Count; i++)
             {
-                impactoRestante += tareas[i].impacto;
+                sospechaTareaRestante += tareas[i].sospechaTarea;
+                sospechaObjetoRestante += tareas[i].sospechaObjeto;
                 huboTestigoEnRestantes |= tareas[i].testigo;
             }
 
@@ -142,16 +150,17 @@ namespace SoltaLaPala.Menus
                 {
                     fila[0].text = $"Y {tareas.Count - filas.Count + 1} tareas mas";
                     fila[1].text = huboTestigoEnRestantes ? "Si" : "No";
-                    fila[2].text = impactoRestante.ToString();
+                    fila[2].text = (sospechaTareaRestante * 6).ToString();
+                    fila[3].text = (sospechaObjetoRestante * 6).ToString();
                 }
                 else
                 {
                     fila[0].text = registro.tarea;
                     fila[1].text = registro.testigo ? "Si" : "No";
-                    fila[2].text = registro.impacto.ToString();
+                    fila[2].text = (registro.sospechaTarea * 6).ToString();
+                    fila[3].text = (registro.sospechaObjeto * 6).ToString();
                 }
 
-                fila[3].text = "-";
                 foreach (Text texto in fila)
                 {
                     texto.fontSize = tamanoFuente;

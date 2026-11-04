@@ -15,6 +15,9 @@ namespace SoltaLaPala.Personajes
         private static readonly int ParamRitmo = Animator.StringToHash("RitmoCaminata");
         private static readonly int ParamSentado = Animator.StringToHash("Sentado");
         private static readonly int ParamAgarrar = Animator.StringToHash("Agarrar");
+        private static readonly int EstadoAgarrar = Animator.StringToHash("Agarrar");
+        private static readonly int EstadoNada = Animator.StringToHash("Nada");
+        private const string CapaAgarrar = "Agarrar";
 
         [Tooltip("Usa la animacion de sentado en vez del reposo.")]
         public bool estaSentado;
@@ -27,6 +30,9 @@ namespace SoltaLaPala.Personajes
         private Transform referencia;
         private Vector3 posicionAnterior;
         private float velocidadAnimada;
+        private int indiceCapaAgarrar = -1;
+        private bool esperandoFinDeAgarrar;
+        private bool animacionAgarrarIniciada;
 
         public AnimationClip Clip(string nombre)
         {
@@ -40,11 +46,23 @@ namespace SoltaLaPala.Personajes
             animator = GetComponent<Animator>();
             animator.applyRootMotion = false;
             animator.updateMode = AnimatorUpdateMode.UnscaledTime;
+            indiceCapaAgarrar = animator.GetLayerIndex(CapaAgarrar);
+            if (indiceCapaAgarrar >= 0)
+            {
+                animator.SetLayerWeight(indiceCapaAgarrar, 0f);
+            }
             ActualizarReferencia();
         }
 
         public void Agarrar()
         {
+            if (indiceCapaAgarrar >= 0)
+            {
+                animator.SetLayerWeight(indiceCapaAgarrar, 1f);
+                esperandoFinDeAgarrar = true;
+                animacionAgarrarIniciada = false;
+            }
+
             animator.SetTrigger(ParamAgarrar);
         }
 
@@ -56,6 +74,8 @@ namespace SoltaLaPala.Personajes
 
         private void Update()
         {
+            ActualizarCapaAgarrar();
+
             if (referencia == transform && transform.parent != null)
             {
                 ActualizarReferencia();
@@ -82,6 +102,31 @@ namespace SoltaLaPala.Personajes
             bool caminando = velocidadAnimada > 0.1f && velocidadCaminata > 0f;
             animator.SetFloat(ParamRitmo, caminando ? Mathf.Clamp(velocidadAnimada / velocidadCaminata, 0.5f, 1.5f) : 1f);
             animator.SetBool(ParamSentado, estaSentado);
+        }
+
+        private void ActualizarCapaAgarrar()
+        {
+            if (!esperandoFinDeAgarrar || indiceCapaAgarrar < 0)
+            {
+                return;
+            }
+
+            AnimatorStateInfo estado = animator.GetCurrentAnimatorStateInfo(indiceCapaAgarrar);
+            bool enTransicion = animator.IsInTransition(indiceCapaAgarrar);
+            if (estado.shortNameHash == EstadoAgarrar
+                || (enTransicion
+                    && animator.GetNextAnimatorStateInfo(indiceCapaAgarrar).shortNameHash == EstadoAgarrar))
+            {
+                animacionAgarrarIniciada = true;
+                return;
+            }
+
+            if (animacionAgarrarIniciada && !enTransicion && estado.shortNameHash == EstadoNada)
+            {
+                animator.SetLayerWeight(indiceCapaAgarrar, 0f);
+                esperandoFinDeAgarrar = false;
+                animacionAgarrarIniciada = false;
+            }
         }
     }
 }
