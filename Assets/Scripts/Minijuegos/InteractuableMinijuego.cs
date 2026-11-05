@@ -47,6 +47,14 @@ namespace SoltaLaPala.Minijuegos
         {
             if (estado == EstadoInteractuable.Desactivado) return string.Empty;
             if (TareaMicroondasCompleta()) return string.Empty;
+            if (tipoMinijuego == ModoMinijuegoInteractuable.Cafetera)
+            {
+                MinijuegoCafetera cafetera = ObtenerMinijuego() as MinijuegoCafetera;
+                if (cafetera == null || cafetera.Completado) return string.Empty;
+                if (!(InventarioJugador.DelJugador()?.TieneItem(cafetera.idTaza) ?? false)
+                    && !cafetera.TazaEnCafetera)
+                    return string.Empty;
+            }
             if (tipoMinijuego == ModoMinijuegoInteractuable.DestaparBaño
                 && !(InventarioJugador.DelJugador()?.TieneItem("Destapador") ?? false))
                 return "Necesitas el destapador";
@@ -58,6 +66,14 @@ namespace SoltaLaPala.Minijuegos
             // Si el switch está desactivado, no se puede jugar
             if (estado == EstadoInteractuable.Desactivado) return false;
             if (TareaMicroondasCompleta()) return false;
+            if (tipoMinijuego == ModoMinijuegoInteractuable.Cafetera)
+            {
+                MinijuegoCafetera cafetera = ObtenerMinijuego() as MinijuegoCafetera;
+                if (cafetera == null || cafetera.Completado
+                    || !(InventarioJugador.DelJugador()?.TieneItem(cafetera.idTaza) ?? false)
+                        && !cafetera.TazaEnCafetera)
+                    return false;
+            }
 
             // No interactuar si ya hay un minijuego activo
             if (GestorMinijuego.Instancia != null && GestorMinijuego.Instancia.MinijuegoActivo) return false;

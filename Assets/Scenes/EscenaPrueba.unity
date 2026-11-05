@@ -13921,6 +13921,8 @@ MonoBehaviour:
   panelRaiz: {fileID: 1544636726}
   idTaza: TazaCafe
   idSalero: Salero
+  idCafeListo: CafeListo
+  idCafeListoConSal: CafeListoConSal
   imagenFondo: {fileID: 1202482946}
   botonCafe: {fileID: 1994999750}
   botonSal: {fileID: 349936555}
@@ -13929,8 +13931,6 @@ MonoBehaviour:
   particulasCafe: {fileID: 700507252}
   particulasSal: {fileID: 1696477156}
   velocidadDeLlenado: 0.2
-  tiempoParticulas: 1.5
-  modoPrueba: 1
 --- !u!114 &1544636729
 MonoBehaviour:
   m_ObjectHideFlags: 0

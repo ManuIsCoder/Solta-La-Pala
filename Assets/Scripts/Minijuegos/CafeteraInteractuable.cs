@@ -20,12 +20,35 @@ namespace SoltaLaPala.Minijuegos
         public MinijuegoCafetera minijuego;
 
         public Transform Transform => transform;
-        public string ObtenerTextoInteraccion() => estado == EstadoSwitch.Activado ? "[E] Usar cafetera" : string.Empty;
-        public bool PuedeInteractuar() => estado == EstadoSwitch.Activado && GestorMinijuego.Instancia != null && !GestorMinijuego.Instancia.MinijuegoActivo;
+        public string ObtenerTextoInteraccion()
+        {
+            if (estado == EstadoSwitch.Desactivado || minijuego != null && minijuego.Completado)
+            {
+                return string.Empty;
+            }
+
+            InventarioJugador inventario = InventarioJugador.DelJugador();
+            return inventario == null || minijuego != null
+                && !inventario.TieneItem(minijuego.idTaza) && !minijuego.TazaEnCafetera
+                ? "Necesitas una taza"
+                : "[E] Usar cafetera";
+        }
+
+        public bool PuedeInteractuar()
+        {
+            InventarioJugador inventario = InventarioJugador.DelJugador();
+            return estado == EstadoSwitch.Activado
+                && minijuego != null
+                && !minijuego.Completado
+                && inventario != null
+                && (inventario.TieneItem(minijuego.idTaza) || minijuego.TazaEnCafetera)
+                && GestorMinijuego.Instancia != null
+                && !GestorMinijuego.Instancia.MinijuegoActivo;
+        }
 
         public void Interactuar(GameObject quienInteractua)
         {
-            if (estado == EstadoSwitch.Desactivado) return;
+            if (!PuedeInteractuar()) return;
 
             var inv = quienInteractua.GetComponent<InventarioJugador>();
             GestorMinijuego.Instancia?.AbrirMinijuego(minijuego, inv);

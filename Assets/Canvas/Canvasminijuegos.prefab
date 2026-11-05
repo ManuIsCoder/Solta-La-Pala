@@ -4406,6 +4406,8 @@ MonoBehaviour:
   panelRaiz: {fileID: 5872365078584095805}
   idTaza: TazaCafe
   idSalero: Salero
+  idCafeListo: CafeListo
+  idCafeListoConSal: CafeListoConSal
   imagenFondo: {fileID: 5953846683243064376}
   botonCafe: {fileID: 2296284962335985561}
   botonSal: {fileID: 4946189238864276428}
@@ -4414,8 +4416,6 @@ MonoBehaviour:
   particulasCafe: {fileID: 5297794716606190661}
   particulasSal: {fileID: 8991699451885034476}
   velocidadDeLlenado: 0.2
-  tiempoParticulas: 1.5
-  modoPrueba: 1
 --- !u!1 &5878693493881502398
 GameObject:
   m_ObjectHideFlags: 0

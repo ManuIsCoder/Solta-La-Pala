@@ -208,17 +208,31 @@ namespace SoltaLaPala.Inventory
             }
 
             Transform camara = Camera.main != null ? Camera.main.transform : transform;
-            Vector3 direccionLanzamiento = camara.forward;
+            Vector3 direccionLanzamiento = Vector3.ProjectOnPlane(transform.forward, Vector3.up).normalized;
+            if (direccionLanzamiento.sqrMagnitude < 0.001f)
+            {
+                direccionLanzamiento = Vector3.ProjectOnPlane(camara.forward, Vector3.up).normalized;
+            }
+            if (direccionLanzamiento.sqrMagnitude < 0.001f)
+            {
+                direccionLanzamiento = Vector3.forward;
+            }
+
             Vector3 posicionAparicion = transform.position + Vector3.up * 1.0f + direccionLanzamiento * 0.8f;
             bool prefabMundo = itemASoltar.prefabEnSuelo != null;
 
             GameObject objetoSuelo;
             if (prefabMundo)
             {
-                objetoSuelo = Instantiate(itemASoltar.prefabEnSuelo);
-                objetoSuelo.transform.position = posicionAparicion;
+                objetoSuelo = Instantiate(
+                    itemASoltar.prefabEnSuelo, posicionAparicion, Quaternion.identity);
 
                 Collider colliderPrefab = objetoSuelo.GetComponent<Collider>();
+                if (colliderPrefab == null)
+                {
+                    colliderPrefab = objetoSuelo.AddComponent<BoxCollider>();
+                }
+
                 if (colliderPrefab != null)
                 {
                     Vector3 origenRayo = posicionAparicion + Vector3.up * 2f;
@@ -226,17 +240,25 @@ namespace SoltaLaPala.Inventory
                         origenRayo, Vector3.down, 8f, ~0, QueryTriggerInteraction.Ignore);
 
                     float distanciaCercana = float.MaxValue;
+                    RaycastHit impactoMasCercano = default;
                     foreach (RaycastHit impacto in impactos)
                     {
                         if (impacto.transform == transform || impacto.transform.IsChildOf(transform)
+                            || impacto.transform == objetoSuelo.transform
                             || impacto.transform.IsChildOf(objetoSuelo.transform))
                             continue;
 
                         if (impacto.distance < distanciaCercana)
                         {
                             distanciaCercana = impacto.distance;
-                            objetoSuelo.transform.position = impacto.point + Vector3.up * colliderPrefab.bounds.extents.y;
+                            impactoMasCercano = impacto;
                         }
+                    }
+
+                    if (distanciaCercana < float.MaxValue)
+                    {
+                        objetoSuelo.transform.position += Vector3.up
+                            * (impactoMasCercano.point.y - colliderPrefab.bounds.min.y);
                     }
                 }
             }
@@ -275,14 +297,20 @@ namespace SoltaLaPala.Inventory
             rb.isKinematic = false;
             rb.useGravity = true;
             rb.detectCollisions = true;
-            if (col is MeshCollider meshCollider)
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+            rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
+            rb.interpolation = RigidbodyInterpolation.Interpolate;
+            rb.linearDamping = Mathf.Max(rb.linearDamping, 0.5f);
+            rb.angularDamping = Mathf.Max(rb.angularDamping, 1.5f);
+            foreach (MeshCollider meshCollider in objetoSuelo.GetComponentsInChildren<MeshCollider>(true))
             {
                 meshCollider.convex = true;
             }
             if (itemASoltar.congelarRotacionAlSoltar)
+            {
                 rb.constraints |= RigidbodyConstraints.FreezeRotation;
-            if (itemASoltar.prefabEnSuelo == null)
-                rb.AddForce(direccionLanzamiento * 2.5f + Vector3.up * 1.2f, ForceMode.VelocityChange);
+            }
 
             if (objetoSuelo.GetComponent<ObjetoSoltado>() == null)
             {

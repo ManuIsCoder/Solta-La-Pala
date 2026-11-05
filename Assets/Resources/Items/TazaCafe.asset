@@ -15,6 +15,9 @@ MonoBehaviour:
   id: TazaCafe
   nombre: Taza de Cafe
   icono: {fileID: 21300000, guid: 29f3857175924649adcbb5048dbe7aef, type: 3}
-  prefabEnMano: {fileID: 0}
-  descripcion: Una taza humeante de cafe caliente.
+  prefabEnMano: {fileID: 5166687577330089755, guid: 5122b3cb1f2bcc44dbe6118a61f25ef0, type: 3}
+  prefabEnSuelo: {fileID: 5166687577330089755, guid: 5122b3cb1f2bcc44dbe6118a61f25ef0, type: 3}
+  congelarRotacionAlSoltar: 0
+  noSePuedeSoltar: 0
+  descripcion: Una taza vacía para preparar café.
   esSospechoso: 0

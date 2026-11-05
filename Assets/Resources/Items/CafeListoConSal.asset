@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 51c54598b14011241bd1cac36228a298, type: 3}
+  m_Name: CafeListoConSal
+  m_EditorClassIdentifier: Assembly-CSharp::SoltaLaPala.Inventory.DatosItem
+  id: CafeListoConSal
+  nombre: "Caf\xE9 listo con sal"
+  icono: {fileID: 21300000, guid: f06489af338547d8863e7be6a08c16db, type: 3}
+  prefabEnMano: {fileID: 5178423614098392063, guid: cdb697083b7872f43ac43be71141c29a, type: 3}
+  prefabEnSuelo: {fileID: 5178423614098392063, guid: cdb697083b7872f43ac43be71141c29a, type: 3}
+  congelarRotacionAlSoltar: 0
+  noSePuedeSoltar: 0
+  descripcion: "Una taza de caf\xE9 arruinado con sal."
+  esSospechoso: 1

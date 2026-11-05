@@ -169,6 +169,7 @@ namespace SoltaLaPala.Menus
                 }
 
                 ConfigurarSospechaSabotajeNivelCuatro();
+                ConfigurarItemsCafeteraNivelCuatro();
             }
 
             MinijuegoBase[] minijuegos = UnityEngine.Object.FindObjectsByType<MinijuegoBase>(
@@ -206,6 +207,11 @@ namespace SoltaLaPala.Menus
                 if (escena == "nivel 3")
                 {
                     ConfigurarEntregaResultadoNivelTres(npc, tareas[i].id);
+                }
+                else if (escena == "nivel 4"
+                    && tareas[i].id == nameof(MinijuegoCafetera))
+                {
+                    ConfigurarEntregaCafeNivelCuatro(npc);
                 }
 
                 if (escena == "nivel 2" && npc.id == "NPCMujer1")
@@ -338,6 +344,92 @@ namespace SoltaLaPala.Menus
             }
         }
 
+        private static void ConfigurarItemsCafeteraNivelCuatro()
+        {
+            GameObject jugador = GameObject.FindGameObjectWithTag("Player");
+            DatosItem taza = Resources.Load<DatosItem>("Items/TazaCafe");
+            DatosItem salero = Resources.Load<DatosItem>("Items/Salero");
+            if (jugador == null || taza == null || salero == null)
+            {
+                Debug.LogError("[Nivel 4] No se pudieron colocar la taza y el salero para la cafetera.");
+                return;
+            }
+
+            CrearTazaRecogibleNivelCuatro(taza, jugador.transform);
+            CrearObjetoRecogible(salero, jugador.transform, 0.55f, "Nivel4");
+        }
+
+        private static void CrearTazaRecogibleNivelCuatro(DatosItem taza, Transform jugador)
+        {
+            string nombreObjeto = $"RecogibleNivel4_{taza.Id}";
+            if (GameObject.Find(nombreObjeto) != null)
+            {
+                return;
+            }
+
+            GameObject prefab = taza.prefabEnSuelo != null ? taza.prefabEnSuelo : taza.prefabEnMano;
+            if (prefab == null || prefab.GetComponent<ObjetoRecogible>() == null)
+            {
+                CrearObjetoRecogible(taza, jugador, -0.55f, "Nivel4");
+                return;
+            }
+
+            Vector3 posicion = jugador.position + jugador.forward * 1.5f
+                - jugador.right * 0.55f + Vector3.up * 2f;
+            GameObject objeto = UnityEngine.Object.Instantiate(
+                prefab, posicion, Quaternion.identity);
+            objeto.name = nombreObjeto;
+
+            ObjetoRecogible recogible = objeto.GetComponent<ObjetoRecogible>();
+            recogible.item = taza;
+
+            IdentificadorObjeto identificador = objeto.GetComponent<IdentificadorObjeto>();
+            if (identificador == null)
+            {
+                identificador = objeto.AddComponent<IdentificadorObjeto>();
+            }
+            identificador.AsignarId(nombreObjeto);
+
+            ResaltadoInteractuable resaltado = objeto.GetComponent<ResaltadoInteractuable>();
+            if (resaltado == null)
+            {
+                resaltado = objeto.AddComponent<ResaltadoInteractuable>();
+            }
+            resaltado.renderers = objeto.GetComponentsInChildren<Renderer>(true);
+
+            Collider collider = objeto.GetComponent<Collider>();
+            if (collider == null)
+            {
+                collider = objeto.AddComponent<BoxCollider>();
+            }
+
+            RaycastHit[] impactos = Physics.RaycastAll(
+                posicion, Vector3.down, 10f, ~0, QueryTriggerInteraction.Ignore);
+            float distanciaCercana = float.MaxValue;
+            RaycastHit impactoMasCercano = default;
+            foreach (RaycastHit impacto in impactos)
+            {
+                if (impacto.transform == jugador || impacto.transform.IsChildOf(jugador)
+                    || impacto.transform == objeto.transform
+                    || impacto.transform.IsChildOf(objeto.transform))
+                {
+                    continue;
+                }
+
+                if (impacto.distance < distanciaCercana)
+                {
+                    distanciaCercana = impacto.distance;
+                    impactoMasCercano = impacto;
+                }
+            }
+
+            if (distanciaCercana < float.MaxValue)
+            {
+                objeto.transform.position += Vector3.up
+                    * (impactoMasCercano.point.y - collider.bounds.min.y);
+            }
+        }
+
         private static void ConfigurarRegaloSoreteNivelCuatro(List<DialogoNPC> npcDisponibles)
         {
             DialogoNPC npc = npcDisponibles.Find(disponible => disponible.id == "NPCHombre4");
@@ -361,6 +453,30 @@ namespace SoltaLaPala.Menus
             mision.textoAccionEntrega = "Regalar";
             npc.EstablecerTipoDialogoInicial(TipoDialogo.Mision);
             npc.UsarDialogoTareaEnMision();
+        }
+
+        private static void ConfigurarEntregaCafeNivelCuatro(DialogoNPC npc)
+        {
+            DatosItem cafeListo = Resources.Load<DatosItem>("Items/CafeListo");
+            DatosItem cafeListoConSal = Resources.Load<DatosItem>("Items/CafeListoConSal");
+            if (npc == null || cafeListo == null || cafeListoConSal == null)
+            {
+                Debug.LogError("[Nivel 4] No se pudieron cargar los items de cafe listo.");
+                return;
+            }
+
+            ConfigurarMision(npc, cafeListo, "Gracias por traerme el café.");
+            MisionEntrega mision = npc.GetComponent<MisionEntrega>();
+            mision.itemsSaboteados = new[] { cafeListoConSal };
+            mision.respuestaSaboteada = "¡Este café tiene sal! ¿Qué le pusiste?";
+            mision.impactoPorSabotaje = 0;
+
+            MinijuegoCafetera cafetera =
+                UnityEngine.Object.FindAnyObjectByType<MinijuegoCafetera>(FindObjectsInactive.Include);
+            mision.sospechaPorSabotaje = cafetera != null
+                ? cafetera.sospechaSabotaje
+                : Mathf.CeilToInt(
+                    (EstadoPartida.Instancia != null ? EstadoPartida.Instancia.SospechaMaxima : 100) * 0.2f);
         }
 
         private static void ConfigurarEntregaResultadoNivelTres(DialogoNPC npc, string idTarea)
@@ -550,7 +666,7 @@ namespace SoltaLaPala.Menus
 
             if (item.prefabEnMano == null)
             {
-                Debug.LogError($"[Nivel 1] El item '{item.nombre}' no tiene prefab visual asignado.");
+                Debug.LogError($"[Nivel] El item '{item.nombre}' no tiene prefab visual asignado.");
                 return;
             }
 
